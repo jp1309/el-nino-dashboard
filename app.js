@@ -230,6 +230,14 @@ function signed(value) {
     .format(value).replace("-", "−");
 }
 
+function temperatureAxisTicks() {
+  return {
+    stepSize: 0.5,
+    autoSkip: false,
+    callback: (value) => `${value > 0 ? "+" : ""}${value}°`,
+  };
+}
+
 function decimal(value, digits = 1) {
   return new Intl.NumberFormat(locale(), { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(value);
 }
@@ -390,7 +398,7 @@ function renderWeeklyChart() {
           suggestedMin: -2,
           suggestedMax: 2,
           border: { display: false },
-          ticks: { callback: (value) => `${value > 0 ? "+" : ""}${value}°` },
+          ticks: temperatureAxisTicks(),
           title: { display: true, text: t("differenceAxis"), color: "#667985", font: { size: 11, weight: "500" } },
         },
       },
@@ -479,7 +487,7 @@ function renderComparisonChart() {
           suggestedMax: 3,
           border: { display: false },
           grid: { color: (context) => context.tick.value === 0 ? "rgba(16, 43, 58, .34)" : "rgba(16, 43, 58, .09)" },
-          ticks: { callback: (value) => `${value > 0 ? "+" : ""}${value}°` },
+          ticks: temperatureAxisTicks(),
           title: { display: true, text: t("differenceAxis"), color: "#667985", font: { size: 11, weight: "500" } },
         },
       },
@@ -548,7 +556,7 @@ function renderRoniChart() {
           suggestedMin: -2.5,
           suggestedMax: 2.5,
           border: { display: false },
-          ticks: { callback: (value) => `${value > 0 ? "+" : ""}${value}°` },
+          ticks: temperatureAxisTicks(),
         },
       },
     },

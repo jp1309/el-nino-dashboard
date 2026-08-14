@@ -31,6 +31,11 @@ class DashboardStructureTests(unittest.TestCase):
         self.assertIn("state.roniStartYear ?? 1990", self.app)
         self.assertIn('populateYearSelect("#roniStartYear", roniYears', self.app)
 
+    def test_all_charts_use_half_degree_y_axis_steps(self):
+        self.assertIn("stepSize: 0.5", self.app)
+        self.assertIn("autoSkip: false", self.app)
+        self.assertEqual(self.app.count("ticks: temperatureAxisTicks()"), 3)
+
 
 if __name__ == "__main__":
     unittest.main()
