@@ -22,6 +22,10 @@ Superpone los valores de enero a diciembre para distintos años. Los años anter
 
 Presenta un promedio móvil de tres meses para distinguir cambios persistentes de fluctuaciones breves. El gráfico abre desde 1990, aunque el selector permite consultar la serie completa disponible desde 1950.
 
+### Mapa de las zonas Niño
+
+Ubica las cuatro áreas de monitoreo sobre un esquema del Pacífico tropical, muestra sus coordenadas y hace visibles los solapamientos entre Niño 3, Niño 3.4 y Niño 4. También explica qué aporta cada zona al seguimiento de la señal oceánica.
+
 ## Zonas de monitoreo
 
 | Zona | Ubicación | Para qué resulta útil |

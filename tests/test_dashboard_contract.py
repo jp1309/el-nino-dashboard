@@ -49,6 +49,15 @@ class DashboardStructureTests(unittest.TestCase):
         self.assertIn('"rgba(211, 60, 47, .16)"', self.app)
         self.assertIn('"rgba(15, 91, 143, .16)"', self.app)
 
+    def test_region_map_follows_the_third_chart(self):
+        history = self.html.index('class="panel history-panel"')
+        region_map = self.html.index('class="panel map-panel"')
+        method = self.html.index('class="method"')
+        self.assertLess(history, region_map)
+        self.assertLess(region_map, method)
+        self.assertEqual(self.html.count('class="map-zone map-zone-'), 4)
+        self.assertIn('data-i18n-aria-label="mapAria"', self.html)
+
 
 if __name__ == "__main__":
     unittest.main()

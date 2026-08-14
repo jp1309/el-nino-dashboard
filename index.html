@@ -136,6 +136,50 @@
         </div>
       </section>
 
+      <section class="panel map-panel" aria-labelledby="map-title">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker" data-i18n="mapKicker">Geografía del monitoreo</p>
+            <h2 id="map-title" data-i18n="mapTitle">¿Dónde están las zonas Niño?</h2>
+            <p data-i18n="mapDescription">NOAA divide el Pacífico tropical en cuatro áreas de referencia. Los rectángulos se superponen porque cada zona responde a una pregunta distinta sobre la extensión del calentamiento o enfriamiento.</p>
+          </div>
+        </div>
+
+        <div class="map-scroll" role="img" tabindex="0" aria-label="Mapa esquemático del Pacífico tropical con las zonas Niño 1+2, Niño 3, Niño 3.4 y Niño 4" data-i18n-aria-label="mapAria">
+          <div class="pacific-map" aria-hidden="true">
+            <div class="map-grid"></div>
+            <div class="map-equator"><span data-i18n="mapEquator">Ecuador</span></div>
+            <span class="map-place map-place-west" data-i18n="mapWest">Pacífico occidental</span>
+            <span class="map-place map-place-east" data-i18n="mapEast">Costa de Sudamérica</span>
+            <div class="map-land map-land-west"></div>
+            <div class="map-land map-land-east"></div>
+
+            <span class="map-longitude" style="--x: 7.69%">160°E</span>
+            <span class="map-longitude" style="--x: 30.77%">170°W</span>
+            <span class="map-longitude" style="--x: 46.15%">150°W</span>
+            <span class="map-longitude" style="--x: 69.23%">120°W</span>
+            <span class="map-longitude" style="--x: 92.31%">90°W</span>
+            <span class="map-longitude map-longitude-end" style="--x: 100%">80°W</span>
+            <span class="map-latitude" style="--y: 33.33%">5°N</span>
+            <span class="map-latitude" style="--y: 66.67%">5°S</span>
+            <span class="map-latitude" style="--y: 83.33%">10°S</span>
+
+            <div class="map-zone map-zone-nino4"><strong>Niño 4</strong></div>
+            <div class="map-zone map-zone-nino34"><strong>Niño 3.4</strong></div>
+            <div class="map-zone map-zone-nino3"><strong>Niño 3</strong></div>
+            <div class="map-zone map-zone-nino12"><strong>1+2</strong></div>
+          </div>
+        </div>
+
+        <div class="map-zone-grid">
+          <article style="--region-color: #f05a47"><h3>Niño 1+2</h3><span>0–10°S · 90–80°W</span><p data-i18n="mapNino12Body">Frente a Ecuador y Perú. Detecta con rapidez los cambios costeros del Pacífico oriental.</p></article>
+          <article style="--region-color: #e59b28"><h3>Niño 3</h3><span>5°N–5°S · 150–90°W</span><p data-i18n="mapNino3Body">Cubre el Pacífico oriental y permite observar cuánto se extiende la señal hacia el oeste.</p></article>
+          <article style="--region-color: #168fbd"><h3>Niño 3.4</h3><span>5°N–5°S · 170–120°W</span><p data-i18n="mapNino34Body">Cruza el Pacífico central y oriental. Es la principal referencia oceánica para seguir ENSO.</p></article>
+          <article style="--region-color: #6656c8"><h3>Niño 4</h3><span>5°N–5°S · 160°E–150°W</span><p data-i18n="mapNino4Body">Cubre el Pacífico central-occidental y muestra si la señal se concentra más hacia el oeste.</p></article>
+        </div>
+        <p class="map-note" data-i18n="mapNote">Los límites representan las coordenadas utilizadas por NOAA; la forma de las costas es esquemática.</p>
+      </section>
+
       <section class="method" aria-labelledby="method-title">
         <div class="method-intro">
           <p class="section-kicker" data-i18n="methodKicker">Cómo interpretar los datos</p>
