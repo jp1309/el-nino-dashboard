@@ -27,6 +27,10 @@ class DashboardStructureTests(unittest.TestCase):
         self.assertGreaterEqual(history.count("Niño 3.4"), 4)
         self.assertIn("Niño 3.4 region · three-month average", self.app)
 
+    def test_long_term_chart_defaults_to_1990(self):
+        self.assertIn("state.roniStartYear ?? 1990", self.app)
+        self.assertIn('populateYearSelect("#roniStartYear", roniYears', self.app)
+
 
 if __name__ == "__main__":
     unittest.main()
