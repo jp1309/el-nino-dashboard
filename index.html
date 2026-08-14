@@ -28,22 +28,6 @@
         </div>
       </nav>
 
-      <div class="hero shell">
-        <div class="hero-copy">
-          <p class="eyebrow" data-i18n="heroEyebrow">Datos oficiales de NOAA · actualización semanal</p>
-          <h1 data-i18n-html="heroTitle">Temperatura del mar<br><span>y El Niño.</span></h1>
-          <p class="lede" data-i18n="heroLede">Observa si la superficie del Pacífico tropical está más cálida o fría de lo normal y si ese cambio persiste durante varios meses.</p>
-        </div>
-        <div class="hero-reading" aria-labelledby="roni-title">
-          <div class="reading-topline">
-            <span id="roni-title" data-i18n="threeMonthAverage">Promedio de los últimos 3 meses</span>
-            <span class="live-dot"><i></i><span id="freshnessLabel" data-i18n="loading">Cargando</span></span>
-          </div>
-          <div class="reading-value"><span id="roniValue">—</span><small>°C</small></div>
-          <p class="reading-status" id="roniStatus" data-i18n="loadingOfficialSeries">Consultando la serie oficial…</p>
-          <p class="reading-meta" id="roniMeta" data-i18n="adjustedCentralTemperature">Temperatura ajustada del Pacífico central</p>
-        </div>
-      </div>
     </header>
 
     <main id="contenido" class="shell main-content">
@@ -54,7 +38,10 @@
             <h2 id="pulse-title" data-i18n="weeklyTitle">¿Qué zonas están más cálidas de lo normal?</h2>
             <p id="weeklySummary" data-i18n="weeklyInitial">Cada valor indica cuántos grados está una zona por encima o por debajo del promedio tropical.</p>
           </div>
-          <button class="download-button" id="downloadCsv" type="button" data-i18n="downloadCsv">Descargar CSV</button>
+          <div class="weekly-heading-actions">
+            <p class="updated-label" id="weeklyUpdated">Datos actualizados al —</p>
+            <button class="download-button" id="downloadCsv" type="button" data-i18n="downloadCsv">Descargar CSV</button>
+          </div>
         </div>
 
         <div class="controls" aria-label="Controles del gráfico semanal" data-i18n-aria-label="weeklyControlsAria">

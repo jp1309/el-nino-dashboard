@@ -66,11 +66,6 @@ const TRANSLATIONS = {
     skipLink: "Saltar al contenido", navLabel: "Navegación principal", homeLabel: "Inicio",
     brand: "Temperatura del Pacífico tropical", officialSources: "Fuentes oficiales NOAA",
     languageSwitch: "English", languageAria: "Cambiar a inglés",
-    heroEyebrow: "Datos oficiales de NOAA · actualización semanal",
-    heroTitle: "Temperatura del mar<br><span>y El Niño.</span>",
-    heroLede: "Observa si la superficie del Pacífico tropical está más cálida o fría de lo normal y si ese cambio persiste durante varios meses.",
-    threeMonthAverage: "Promedio de los últimos 3 meses", loading: "Cargando",
-    loadingOfficialSeries: "Consultando la serie oficial…", adjustedCentralTemperature: "Temperatura ajustada del Pacífico central",
     weeklyKicker: "Cambio semanal de la temperatura", weeklyTitle: "¿Qué zonas están más cálidas de lo normal?",
     weeklyInitial: "Cada valor indica cuántos grados está una zona por encima o por debajo del promedio tropical.",
     downloadCsv: "Descargar CSV", weeklyControlsAria: "Controles del gráfico semanal", regionsAria: "Regiones Niño",
@@ -98,11 +93,7 @@ const TRANSLATIONS = {
     footerSource: "<strong>Monitoreo de temperatura superficial del mar</strong> · Visualización independiente con datos públicos de NOAA/CPC.",
     footerDisclaimer: "El tablero describe la señal oceánica; no sustituye los avisos oficiales ni constituye un pronóstico.",
     loadError: "No fue posible cargar los datos. Intenta nuevamente en unos minutos.",
-    warmPersistent: "Calentamiento persistente compatible con El Niño", warmDeveloping: "Calentamiento del océano en desarrollo",
-    coldPersistent: "Enfriamiento persistente compatible con La Niña", coldDeveloping: "Enfriamiento del océano en desarrollo",
-    neutralTemperature: "Temperatura cercana a lo normal", persistenceNone: "sin periodos consecutivos fuera de lo normal",
-    persistenceOne: "1 periodo consecutivo fuera de lo normal", persistenceMany: "{count} periodos consecutivos fuera de lo normal",
-    periodMeta: "{season} de {year} · {persistence}", recentData: "Datos recientes", delayedSource: "Fuente con rezago",
+    lastUpdated: "Datos actualizados al {date}",
     weeklySummary: "{count} semanas desde {year}. Los valores positivos indican más calor de lo normal; los negativos, más frío.",
     differenceAxis: "Diferencia frente a lo normal (°C)", monthAxis: "Mes",
     comparisonSummary: "{region}: {count} líneas, una por año desde {year}. Los años anteriores aparecen en gris y {currentYear} en rojo.",
@@ -120,11 +111,6 @@ const TRANSLATIONS = {
     skipLink: "Skip to content", navLabel: "Main navigation", homeLabel: "Home",
     brand: "Tropical Pacific temperature", officialSources: "Official NOAA sources",
     languageSwitch: "Español", languageAria: "Switch to Spanish",
-    heroEyebrow: "Official NOAA data · updated weekly",
-    heroTitle: "Sea surface temperature<br><span>and El Niño.</span>",
-    heroLede: "See whether the tropical Pacific surface is warmer or cooler than normal and whether that change persists for several months.",
-    threeMonthAverage: "Average over the latest 3 months", loading: "Loading",
-    loadingOfficialSeries: "Loading the official series…", adjustedCentralTemperature: "Adjusted central Pacific temperature",
     weeklyKicker: "Weekly temperature change", weeklyTitle: "Which regions are warmer than normal?",
     weeklyInitial: "Each value shows how many degrees a region is above or below the tropical average.",
     downloadCsv: "Download CSV", weeklyControlsAria: "Weekly chart controls", regionsAria: "Niño regions",
@@ -152,11 +138,7 @@ const TRANSLATIONS = {
     footerSource: "<strong>Sea surface temperature monitoring</strong> · Independent visualization using public NOAA/CPC data.",
     footerDisclaimer: "The dashboard describes the ocean signal; it does not replace official advisories and is not a forecast.",
     loadError: "The data could not be loaded. Please try again in a few minutes.",
-    warmPersistent: "Persistent warming consistent with El Niño", warmDeveloping: "Ocean warming is developing",
-    coldPersistent: "Persistent cooling consistent with La Niña", coldDeveloping: "Ocean cooling is developing",
-    neutralTemperature: "Temperature close to normal", persistenceNone: "no consecutive periods outside the normal range",
-    persistenceOne: "1 consecutive period outside the normal range", persistenceMany: "{count} consecutive periods outside the normal range",
-    periodMeta: "{season} {year} · {persistence}", recentData: "Recent data", delayedSource: "Source is delayed",
+    lastUpdated: "Data updated through {date}",
     weeklySummary: "{count} weeks since {year}. Positive values mean warmer than normal; negative values mean cooler.",
     differenceAxis: "Difference from normal (°C)", monthAxis: "Month",
     comparisonSummary: "{region}: {count} lines, one per year since {year}. Previous years are gray and {currentYear} is red.",
@@ -206,6 +188,11 @@ function parseIsoDate(value) {
 function formatDate(value) {
   return new Intl.DateTimeFormat(locale(), { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })
     .format(parseIsoDate(value)).replace(".", "");
+}
+
+function formatLongDate(value) {
+  return new Intl.DateTimeFormat(locale(), { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })
+    .format(parseIsoDate(value));
 }
 
 function loadStateFromUrl() {
@@ -275,6 +262,7 @@ function applyLanguage() {
     option.textContent = regionCopy(option.value).control;
   });
   if (!state.data) {
+    document.querySelector("#weeklyUpdated").textContent = t("lastUpdated", { date: "—" });
     document.querySelector("#weeklyAsOf").textContent = t("weekOf", { date: "—" });
     document.querySelector("#comparisonCurrentYear").textContent = t("currentYearPlaceholder");
     if (!document.querySelector("#errorBanner").hidden) {
@@ -283,38 +271,6 @@ function applyLanguage() {
       document.querySelector("#roniLoading").textContent = t("historyError");
     }
   }
-}
-
-function classCopy(classification, count) {
-  if (classification === "warm") {
-    return t(count >= 5 ? "warmPersistent" : "warmDeveloping");
-  }
-  if (classification === "cold") {
-    return t(count >= 5 ? "coldPersistent" : "coldDeveloping");
-  }
-  return t("neutralTemperature");
-}
-
-function renderHeadline() {
-  const { current, meta } = state.data;
-  const roni = current.roni;
-  document.querySelector("#roniValue").textContent = signed(roni.value);
-  document.querySelector("#roniStatus").textContent = classCopy(roni.classification, roni.consecutive_seasons);
-  const persistence = roni.consecutive_seasons === 0
-    ? t("persistenceNone")
-    : roni.consecutive_seasons === 1
-      ? t("persistenceOne")
-      : t("persistenceMany", { count: roni.consecutive_seasons });
-  document.querySelector("#roniMeta").textContent = t("periodMeta", {
-    season: SEASON_LABELS[state.language][roni.season],
-    year: roni.year,
-    persistence,
-  });
-
-  const ageDays = Math.floor((Date.now() - parseIsoDate(meta.main_observation_date)) / 86_400_000);
-  const freshness = document.querySelector("#freshnessLabel");
-  freshness.textContent = t(ageDays <= 21 ? "recentData" : "delayedSource");
-  freshness.parentElement.classList.toggle("stale", ageDays > 21);
 }
 
 function getWeeklyWindow() {
@@ -444,6 +400,9 @@ function renderWeeklyChart() {
   if (state.weeklyChart) state.weeklyChart.destroy();
   state.weeklyChart = new Chart(document.querySelector("#weeklyChart"), config);
   document.querySelector("#weeklyLoading").classList.add("hidden");
+  document.querySelector("#weeklyUpdated").textContent = t("lastUpdated", {
+    date: formatLongDate(state.data.meta.main_observation_date),
+  });
   document.querySelector("#weeklySummary").textContent = t("weeklySummary", {
     count: rows.length.toLocaleString(locale()),
     year: state.weeklyStartYear,
@@ -658,7 +617,6 @@ function bindControls() {
     applyLanguage();
     updateControls();
     if (state.data) {
-      renderHeadline();
       renderWeeklyChart();
       renderComparisonChart();
       renderRoniChart();
@@ -729,7 +687,6 @@ async function init() {
     chartDefaults();
     initializeYearControls();
     updateControls();
-    renderHeadline();
     renderWeeklyChart();
     renderComparisonChart();
     renderRoniChart();
