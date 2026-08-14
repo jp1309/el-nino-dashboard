@@ -22,6 +22,11 @@ class DashboardStructureTests(unittest.TestCase):
         self.assertNotIn("renderHeadline", self.app)
         self.assertNotIn(".hero", self.styles)
 
+    def test_long_term_chart_identifies_nino_34(self):
+        history = self.html.split('class="panel history-panel"', 1)[1].split('</section>', 1)[0]
+        self.assertGreaterEqual(history.count("Niño 3.4"), 4)
+        self.assertIn("Niño 3.4 region · three-month average", self.app)
+
 
 if __name__ == "__main__":
     unittest.main()
