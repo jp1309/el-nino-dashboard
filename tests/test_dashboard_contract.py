@@ -36,6 +36,15 @@ class DashboardStructureTests(unittest.TestCase):
         self.assertIn("autoSkip: false", self.app)
         self.assertEqual(self.app.count("ticks: temperatureAxisTicks()"), 3)
 
+    def test_all_charts_share_the_same_five_temperature_bands(self):
+        self.assertEqual(self.app.count("plugins: [zonePlugin]"), 3)
+        self.assertEqual(self.app.count("ensoZones: { enabled: true }"), 3)
+        self.assertIn('pixelForValue(1.5)', self.app)
+        self.assertIn('pixelForValue(-1.5)', self.app)
+        self.assertIn('"rgba(255, 255, 255, 1)"', self.app)
+        self.assertIn('"rgba(211, 60, 47, .16)"', self.app)
+        self.assertIn('"rgba(15, 91, 143, .16)"', self.app)
+
 
 if __name__ == "__main__":
     unittest.main()

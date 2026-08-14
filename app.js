@@ -319,13 +319,27 @@ const zonePlugin = {
   beforeDraw(chart, _args, options) {
     if (!options?.enabled || !chart.chartArea) return;
     const { ctx, chartArea, scales } = chart;
-    const yWarm = scales.y.getPixelForValue(0.5);
-    const yCold = scales.y.getPixelForValue(-0.5);
+    const width = chartArea.right - chartArea.left;
+    const pixelForValue = (value) => Math.min(
+      chartArea.bottom,
+      Math.max(chartArea.top, scales.y.getPixelForValue(value)),
+    );
+    const yStrongWarm = pixelForValue(1.5);
+    const yWarm = pixelForValue(0.5);
+    const yCold = pixelForValue(-0.5);
+    const yStrongCold = pixelForValue(-1.5);
+    const bands = [
+      [chartArea.top, yStrongWarm, "rgba(211, 60, 47, .16)"],
+      [yStrongWarm, yWarm, "rgba(240, 90, 71, .08)"],
+      [yWarm, yCold, "rgba(255, 255, 255, 1)"],
+      [yCold, yStrongCold, "rgba(22, 143, 189, .08)"],
+      [yStrongCold, chartArea.bottom, "rgba(15, 91, 143, .16)"],
+    ];
     ctx.save();
-    ctx.fillStyle = "rgba(240, 90, 71, .055)";
-    ctx.fillRect(chartArea.left, chartArea.top, chartArea.right - chartArea.left, yWarm - chartArea.top);
-    ctx.fillStyle = "rgba(22, 143, 189, .055)";
-    ctx.fillRect(chartArea.left, yCold, chartArea.right - chartArea.left, chartArea.bottom - yCold);
+    bands.forEach(([top, bottom, color]) => {
+      ctx.fillStyle = color;
+      ctx.fillRect(chartArea.left, top, width, bottom - top);
+    });
     ctx.setLineDash([5, 5]);
     ctx.strokeStyle = "rgba(75, 96, 107, .45)";
     [yWarm, yCold].forEach((y) => {
@@ -457,6 +471,7 @@ function renderComparisonChart() {
   const config = {
     type: "line",
     data: { labels: monthLabels, datasets },
+    plugins: [zonePlugin],
     options: {
       responsive: true,
       maintainAspectRatio: false,
@@ -464,6 +479,7 @@ function renderComparisonChart() {
       interaction: { mode: "nearest", intersect: false, axis: "xy" },
       plugins: {
         legend: { display: false },
+        ensoZones: { enabled: true },
         tooltip: {
           backgroundColor: "#071f33",
           padding: 12,
