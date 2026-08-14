@@ -274,13 +274,14 @@ function renderComparisonChart() {
       responsive: true,
       maintainAspectRatio: false,
       animation: { duration: 350 },
-      interaction: { mode: "index", intersect: false },
+      interaction: { mode: "nearest", intersect: false, axis: "xy" },
       plugins: {
         legend: { display: false },
         tooltip: {
           backgroundColor: "#071f33",
           padding: 12,
-          itemSort: (a, b) => Number(b.dataset.label) - Number(a.dataset.label),
+          mode: "nearest",
+          intersect: false,
           callbacks: {
             title: (items) => MONTH_LABELS[items[0].dataIndex],
             label: (item) => ` ${item.dataset.label}: ${signed(item.raw)} °C`,
