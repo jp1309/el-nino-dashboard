@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#071f33">
+    <meta name="description" content="Dashboard público para seguir semanalmente la temperatura del Pacífico tropical y la señal oceánica de El Niño con datos oficiales de NOAA.">
+    <meta property="og:title" content="El Niño, semana a semana">
+    <meta property="og:description" content="El pulso térmico del Pacífico, desde la costa de Ecuador hasta Niño 3.4.">
+    <meta property="og:type" content="website">
+    <title>El Niño, semana a semana</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+    <header class="masthead">
+      <nav class="nav shell" aria-label="Navegación principal">
+        <a class="brand" href="./" aria-label="Inicio">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span>Pacífico en pulso</span>
+        </a>
+        <a class="source-link" href="https://www.cpc.ncep.noaa.gov/data/indices/" target="_blank" rel="noreferrer">Datos NOAA <span aria-hidden="true">↗</span></a>
+      </nav>
+
+      <div class="hero shell">
+        <div class="hero-copy">
+          <p class="eyebrow">Monitoreo oceánico semanal</p>
+          <h1>El Niño,<br><span>semana a semana.</span></h1>
+          <p class="lede">Sigue el calor que recorre el Pacífico tropical y distingue la señal costera de Ecuador de la señal central que define ENSO.</p>
+        </div>
+        <div class="hero-reading" aria-labelledby="roni-title">
+          <div class="reading-topline">
+            <span id="roni-title">Último RONI</span>
+            <span class="live-dot"><i></i><span id="freshnessLabel">Cargando</span></span>
+          </div>
+          <div class="reading-value"><span id="roniValue">—</span><small>°C</small></div>
+          <p class="reading-status" id="roniStatus">Consultando la serie oficial…</p>
+          <p class="reading-meta" id="roniMeta">Promedio móvil de tres meses en Niño 3.4</p>
+        </div>
+      </div>
+    </header>
+
+    <main id="contenido" class="shell main-content">
+      <section class="panel pulse-panel" aria-labelledby="pulse-title">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">El pulso rápido · OISST</p>
+            <h2 id="pulse-title">¿Dónde se está acumulando el calor?</h2>
+            <p id="weeklySummary">Anomalía relativa semanal frente al promedio tropical.</p>
+          </div>
+          <button class="download-button" id="downloadCsv" type="button">Descargar CSV</button>
+        </div>
+
+        <div class="controls" aria-label="Controles del gráfico semanal">
+          <div class="control-group" aria-label="Regiones Niño">
+            <span class="control-label">Regiones</span>
+            <div class="segmented regions" id="regionControls">
+              <button type="button" data-region="nino12" aria-pressed="true"><i></i>Niño 1+2</button>
+              <button type="button" data-region="nino3" aria-pressed="false"><i></i>Niño 3</button>
+              <button type="button" data-region="nino34" aria-pressed="true"><i></i>Niño 3.4</button>
+              <button type="button" data-region="nino4" aria-pressed="false"><i></i>Niño 4</button>
+            </div>
+          </div>
+          <div class="control-group range-group" aria-label="Rango temporal">
+            <span class="control-label">Periodo</span>
+            <div class="segmented" id="rangeControls">
+              <button type="button" data-range="52" aria-pressed="false">1 año</button>
+              <button type="button" data-range="104" aria-pressed="true">2 años</button>
+              <button type="button" data-range="260" aria-pressed="false">5 años</button>
+              <button type="button" data-range="all" aria-pressed="false">Todo</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-wrap chart-large">
+          <canvas id="weeklyChart" role="img" aria-label="Gráfico de anomalías relativas semanales por región Niño"></canvas>
+          <div class="chart-loading" id="weeklyLoading">Preparando la serie semanal…</div>
+        </div>
+        <div class="threshold-note"><span></span>Las líneas punteadas marcan ±0,5 °C como referencia visual; una semana aislada no confirma un episodio.</div>
+      </section>
+
+      <section class="route-section" aria-labelledby="route-title">
+        <div class="section-heading compact">
+          <div>
+            <p class="section-kicker">La ruta del calor</p>
+            <h2 id="route-title">De la costa al Pacífico central</h2>
+          </div>
+          <p class="as-of" id="weeklyAsOf">Semana —</p>
+        </div>
+        <div class="region-grid" id="regionGrid" aria-live="polite"></div>
+      </section>
+
+      <section class="panel history-panel" aria-labelledby="history-title">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">La señal persistente · ERSST</p>
+            <h2 id="history-title">RONI: contexto desde 1950</h2>
+            <p>El promedio móvil de Niño 3.4 frente al conjunto de los trópicos. NOAA exige persistencia y acoplamiento atmosférico para declarar un episodio.</p>
+          </div>
+          <div class="legend-zones" aria-label="Leyenda">
+            <span><i class="warm"></i>El Niño</span>
+            <span><i class="neutral"></i>Neutral</span>
+            <span><i class="cold"></i>La Niña</span>
+          </div>
+        </div>
+        <div class="chart-wrap chart-history">
+          <canvas id="roniChart" role="img" aria-label="Serie histórica del índice RONI desde 1950"></canvas>
+          <div class="chart-loading" id="roniLoading">Preparando la historia RONI…</div>
+        </div>
+      </section>
+
+      <section class="method" aria-labelledby="method-title">
+        <div class="method-intro">
+          <p class="section-kicker">Cómo leer este tablero</p>
+          <h2 id="method-title">Rapidez para observar.<br>Persistencia para interpretar.</h2>
+        </div>
+        <div class="method-steps">
+          <article>
+            <span>01</span>
+            <div><h3>Mira Niño 1+2</h3><p>Es la ventana costera más cercana a Ecuador y Perú. Puede moverse con fuerza sin que todo el Pacífico esté en El Niño.</p></div>
+          </article>
+          <article>
+            <span>02</span>
+            <div><h3>Compárala con Niño 3.4</h3><p>Su calentamiento sostenido muestra si la señal se extiende al Pacífico central, donde se monitorea ENSO.</p></div>
+          </article>
+          <article>
+            <span>03</span>
+            <div><h3>Confirma con RONI</h3><p>Suaviza tres meses y descuenta el calentamiento tropical general. Es la referencia oceánica oficial de NOAA.</p></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="sources" aria-labelledby="sources-title">
+        <div>
+          <p class="section-kicker">Transparencia</p>
+          <h2 id="sources-title">Fuentes y actualización</h2>
+        </div>
+        <div class="source-list" id="sourceList"></div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="shell footer-inner">
+        <p><strong>Pacífico en pulso</strong> · Visualización independiente con datos públicos de NOAA/CPC.</p>
+        <p>El tablero describe la señal oceánica; no sustituye los avisos oficiales ni constituye un pronóstico.</p>
+      </div>
+    </footer>
+
+    <div class="error-banner" id="errorBanner" role="alert" hidden>No fue posible cargar los datos. Intenta nuevamente en unos minutos.</div>
+    <noscript><div class="noscript">Este dashboard necesita JavaScript para dibujar las series interactivas.</div></noscript>
+  </body>
+</html>
+
