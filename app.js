@@ -22,7 +22,7 @@ const SEASON_LABELS = {
 
 const state = {
   data: null,
-  regions: new Set(["nino12", "nino34"]),
+  regions: new Set(["nino34"]),
   weeklyStartYear: null,
   roniStartYear: null,
   weeklyChart: null,
