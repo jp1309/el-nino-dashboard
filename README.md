@@ -4,8 +4,8 @@ Dashboard público y reproducible para seguir la evolución de la temperatura su
 
 El sitio separa dos escalas que no deben confundirse:
 
-- **Pulso rápido:** anomalías relativas semanales OISST v2.1 en Niño 1+2, Niño 3, Niño 3.4 y Niño 4.
-- **Señal persistente:** Relative Oceanic Niño Index (RONI), promedio móvil de tres meses en Niño 3.4 ajustado frente al promedio tropical.
+- **Seguimiento semanal:** diferencias relativas de temperatura OISST v2.1 en Niño 1+2, Niño 3, Niño 3.4 y Niño 4.
+- **Indicador de persistencia:** Relative Oceanic Niño Index (RONI), promedio móvil de tres meses en Niño 3.4 ajustado frente al promedio tropical.
 
 Sitio público: **https://jp1309.github.io/el-nino-dashboard/**
 
@@ -68,7 +68,7 @@ Luego abre `http://localhost:8000`.
 - `meta.main_observation_date`: última semana usada por el gráfico principal.
 - `meta.sources`: URL, hash SHA-256 y última observación de cada fuente.
 - `current.weekly`: último valor relativo, SST absoluta y anomalía convencional para cada región.
-- `current.roni`: último RONI, clasificación térmica y temporadas consecutivas sobre el umbral.
+- `current.roni`: último promedio oceánico de tres meses (RONI), clasificación térmica y periodos consecutivos sobre el umbral.
 - `weekly[]`: serie semanal alineada por fecha.
 - `roni[]`: serie estacional completa desde 1950.
 
@@ -94,4 +94,3 @@ El sitio es HTML, CSS y JavaScript estático. Chart.js se carga en una versión 
 ## Licencia
 
 Código bajo licencia MIT. Los datos pertenecen a NOAA y conservan sus condiciones de uso y atribución originales.
-

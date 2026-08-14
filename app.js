@@ -1,16 +1,23 @@
 "use strict";
 
 const REGION_META = {
-  nino12: { label: "Niño 1+2", color: "#f05a47", place: "Costa Ecuador–Perú" },
-  nino3: { label: "Niño 3", color: "#e59b28", place: "Pacífico oriental" },
-  nino34: { label: "Niño 3.4", color: "#168fbd", place: "Pacífico centro-oriental" },
-  nino4: { label: "Niño 4", color: "#6656c8", place: "Pacífico central" },
+  nino12: { label: "Costa de Ecuador y Perú", color: "#f05a47", place: "Zona Niño 1+2" },
+  nino3: { label: "Pacífico oriental", color: "#e59b28", place: "Zona Niño 3" },
+  nino34: { label: "Pacífico centro-oriental", color: "#168fbd", place: "Zona Niño 3.4" },
+  nino4: { label: "Pacífico central", color: "#6656c8", place: "Zona Niño 4" },
 };
 
 const SOURCE_META = {
-  relative_weekly: { label: "SST relativa semanal", detail: "OISST v2.1 · cuatro regiones Niño" },
-  absolute_weekly: { label: "Temperatura semanal", detail: "OISST v2.1 · SST y anomalía convencional" },
-  roni: { label: "Índice RONI estacional", detail: "ERSST · promedio móvil de Niño 3.4" },
+  relative_weekly: { label: "Cambio semanal frente al promedio tropical", detail: "Cuatro zonas del Pacífico · datos OISST v2.1" },
+  absolute_weekly: { label: "Temperatura semanal observada", detail: "Temperatura superficial del mar · datos OISST v2.1" },
+  roni: { label: "Promedio oceánico de tres meses", detail: "Nombre técnico: RONI · datos ERSST" },
+};
+
+const SEASON_LABELS = {
+  DJF: "diciembre–febrero", JFM: "enero–marzo", FMA: "febrero–abril",
+  MAM: "marzo–mayo", AMJ: "abril–junio", MJJ: "mayo–julio",
+  JJA: "junio–agosto", JAS: "julio–septiembre", ASO: "agosto–octubre",
+  SON: "septiembre–noviembre", OND: "octubre–diciembre", NDJ: "noviembre–enero",
 };
 
 const state = {
@@ -57,12 +64,12 @@ function signed(value) {
 
 function classCopy(classification, count) {
   if (classification === "warm") {
-    return count >= 5 ? "Señal oceánica cálida persistente" : "Calentamiento oceánico en desarrollo";
+    return count >= 5 ? "Calentamiento persistente compatible con El Niño" : "Calentamiento del océano en desarrollo";
   }
   if (classification === "cold") {
-    return count >= 5 ? "Señal oceánica fría persistente" : "Enfriamiento oceánico en desarrollo";
+    return count >= 5 ? "Enfriamiento persistente compatible con La Niña" : "Enfriamiento del océano en desarrollo";
   }
-  return "Señal oceánica neutral";
+  return "Temperatura cercana a lo normal";
 }
 
 function renderHeadline() {
@@ -70,9 +77,12 @@ function renderHeadline() {
   const roni = current.roni;
   document.querySelector("#roniValue").textContent = signed(roni.value);
   document.querySelector("#roniStatus").textContent = classCopy(roni.classification, roni.consecutive_seasons);
-  const seasonCount = roni.consecutive_seasons || "sin";
-  const seasonWord = roni.consecutive_seasons === 1 ? "temporada consecutiva" : "temporadas consecutivas";
-  document.querySelector("#roniMeta").textContent = `${roni.season} ${roni.year} · ${seasonCount} ${seasonWord} fuera de neutral`;
+  const persistence = roni.consecutive_seasons === 0
+    ? "sin periodos consecutivos fuera de lo normal"
+    : roni.consecutive_seasons === 1
+      ? "1 periodo consecutivo fuera de lo normal"
+      : `${roni.consecutive_seasons} periodos consecutivos fuera de lo normal`;
+  document.querySelector("#roniMeta").textContent = `${SEASON_LABELS[roni.season]} de ${roni.year} · ${persistence}`;
 
   const ageDays = Math.floor((Date.now() - parseIsoDate(meta.main_observation_date)) / 86_400_000);
   const freshness = document.querySelector("#freshnessLabel");
@@ -196,7 +206,7 @@ function renderWeeklyChart() {
           suggestedMax: 2,
           border: { display: false },
           ticks: { callback: (value) => `${value > 0 ? "+" : ""}${value}°` },
-          title: { display: true, text: "Anomalía relativa (°C)", color: "#667985", font: { size: 11, weight: "500" } },
+          title: { display: true, text: "Diferencia frente a lo normal (°C)", color: "#667985", font: { size: 11, weight: "500" } },
         },
       },
     },
@@ -205,7 +215,7 @@ function renderWeeklyChart() {
   if (state.weeklyChart) state.weeklyChart.destroy();
   state.weeklyChart = new Chart(document.querySelector("#weeklyChart"), config);
   document.querySelector("#weeklyLoading").classList.add("hidden");
-  document.querySelector("#weeklySummary").textContent = `${rows.length.toLocaleString("es-EC")} semanas desde ${state.weeklyStartYear} · anomalía respecto al promedio tropical.`;
+  document.querySelector("#weeklySummary").textContent = `${rows.length.toLocaleString("es-EC")} semanas desde ${state.weeklyStartYear}. Los valores positivos indican más calor de lo normal; los negativos, más frío.`;
 }
 
 function renderRoniChart() {
@@ -215,7 +225,7 @@ function renderRoniChart() {
     data: {
       labels: rows.map((row) => row.date),
       datasets: [{
-        label: "RONI",
+        label: "Promedio de tres meses",
         data: rows.map((row) => row.value),
         borderColor: "#123f58",
         backgroundColor: "#123f58",
@@ -239,7 +249,7 @@ function renderRoniChart() {
           padding: 12,
           callbacks: {
             title: (items) => `${rows[items[0].dataIndex].season} ${rows[items[0].dataIndex].year}`,
-            label: (item) => ` RONI: ${signed(item.raw)} °C`,
+            label: (item) => ` Diferencia frente a lo normal: ${signed(item.raw)} °C`,
           },
         },
         decimation: { enabled: true, algorithm: "min-max" },
@@ -284,6 +294,7 @@ function renderRegions() {
     <article class="region-card" style="--region-color:${meta.color}">
       <div class="region-name"><h3>${meta.label}</h3><span>${meta.place}</span></div>
       <div class="region-anomaly">${signed(current[key])}<small>°C</small></div>
+      <p class="region-measure">Frente al promedio tropical</p>
       <p class="region-sst">Temperatura observada: <strong>${current[`${key}_sst`].toFixed(1)} °C</strong></p>
       <p class="region-trend">La señal ${trendCopy(key)}.</p>
     </article>
@@ -374,7 +385,7 @@ async function init() {
     console.error(error);
     document.querySelector("#errorBanner").hidden = false;
     document.querySelector("#weeklyLoading").textContent = "No se pudo cargar la serie semanal.";
-    document.querySelector("#roniLoading").textContent = "No se pudo cargar la historia RONI.";
+    document.querySelector("#roniLoading").textContent = "No se pudo cargar el historial.";
   }
 }
 

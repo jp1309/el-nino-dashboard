@@ -4,11 +4,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#071f33">
-    <meta name="description" content="Dashboard público para seguir semanalmente la temperatura del Pacífico tropical y la señal oceánica de El Niño con datos oficiales de NOAA.">
-    <meta property="og:title" content="El Niño, semana a semana">
-    <meta property="og:description" content="El pulso térmico del Pacífico, desde la costa de Ecuador hasta Niño 3.4.">
+    <meta name="description" content="Dashboard público para observar cuánto se calienta o enfría el Pacífico tropical y si las condiciones asociadas con El Niño persisten.">
+    <meta property="og:title" content="Temperatura del mar y El Niño">
+    <meta property="og:description" content="Seguimiento semanal del Pacífico tropical con datos oficiales de NOAA.">
     <meta property="og:type" content="website">
-    <title>El Niño, semana a semana</title>
+    <title>Temperatura del mar y El Niño</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
@@ -21,27 +21,24 @@
 
     <header class="masthead">
       <nav class="nav shell" aria-label="Navegación principal">
-        <a class="brand" href="./" aria-label="Inicio">
-          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
-          <span>Pacífico en pulso</span>
-        </a>
-        <a class="source-link" href="https://www.cpc.ncep.noaa.gov/data/indices/" target="_blank" rel="noreferrer">Datos NOAA <span aria-hidden="true">↗</span></a>
+        <a class="brand" href="./" aria-label="Inicio">Temperatura del Pacífico tropical</a>
+        <a class="source-link" href="https://www.cpc.ncep.noaa.gov/data/indices/" target="_blank" rel="noreferrer">Fuentes oficiales NOAA <span aria-hidden="true">↗</span></a>
       </nav>
 
       <div class="hero shell">
         <div class="hero-copy">
-          <p class="eyebrow">Monitoreo oceánico semanal</p>
-          <h1>El Niño,<br><span>semana a semana.</span></h1>
-          <p class="lede">Sigue el calor que recorre el Pacífico tropical y distingue la señal costera de Ecuador de la señal central que define ENSO.</p>
+          <p class="eyebrow">Datos oficiales de NOAA · actualización semanal</p>
+          <h1>Temperatura del mar<br><span>y El Niño.</span></h1>
+          <p class="lede">Observa si la superficie del Pacífico tropical está más cálida o fría de lo normal y si ese cambio persiste durante varios meses.</p>
         </div>
         <div class="hero-reading" aria-labelledby="roni-title">
           <div class="reading-topline">
-            <span id="roni-title">Último RONI</span>
+            <span id="roni-title">Promedio de los últimos 3 meses</span>
             <span class="live-dot"><i></i><span id="freshnessLabel">Cargando</span></span>
           </div>
           <div class="reading-value"><span id="roniValue">—</span><small>°C</small></div>
           <p class="reading-status" id="roniStatus">Consultando la serie oficial…</p>
-          <p class="reading-meta" id="roniMeta">Promedio móvil de tres meses en Niño 3.4</p>
+          <p class="reading-meta" id="roniMeta">Temperatura ajustada del Pacífico central</p>
         </div>
       </div>
     </header>
@@ -50,9 +47,9 @@
       <section class="panel pulse-panel" aria-labelledby="pulse-title">
         <div class="section-heading">
           <div>
-            <p class="section-kicker">El pulso rápido · OISST</p>
-            <h2 id="pulse-title">¿Dónde se está acumulando el calor?</h2>
-            <p id="weeklySummary">Anomalía relativa semanal frente al promedio tropical.</p>
+            <p class="section-kicker">Cambio semanal de la temperatura</p>
+            <h2 id="pulse-title">¿Qué zonas están más cálidas de lo normal?</h2>
+            <p id="weeklySummary">Cada valor indica cuántos grados está una zona por encima o por debajo del promedio tropical.</p>
           </div>
           <button class="download-button" id="downloadCsv" type="button">Descargar CSV</button>
         </div>
@@ -61,10 +58,10 @@
           <div class="control-group" aria-label="Regiones Niño">
             <span class="control-label">Regiones</span>
             <div class="segmented regions" id="regionControls">
-              <button type="button" data-region="nino12" aria-pressed="true"><i></i>Niño 1+2</button>
-              <button type="button" data-region="nino3" aria-pressed="false"><i></i>Niño 3</button>
-              <button type="button" data-region="nino34" aria-pressed="true"><i></i>Niño 3.4</button>
-              <button type="button" data-region="nino4" aria-pressed="false"><i></i>Niño 4</button>
+              <button type="button" data-region="nino12" aria-pressed="true"><i></i>Costa (Niño 1+2)</button>
+              <button type="button" data-region="nino3" aria-pressed="false"><i></i>Este (Niño 3)</button>
+              <button type="button" data-region="nino34" aria-pressed="true"><i></i>Centro-este (Niño 3.4)</button>
+              <button type="button" data-region="nino4" aria-pressed="false"><i></i>Centro (Niño 4)</button>
             </div>
           </div>
           <label class="year-field" for="weeklyStartYear">
@@ -74,17 +71,17 @@
         </div>
 
         <div class="chart-wrap chart-large">
-          <canvas id="weeklyChart" role="img" aria-label="Gráfico de anomalías relativas semanales por región Niño"></canvas>
+          <canvas id="weeklyChart" role="img" aria-label="Gráfico de diferencias semanales de temperatura en cuatro zonas del Pacífico tropical"></canvas>
           <div class="chart-loading" id="weeklyLoading">Preparando la serie semanal…</div>
         </div>
-        <div class="threshold-note"><span></span>Las líneas punteadas marcan ±0,5 °C como referencia visual; una semana aislada no confirma un episodio.</div>
+        <div class="threshold-note"><span></span>Las líneas punteadas marcan ±0,5 °C como referencia. Una semana cálida o fría, por sí sola, no confirma El Niño ni La Niña.</div>
       </section>
 
       <section class="route-section" aria-labelledby="route-title">
         <div class="section-heading compact">
           <div>
-            <p class="section-kicker">La ruta del calor</p>
-            <h2 id="route-title">De la costa al Pacífico central</h2>
+            <p class="section-kicker">Última observación</p>
+            <h2 id="route-title">Temperatura por zona del Pacífico</h2>
           </div>
           <p class="as-of" id="weeklyAsOf">Semana —</p>
         </div>
@@ -94,14 +91,14 @@
       <section class="panel history-panel" aria-labelledby="history-title">
         <div class="section-heading">
           <div>
-            <p class="section-kicker">La señal persistente · ERSST</p>
-            <h2 id="history-title">RONI: contexto desde 1950</h2>
-            <p>El promedio móvil de Niño 3.4 frente al conjunto de los trópicos. NOAA exige persistencia y acoplamiento atmosférico para declarar un episodio.</p>
+            <p class="section-kicker">Evolución de largo plazo</p>
+            <h2 id="history-title">¿El calentamiento se mantiene durante varios meses?</h2>
+            <p>Este indicador promedia tres meses de temperatura en el Pacífico central y la compara con el resto de los trópicos. NOAA lo denomina Índice Oceánico Relativo, o RONI.</p>
           </div>
           <div class="history-tools">
             <label class="year-field" for="roniStartYear">
               <span class="control-label">Año inicial</span>
-              <select id="roniStartYear" aria-label="Año inicial del gráfico histórico RONI"></select>
+              <select id="roniStartYear" aria-label="Año inicial del gráfico histórico del promedio oceánico"></select>
             </label>
             <div class="legend-zones" aria-label="Leyenda">
               <span><i class="warm"></i>El Niño</span>
@@ -111,28 +108,28 @@
           </div>
         </div>
         <div class="chart-wrap chart-history">
-          <canvas id="roniChart" role="img" aria-label="Serie histórica del índice RONI desde 1950"></canvas>
-          <div class="chart-loading" id="roniLoading">Preparando la historia RONI…</div>
+          <canvas id="roniChart" role="img" aria-label="Serie histórica del promedio oceánico de tres meses desde 1950"></canvas>
+          <div class="chart-loading" id="roniLoading">Preparando el historial…</div>
         </div>
       </section>
 
       <section class="method" aria-labelledby="method-title">
         <div class="method-intro">
-          <p class="section-kicker">Cómo leer este tablero</p>
-          <h2 id="method-title">Rapidez para observar.<br>Persistencia para interpretar.</h2>
+          <p class="section-kicker">Cómo interpretar los datos</p>
+          <h2 id="method-title">Primero observa dónde cambia.<br>Luego comprueba cuánto dura.</h2>
         </div>
         <div class="method-steps">
           <article>
             <span>01</span>
-            <div><h3>Mira Niño 1+2</h3><p>Es la ventana costera más cercana a Ecuador y Perú. Puede moverse con fuerza sin que todo el Pacífico esté en El Niño.</p></div>
+            <div><h3>Empieza por la costa</h3><p>La zona Niño 1+2 está frente a Ecuador y Perú. Puede calentarse con fuerza sin que todo el Pacífico esté bajo condiciones de El Niño.</p></div>
           </article>
           <article>
             <span>02</span>
-            <div><h3>Compárala con Niño 3.4</h3><p>Su calentamiento sostenido muestra si la señal se extiende al Pacífico central, donde se monitorea ENSO.</p></div>
+            <div><h3>Observa si avanza hacia el centro</h3><p>La zona Niño 3.4 permite saber si el calentamiento también alcanza el Pacífico central, una condición importante para El Niño.</p></div>
           </article>
           <article>
             <span>03</span>
-            <div><h3>Confirma con RONI</h3><p>Suaviza tres meses y descuenta el calentamiento tropical general. Es la referencia oceánica oficial de NOAA.</p></div>
+            <div><h3>Comprueba si dura varios meses</h3><p>El indicador de tres meses reduce los cambios pasajeros y permite distinguir una variación semanal de una señal oceánica persistente.</p></div>
           </article>
         </div>
       </section>
@@ -148,7 +145,7 @@
 
     <footer>
       <div class="shell footer-inner">
-        <p><strong>Pacífico en pulso</strong> · Visualización independiente con datos públicos de NOAA/CPC.</p>
+        <p><strong>Monitoreo de temperatura superficial del mar</strong> · Visualización independiente con datos públicos de NOAA/CPC.</p>
         <p>El tablero describe la señal oceánica; no sustituye los avisos oficiales ni constituye un pronóstico.</p>
       </div>
     </footer>

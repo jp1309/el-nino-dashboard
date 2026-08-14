@@ -82,22 +82,15 @@ a { color: inherit; }
 
 .brand {
   display: inline-flex;
-  gap: 12px;
   align-items: center;
   color: white;
   font-family: "Manrope", sans-serif;
   font-size: .84rem;
   font-weight: 800;
-  letter-spacing: .12em;
+  letter-spacing: .08em;
   text-decoration: none;
   text-transform: uppercase;
 }
-
-.brand-mark { display: flex; align-items: end; gap: 2px; width: 31px; height: 21px; }
-.brand-mark i { display: block; width: 9px; border-radius: 8px 8px 2px 2px; background: var(--warm); }
-.brand-mark i:nth-child(1) { height: 8px; }
-.brand-mark i:nth-child(2) { height: 15px; background: #f1a63b; }
-.brand-mark i:nth-child(3) { height: 21px; background: #45b7d8; }
 
 .source-link { color: #d9e7ed; font-size: .9rem; text-decoration: none; }
 .source-link:hover { color: white; }
@@ -209,6 +202,7 @@ h1 span { color: #70c6dd; }
 .region-name span { color: var(--muted); font-size: .72rem; }
 .region-anomaly { display: flex; align-items: flex-start; gap: 5px; margin-bottom: 8px; color: var(--region-color); font-family: "Manrope", sans-serif; font-size: 2.35rem; font-weight: 800; letter-spacing: -.055em; line-height: 1; }
 .region-anomaly small { margin-top: 5px; font-size: .82rem; }
+.region-measure { margin: -2px 0 8px; color: var(--muted); font-size: .72rem; }
 .region-sst { margin-bottom: 15px; color: var(--muted); font-size: .82rem; }
 .region-trend { margin: 0; color: var(--ink); font-size: .78rem; }
 .region-trend strong { color: var(--region-color); }

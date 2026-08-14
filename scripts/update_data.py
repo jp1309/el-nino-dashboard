@@ -249,7 +249,7 @@ def build_dataset(
     latest_roni = roni[-1]
     return {
         "meta": {
-            "title": "El Niño, semana a semana",
+            "title": "Temperatura del mar y El Niño",
             "main_observation_date": latest_week["date"],
             "sources": {
                 source.key: {
