@@ -88,6 +88,39 @@
         <div class="region-grid" id="regionGrid" aria-live="polite"></div>
       </section>
 
+      <section class="panel comparison-panel" aria-labelledby="comparison-title">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">Comparación dentro del año</p>
+            <h2 id="comparison-title">¿Cómo se comporta cada zona de enero a diciembre?</h2>
+            <p id="comparisonSummary">Cada línea representa un año. Los datos semanales se resumen en promedios mensuales para facilitar la comparación.</p>
+          </div>
+          <div class="comparison-tools" aria-label="Controles de la comparación anual">
+            <label class="year-field" for="comparisonRegion">
+              <span class="control-label">Zona</span>
+              <select id="comparisonRegion" aria-label="Zona del Pacífico para comparar">
+                <option value="nino12">Costa (Niño 1+2)</option>
+                <option value="nino3">Este (Niño 3)</option>
+                <option value="nino34">Centro-este (Niño 3.4)</option>
+                <option value="nino4">Centro (Niño 4)</option>
+              </select>
+            </label>
+            <label class="year-field" for="comparisonStartYear">
+              <span class="control-label">Año inicial</span>
+              <select id="comparisonStartYear" aria-label="Año inicial de la comparación"></select>
+            </label>
+            <div class="comparison-key" aria-label="Leyenda">
+              <span><i class="previous"></i>Años anteriores</span>
+              <span><i class="current"></i><b id="comparisonCurrentYear">Año actual</b></span>
+            </div>
+          </div>
+        </div>
+        <div class="chart-wrap chart-comparison">
+          <canvas id="comparisonChart" role="img" aria-label="Comparación de enero a diciembre por años para una zona del Pacífico tropical"></canvas>
+          <div class="chart-loading" id="comparisonLoading">Preparando la comparación anual…</div>
+        </div>
+      </section>
+
       <section class="panel history-panel" aria-labelledby="history-title">
         <div class="section-heading">
           <div>

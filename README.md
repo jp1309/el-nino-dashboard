@@ -2,9 +2,10 @@
 
 Dashboard público y reproducible para seguir la evolución de la temperatura superficial del Pacífico tropical con datos oficiales del Climate Prediction Center de NOAA.
 
-El sitio separa dos escalas que no deben confundirse:
+El sitio ofrece tres lecturas complementarias:
 
 - **Seguimiento semanal:** diferencias relativas de temperatura OISST v2.1 en Niño 1+2, Niño 3, Niño 3.4 y Niño 4.
+- **Comparación anual:** promedios mensuales superpuestos de la región elegida, con selector de año inicial y el año más reciente destacado.
 - **Indicador de persistencia:** Relative Oceanic Niño Index (RONI), promedio móvil de tres meses en Niño 3.4 ajustado frente al promedio tropical.
 
 Sitio público: **https://jp1309.github.io/el-nino-dashboard/**

@@ -20,12 +20,17 @@ const SEASON_LABELS = {
   SON: "septiembre–noviembre", OND: "octubre–diciembre", NDJ: "noviembre–enero",
 };
 
+const MONTH_LABELS = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+
 const state = {
   data: null,
   regions: new Set(["nino34"]),
   weeklyStartYear: null,
+  comparisonRegion: "nino12",
+  comparisonStartYear: null,
   roniStartYear: null,
   weeklyChart: null,
+  comparisonChart: null,
   roniChart: null,
 };
 
@@ -43,9 +48,13 @@ function formatDate(value) {
 function loadStateFromUrl() {
   const params = new URLSearchParams(window.location.search);
   const weeklyStartYear = Number(params.get("desde_semana"));
+  const comparisonStartYear = Number(params.get("desde_comparacion"));
   const roniStartYear = Number(params.get("desde_roni"));
   if (Number.isInteger(weeklyStartYear) && weeklyStartYear > 1900) state.weeklyStartYear = weeklyStartYear;
+  if (Number.isInteger(comparisonStartYear) && comparisonStartYear > 1900) state.comparisonStartYear = comparisonStartYear;
   if (Number.isInteger(roniStartYear) && roniStartYear > 1900) state.roniStartYear = roniStartYear;
+  const comparisonRegion = params.get("comparar");
+  if (comparisonRegion in REGION_META) state.comparisonRegion = comparisonRegion;
   const regions = (params.get("regiones") || "").split(",").filter((key) => key in REGION_META);
   if (regions.length) state.regions = new Set(regions);
 }
@@ -53,6 +62,8 @@ function loadStateFromUrl() {
 function syncUrl() {
   const params = new URLSearchParams();
   params.set("desde_semana", state.weeklyStartYear);
+  params.set("comparar", state.comparisonRegion);
+  params.set("desde_comparacion", state.comparisonStartYear);
   params.set("desde_roni", state.roniStartYear);
   params.set("regiones", [...state.regions].join(","));
   history.replaceState(null, "", `${window.location.pathname}?${params}`);
@@ -116,8 +127,10 @@ function initializeYearControls() {
   const roniMax = roniYears.at(-1);
 
   state.weeklyStartYear = Math.min(weeklyMax, Math.max(weeklyMin, state.weeklyStartYear ?? weeklyMax - 2));
+  state.comparisonStartYear = Math.min(weeklyMax, Math.max(weeklyMin, state.comparisonStartYear ?? weeklyMax - 10));
   state.roniStartYear = Math.min(roniMax, Math.max(roniMin, state.roniStartYear ?? roniMin));
   populateYearSelect("#weeklyStartYear", weeklyYears, state.weeklyStartYear);
+  populateYearSelect("#comparisonStartYear", weeklyYears, state.comparisonStartYear);
   populateYearSelect("#roniStartYear", roniYears, state.roniStartYear);
 }
 
@@ -216,6 +229,88 @@ function renderWeeklyChart() {
   state.weeklyChart = new Chart(document.querySelector("#weeklyChart"), config);
   document.querySelector("#weeklyLoading").classList.add("hidden");
   document.querySelector("#weeklySummary").textContent = `${rows.length.toLocaleString("es-EC")} semanas desde ${state.weeklyStartYear}. Los valores positivos indican más calor de lo normal; los negativos, más frío.`;
+}
+
+function getMonthlyComparisonSeries() {
+  const byYear = new Map();
+  state.data.weekly.forEach((row) => {
+    const year = Number(row.date.slice(0, 4));
+    if (year < state.comparisonStartYear) return;
+    const month = Number(row.date.slice(5, 7)) - 1;
+    if (!byYear.has(year)) byYear.set(year, Array.from({ length: 12 }, () => []));
+    byYear.get(year)[month].push(row[state.comparisonRegion]);
+  });
+  return [...byYear.entries()].map(([year, months]) => ({
+    year,
+    values: months.map((values) => values.length
+      ? Number((values.reduce((sum, value) => sum + value, 0) / values.length).toFixed(2))
+      : null),
+  }));
+}
+
+function renderComparisonChart() {
+  const series = getMonthlyComparisonSeries();
+  const currentYear = series.at(-1).year;
+  const previousColor = "rgba(102, 121, 133, .34)";
+  const currentColor = "#d84335";
+  const datasets = series.map(({ year, values }) => ({
+    label: String(year),
+    data: values,
+    borderColor: year === currentYear ? currentColor : previousColor,
+    backgroundColor: year === currentYear ? currentColor : previousColor,
+    borderWidth: year === currentYear ? 3 : 1.35,
+    pointRadius: 0,
+    pointHoverRadius: year === currentYear ? 4 : 2.5,
+    pointHitRadius: 10,
+    tension: 0.32,
+    spanGaps: false,
+    order: year === currentYear ? 0 : 1,
+  }));
+
+  const config = {
+    type: "line",
+    data: { labels: MONTH_LABELS, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 350 },
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: "#071f33",
+          padding: 12,
+          itemSort: (a, b) => Number(b.dataset.label) - Number(a.dataset.label),
+          callbacks: {
+            title: (items) => MONTH_LABELS[items[0].dataIndex],
+            label: (item) => ` ${item.dataset.label}: ${signed(item.raw)} °C`,
+          },
+        },
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          border: { display: false },
+          ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: window.innerWidth < 640 ? 4 : 12 },
+          title: { display: true, text: "Mes", color: "#667985", font: { size: 11, weight: "500" } },
+        },
+        y: {
+          suggestedMin: -2.5,
+          suggestedMax: 3,
+          border: { display: false },
+          grid: { color: (context) => context.tick.value === 0 ? "rgba(16, 43, 58, .34)" : "rgba(16, 43, 58, .09)" },
+          ticks: { callback: (value) => `${value > 0 ? "+" : ""}${value}°` },
+          title: { display: true, text: "Diferencia frente a lo normal (°C)", color: "#667985", font: { size: 11, weight: "500" } },
+        },
+      },
+    },
+  };
+
+  if (state.comparisonChart) state.comparisonChart.destroy();
+  state.comparisonChart = new Chart(document.querySelector("#comparisonChart"), config);
+  document.querySelector("#comparisonLoading").classList.add("hidden");
+  document.querySelector("#comparisonCurrentYear").textContent = String(currentYear);
+  document.querySelector("#comparisonSummary").textContent = `${REGION_META[state.comparisonRegion].label}: ${series.length} líneas, una por año desde ${state.comparisonStartYear}. Los años anteriores aparecen en gris y ${currentYear} en rojo.`;
 }
 
 function renderRoniChart() {
@@ -321,6 +416,8 @@ function updateControls() {
     button.setAttribute("aria-pressed", state.regions.has(button.dataset.region));
   });
   document.querySelector("#weeklyStartYear").value = String(state.weeklyStartYear);
+  document.querySelector("#comparisonRegion").value = state.comparisonRegion;
+  document.querySelector("#comparisonStartYear").value = String(state.comparisonStartYear);
   document.querySelector("#roniStartYear").value = String(state.roniStartYear);
 }
 
@@ -340,6 +437,18 @@ function bindControls() {
     updateControls();
     syncUrl();
     renderWeeklyChart();
+  });
+  document.querySelector("#comparisonRegion").addEventListener("change", (event) => {
+    state.comparisonRegion = event.target.value;
+    updateControls();
+    syncUrl();
+    renderComparisonChart();
+  });
+  document.querySelector("#comparisonStartYear").addEventListener("change", (event) => {
+    state.comparisonStartYear = Number(event.target.value);
+    updateControls();
+    syncUrl();
+    renderComparisonChart();
   });
   document.querySelector("#roniStartYear").addEventListener("change", (event) => {
     state.roniStartYear = Number(event.target.value);
@@ -377,6 +486,7 @@ async function init() {
     updateControls();
     renderHeadline();
     renderWeeklyChart();
+    renderComparisonChart();
     renderRoniChart();
     renderRegions();
     renderSources();
@@ -385,6 +495,7 @@ async function init() {
     console.error(error);
     document.querySelector("#errorBanner").hidden = false;
     document.querySelector("#weeklyLoading").textContent = "No se pudo cargar la serie semanal.";
+    document.querySelector("#comparisonLoading").textContent = "No se pudo cargar la comparación anual.";
     document.querySelector("#roniLoading").textContent = "No se pudo cargar el historial.";
   }
 }
