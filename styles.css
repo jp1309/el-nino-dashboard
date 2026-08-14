@@ -166,6 +166,19 @@ h1 span { color: #70c6dd; }
 .controls { display: flex; flex-wrap: wrap; gap: 24px 40px; justify-content: space-between; margin-bottom: 22px; padding: 15px 18px; background: #f5f7f5; border-radius: 13px; }
 .control-group { display: flex; align-items: center; gap: 12px; }
 .control-label { color: var(--muted); font-size: .76rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.year-field { display: flex; align-items: center; gap: 10px; }
+.year-field select {
+  min-width: 104px;
+  padding: 8px 34px 8px 11px;
+  border: 1px solid #d3dddd;
+  border-radius: 8px;
+  color: var(--ink);
+  background: white;
+  cursor: pointer;
+  font: 600 .82rem "DM Sans", system-ui, sans-serif;
+}
+.year-field select:hover { border-color: var(--blue); }
+.year-field select:focus-visible { outline: 3px solid #57c7e5; outline-offset: 2px; }
 .segmented { display: flex; flex-wrap: wrap; gap: 5px; }
 .segmented button { padding: 7px 10px; border: 0; border-radius: 8px; background: transparent; cursor: pointer; color: #667985; font-size: .82rem; font-weight: 600; }
 .segmented button[aria-pressed="true"] { background: white; color: var(--ink); box-shadow: 0 2px 9px rgba(7,31,51,.08); }
@@ -202,6 +215,7 @@ h1 span { color: #70c6dd; }
 
 .history-panel { margin-bottom: 74px; }
 .legend-zones { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; color: var(--muted); font-size: .77rem; }
+.history-tools { display: grid; justify-items: end; gap: 16px; }
 .legend-zones span { display: flex; align-items: center; gap: 6px; }
 .legend-zones i { width: 9px; height: 9px; border-radius: 2px; }
 .legend-zones .warm { background: rgba(240,90,71,.65); }
@@ -259,10 +273,13 @@ button:focus-visible, a:focus-visible { outline: 3px solid #57c7e5; outline-offs
   .control-group { display: block; }
   .control-group + .control-group { margin-top: 14px; }
   .control-label { display: block; margin-bottom: 7px; }
+  .year-field { display: flex; justify-content: space-between; }
+  .year-field .control-label { margin-bottom: 0; }
   .chart-large { height: 360px; }
   .chart-history { height: 290px; }
   .route-section { padding: 52px 0; }
   .section-heading.compact { display: flex; align-items: flex-end; }
+  .history-tools { justify-items: start; margin-top: 18px; }
   .region-grid { grid-template-columns: 1fr; }
   .region-card { border-right: 0; border-bottom: 1px solid #cbd6d5; }
   .region-card:last-child { border-bottom: 0; }
@@ -275,4 +292,3 @@ button:focus-visible, a:focus-visible { outline: 3px solid #57c7e5; outline-offs
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
 }
-

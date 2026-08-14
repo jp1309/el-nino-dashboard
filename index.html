@@ -67,15 +67,10 @@
               <button type="button" data-region="nino4" aria-pressed="false"><i></i>Niño 4</button>
             </div>
           </div>
-          <div class="control-group range-group" aria-label="Rango temporal">
-            <span class="control-label">Periodo</span>
-            <div class="segmented" id="rangeControls">
-              <button type="button" data-range="52" aria-pressed="false">1 año</button>
-              <button type="button" data-range="104" aria-pressed="true">2 años</button>
-              <button type="button" data-range="260" aria-pressed="false">5 años</button>
-              <button type="button" data-range="all" aria-pressed="false">Todo</button>
-            </div>
-          </div>
+          <label class="year-field" for="weeklyStartYear">
+            <span class="control-label">Año inicial</span>
+            <select id="weeklyStartYear" aria-label="Año inicial del gráfico semanal"></select>
+          </label>
         </div>
 
         <div class="chart-wrap chart-large">
@@ -103,10 +98,16 @@
             <h2 id="history-title">RONI: contexto desde 1950</h2>
             <p>El promedio móvil de Niño 3.4 frente al conjunto de los trópicos. NOAA exige persistencia y acoplamiento atmosférico para declarar un episodio.</p>
           </div>
-          <div class="legend-zones" aria-label="Leyenda">
-            <span><i class="warm"></i>El Niño</span>
-            <span><i class="neutral"></i>Neutral</span>
-            <span><i class="cold"></i>La Niña</span>
+          <div class="history-tools">
+            <label class="year-field" for="roniStartYear">
+              <span class="control-label">Año inicial</span>
+              <select id="roniStartYear" aria-label="Año inicial del gráfico histórico RONI"></select>
+            </label>
+            <div class="legend-zones" aria-label="Leyenda">
+              <span><i class="warm"></i>El Niño</span>
+              <span><i class="neutral"></i>Neutral</span>
+              <span><i class="cold"></i>La Niña</span>
+            </div>
           </div>
         </div>
         <div class="chart-wrap chart-history">
@@ -156,4 +157,3 @@
     <noscript><div class="noscript">Este dashboard necesita JavaScript para dibujar las series interactivas.</div></noscript>
   </body>
 </html>
-

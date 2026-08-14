@@ -16,7 +16,8 @@ const SOURCE_META = {
 const state = {
   data: null,
   regions: new Set(["nino12", "nino34"]),
-  range: "104",
+  weeklyStartYear: null,
+  roniStartYear: null,
   weeklyChart: null,
   roniChart: null,
 };
@@ -34,15 +35,18 @@ function formatDate(value) {
 
 function loadStateFromUrl() {
   const params = new URLSearchParams(window.location.search);
-  const range = params.get("periodo");
-  if (["52", "104", "260", "all"].includes(range)) state.range = range;
+  const weeklyStartYear = Number(params.get("desde_semana"));
+  const roniStartYear = Number(params.get("desde_roni"));
+  if (Number.isInteger(weeklyStartYear) && weeklyStartYear > 1900) state.weeklyStartYear = weeklyStartYear;
+  if (Number.isInteger(roniStartYear) && roniStartYear > 1900) state.roniStartYear = roniStartYear;
   const regions = (params.get("regiones") || "").split(",").filter((key) => key in REGION_META);
   if (regions.length) state.regions = new Set(regions);
 }
 
 function syncUrl() {
   const params = new URLSearchParams();
-  params.set("periodo", state.range);
+  params.set("desde_semana", state.weeklyStartYear);
+  params.set("desde_roni", state.roniStartYear);
   params.set("regiones", [...state.regions].join(","));
   history.replaceState(null, "", `${window.location.pathname}?${params}`);
 }
@@ -77,8 +81,34 @@ function renderHeadline() {
 }
 
 function getWeeklyWindow() {
-  if (state.range === "all") return state.data.weekly;
-  return state.data.weekly.slice(-Number(state.range));
+  return state.data.weekly.filter((row) => Number(row.date.slice(0, 4)) >= state.weeklyStartYear);
+}
+
+function getRoniWindow() {
+  return state.data.roni.filter((row) => row.year >= state.roniStartYear);
+}
+
+function uniqueYears(rows) {
+  return [...new Set(rows.map((row) => Number(row.date.slice(0, 4))))];
+}
+
+function populateYearSelect(id, years, selected) {
+  const select = document.querySelector(id);
+  select.innerHTML = years.map((year) => `<option value="${year}"${year === selected ? " selected" : ""}>${year}</option>`).join("");
+}
+
+function initializeYearControls() {
+  const weeklyYears = uniqueYears(state.data.weekly);
+  const roniYears = uniqueYears(state.data.roni);
+  const weeklyMin = weeklyYears[0];
+  const weeklyMax = weeklyYears.at(-1);
+  const roniMin = roniYears[0];
+  const roniMax = roniYears.at(-1);
+
+  state.weeklyStartYear = Math.min(weeklyMax, Math.max(weeklyMin, state.weeklyStartYear ?? weeklyMax - 2));
+  state.roniStartYear = Math.min(roniMax, Math.max(roniMin, state.roniStartYear ?? roniMin));
+  populateYearSelect("#weeklyStartYear", weeklyYears, state.weeklyStartYear);
+  populateYearSelect("#roniStartYear", roniYears, state.roniStartYear);
 }
 
 const zonePlugin = {
@@ -175,11 +205,11 @@ function renderWeeklyChart() {
   if (state.weeklyChart) state.weeklyChart.destroy();
   state.weeklyChart = new Chart(document.querySelector("#weeklyChart"), config);
   document.querySelector("#weeklyLoading").classList.add("hidden");
-  document.querySelector("#weeklySummary").textContent = `${rows.length.toLocaleString("es-EC")} semanas · anomalía respecto al promedio tropical.`;
+  document.querySelector("#weeklySummary").textContent = `${rows.length.toLocaleString("es-EC")} semanas desde ${state.weeklyStartYear} · anomalía respecto al promedio tropical.`;
 }
 
 function renderRoniChart() {
-  const rows = state.data.roni;
+  const rows = getRoniWindow();
   const config = {
     type: "line",
     data: {
@@ -279,9 +309,8 @@ function updateControls() {
   document.querySelectorAll("[data-region]").forEach((button) => {
     button.setAttribute("aria-pressed", state.regions.has(button.dataset.region));
   });
-  document.querySelectorAll("[data-range]").forEach((button) => {
-    button.setAttribute("aria-pressed", button.dataset.range === state.range);
-  });
+  document.querySelector("#weeklyStartYear").value = String(state.weeklyStartYear);
+  document.querySelector("#roniStartYear").value = String(state.roniStartYear);
 }
 
 function bindControls() {
@@ -295,13 +324,18 @@ function bindControls() {
     syncUrl();
     renderWeeklyChart();
   });
-  document.querySelector("#rangeControls").addEventListener("click", (event) => {
-    const button = event.target.closest("button[data-range]");
-    if (!button) return;
-    state.range = button.dataset.range;
+  document.querySelector("#weeklyStartYear").addEventListener("change", (event) => {
+    state.weeklyStartYear = Number(event.target.value);
     updateControls();
     syncUrl();
     renderWeeklyChart();
+  });
+  document.querySelector("#roniStartYear").addEventListener("change", (event) => {
+    state.roniStartYear = Number(event.target.value);
+    updateControls();
+    syncUrl();
+    if (state.roniChart) state.roniChart.destroy();
+    renderRoniChart();
   });
   document.querySelector("#downloadCsv").addEventListener("click", downloadCsv);
 }
@@ -314,14 +348,13 @@ function downloadCsv() {
   const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
   const anchor = document.createElement("a");
   anchor.href = url;
-  anchor.download = `anomalias-nino-${state.range}.csv`;
+  anchor.download = `anomalias-nino-desde-${state.weeklyStartYear}.csv`;
   anchor.click();
   URL.revokeObjectURL(url);
 }
 
 async function init() {
   loadStateFromUrl();
-  updateControls();
   bindControls();
   try {
     const response = await fetch("data/enso.json", { cache: "no-cache" });
@@ -329,6 +362,8 @@ async function init() {
     state.data = await response.json();
     if (!window.Chart) throw new Error("Chart.js no esta disponible");
     chartDefaults();
+    initializeYearControls();
+    updateControls();
     renderHeadline();
     renderWeeklyChart();
     renderRoniChart();
