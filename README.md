@@ -10,6 +10,8 @@ El sitio ofrece tres lecturas complementarias:
 
 Sitio público: **https://jp1309.github.io/el-nino-dashboard/**
 
+La interfaz está disponible en español e inglés. El selector de idioma conserva la preferencia en el navegador y también la refleja en el parámetro `lang` de la URL.
+
 ## Flujo de datos
 
 ```text

@@ -1,28 +1,176 @@
 "use strict";
 
 const REGION_META = {
-  nino12: { label: "Costa de Ecuador y Perú", color: "#f05a47", place: "Zona Niño 1+2" },
-  nino3: { label: "Pacífico oriental", color: "#e59b28", place: "Zona Niño 3" },
-  nino34: { label: "Pacífico centro-oriental", color: "#168fbd", place: "Zona Niño 3.4" },
-  nino4: { label: "Pacífico central", color: "#6656c8", place: "Zona Niño 4" },
+  nino12: {
+    color: "#f05a47",
+    es: { label: "Costa de Ecuador y Perú", place: "Zona Niño 1+2", control: "Costa (Niño 1+2)" },
+    en: { label: "Ecuador and Peru coast", place: "Niño 1+2 region", control: "Coast (Niño 1+2)" },
+  },
+  nino3: {
+    color: "#e59b28",
+    es: { label: "Pacífico oriental", place: "Zona Niño 3", control: "Este (Niño 3)" },
+    en: { label: "Eastern Pacific", place: "Niño 3 region", control: "East (Niño 3)" },
+  },
+  nino34: {
+    color: "#168fbd",
+    es: { label: "Pacífico centro-oriental", place: "Zona Niño 3.4", control: "Centro-este (Niño 3.4)" },
+    en: { label: "East-central Pacific", place: "Niño 3.4 region", control: "East-central (Niño 3.4)" },
+  },
+  nino4: {
+    color: "#6656c8",
+    es: { label: "Pacífico central", place: "Zona Niño 4", control: "Centro (Niño 4)" },
+    en: { label: "Central Pacific", place: "Niño 4 region", control: "Central (Niño 4)" },
+  },
 };
 
 const SOURCE_META = {
-  relative_weekly: { label: "Cambio semanal frente al promedio tropical", detail: "Cuatro zonas del Pacífico · datos OISST v2.1" },
-  absolute_weekly: { label: "Temperatura semanal observada", detail: "Temperatura superficial del mar · datos OISST v2.1" },
-  roni: { label: "Promedio oceánico de tres meses", detail: "Nombre técnico: RONI · datos ERSST" },
+  relative_weekly: {
+    es: { label: "Cambio semanal frente al promedio tropical", detail: "Cuatro zonas del Pacífico · datos OISST v2.1" },
+    en: { label: "Weekly change relative to the tropical average", detail: "Four Pacific regions · OISST v2.1 data" },
+  },
+  absolute_weekly: {
+    es: { label: "Temperatura semanal observada", detail: "Temperatura superficial del mar · datos OISST v2.1" },
+    en: { label: "Observed weekly temperature", detail: "Sea surface temperature · OISST v2.1 data" },
+  },
+  roni: {
+    es: { label: "Promedio oceánico de tres meses", detail: "Nombre técnico: RONI · datos ERSST" },
+    en: { label: "Three-month ocean average", detail: "Technical name: RONI · ERSST data" },
+  },
 };
 
 const SEASON_LABELS = {
-  DJF: "diciembre–febrero", JFM: "enero–marzo", FMA: "febrero–abril",
-  MAM: "marzo–mayo", AMJ: "abril–junio", MJJ: "mayo–julio",
-  JJA: "junio–agosto", JAS: "julio–septiembre", ASO: "agosto–octubre",
-  SON: "septiembre–noviembre", OND: "octubre–diciembre", NDJ: "noviembre–enero",
+  es: {
+    DJF: "diciembre–febrero", JFM: "enero–marzo", FMA: "febrero–abril",
+    MAM: "marzo–mayo", AMJ: "abril–junio", MJJ: "mayo–julio",
+    JJA: "junio–agosto", JAS: "julio–septiembre", ASO: "agosto–octubre",
+    SON: "septiembre–noviembre", OND: "octubre–diciembre", NDJ: "noviembre–enero",
+  },
+  en: {
+    DJF: "December–February", JFM: "January–March", FMA: "February–April",
+    MAM: "March–May", AMJ: "April–June", MJJ: "May–July",
+    JJA: "June–August", JAS: "July–September", ASO: "August–October",
+    SON: "September–November", OND: "October–December", NDJ: "November–January",
+  },
 };
 
-const MONTH_LABELS = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+const MONTH_LABELS = {
+  es: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
+  en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+};
+
+const TRANSLATIONS = {
+  es: {
+    metaTitle: "Temperatura del mar y El Niño",
+    metaDescription: "Dashboard público para observar cuánto se calienta o enfría el Pacífico tropical y si las condiciones asociadas con El Niño persisten.",
+    ogDescription: "Seguimiento semanal del Pacífico tropical con datos oficiales de NOAA.",
+    skipLink: "Saltar al contenido", navLabel: "Navegación principal", homeLabel: "Inicio",
+    brand: "Temperatura del Pacífico tropical", officialSources: "Fuentes oficiales NOAA",
+    languageSwitch: "English", languageAria: "Cambiar a inglés",
+    heroEyebrow: "Datos oficiales de NOAA · actualización semanal",
+    heroTitle: "Temperatura del mar<br><span>y El Niño.</span>",
+    heroLede: "Observa si la superficie del Pacífico tropical está más cálida o fría de lo normal y si ese cambio persiste durante varios meses.",
+    threeMonthAverage: "Promedio de los últimos 3 meses", loading: "Cargando",
+    loadingOfficialSeries: "Consultando la serie oficial…", adjustedCentralTemperature: "Temperatura ajustada del Pacífico central",
+    weeklyKicker: "Cambio semanal de la temperatura", weeklyTitle: "¿Qué zonas están más cálidas de lo normal?",
+    weeklyInitial: "Cada valor indica cuántos grados está una zona por encima o por debajo del promedio tropical.",
+    downloadCsv: "Descargar CSV", weeklyControlsAria: "Controles del gráfico semanal", regionsAria: "Regiones Niño",
+    regionsLabel: "Regiones", startYear: "Año inicial", weeklyStartYearAria: "Año inicial del gráfico semanal",
+    weeklyChartAria: "Gráfico de diferencias semanales de temperatura en cuatro zonas del Pacífico tropical",
+    weeklyLoading: "Preparando la serie semanal…",
+    thresholdNote: "Las líneas punteadas marcan ±0,5 °C como referencia. Una semana cálida o fría, por sí sola, no confirma El Niño ni La Niña.",
+    latestObservation: "Última observación", regionsTitle: "Temperatura por zona del Pacífico",
+    comparisonKicker: "Comparación dentro del año", comparisonTitle: "¿Cómo se comporta cada zona de enero a diciembre?",
+    comparisonInitial: "Cada línea representa un año. Los datos semanales se resumen en promedios mensuales para facilitar la comparación.",
+    comparisonControlsAria: "Controles de la comparación anual", zoneLabel: "Zona",
+    comparisonRegionAria: "Zona del Pacífico para comparar", comparisonStartYearAria: "Año inicial de la comparación",
+    legendAria: "Leyenda", previousYears: "Años anteriores", currentYearPlaceholder: "Año actual",
+    comparisonChartAria: "Comparación de enero a diciembre por años para una zona del Pacífico tropical",
+    comparisonLoading: "Preparando la comparación anual…",
+    historyKicker: "Evolución de largo plazo", historyTitle: "¿El calentamiento se mantiene durante varios meses?",
+    historyDescription: "Este indicador promedia tres meses de temperatura en el Pacífico central y la compara con el resto de los trópicos. NOAA lo denomina Índice Oceánico Relativo, o RONI.",
+    historyStartYearAria: "Año inicial del gráfico histórico del promedio oceánico", neutral: "Neutral",
+    historyChartAria: "Serie histórica del promedio oceánico de tres meses desde 1950", historyLoading: "Preparando el historial…",
+    methodKicker: "Cómo interpretar los datos", methodTitle: "Primero observa dónde cambia.<br>Luego comprueba cuánto dura.",
+    step1Title: "Empieza por la costa", step1Body: "La zona Niño 1+2 está frente a Ecuador y Perú. Puede calentarse con fuerza sin que todo el Pacífico esté bajo condiciones de El Niño.",
+    step2Title: "Observa si avanza hacia el centro", step2Body: "La zona Niño 3.4 permite saber si el calentamiento también alcanza el Pacífico central, una condición importante para El Niño.",
+    step3Title: "Comprueba si dura varios meses", step3Body: "El indicador de tres meses reduce los cambios pasajeros y permite distinguir una variación semanal de una señal oceánica persistente.",
+    transparency: "Transparencia", sourcesTitle: "Fuentes y actualización",
+    footerSource: "<strong>Monitoreo de temperatura superficial del mar</strong> · Visualización independiente con datos públicos de NOAA/CPC.",
+    footerDisclaimer: "El tablero describe la señal oceánica; no sustituye los avisos oficiales ni constituye un pronóstico.",
+    loadError: "No fue posible cargar los datos. Intenta nuevamente en unos minutos.",
+    warmPersistent: "Calentamiento persistente compatible con El Niño", warmDeveloping: "Calentamiento del océano en desarrollo",
+    coldPersistent: "Enfriamiento persistente compatible con La Niña", coldDeveloping: "Enfriamiento del océano en desarrollo",
+    neutralTemperature: "Temperatura cercana a lo normal", persistenceNone: "sin periodos consecutivos fuera de lo normal",
+    persistenceOne: "1 periodo consecutivo fuera de lo normal", persistenceMany: "{count} periodos consecutivos fuera de lo normal",
+    periodMeta: "{season} de {year} · {persistence}", recentData: "Datos recientes", delayedSource: "Fuente con rezago",
+    weeklySummary: "{count} semanas desde {year}. Los valores positivos indican más calor de lo normal; los negativos, más frío.",
+    differenceAxis: "Diferencia frente a lo normal (°C)", monthAxis: "Mes",
+    comparisonSummary: "{region}: {count} líneas, una por año desde {year}. Los años anteriores aparecen en gris y {currentYear} en rojo.",
+    threeMonthDataset: "Promedio de tres meses", differenceTooltip: "Diferencia frente a lo normal",
+    trendStable: "estable en cuatro semanas", trendRose: "subió <strong>{value} °C</strong> en cuatro semanas", trendFell: "bajó <strong>{value} °C</strong> en cuatro semanas",
+    weekOf: "Semana del {date}", relativeToTropics: "Frente al promedio tropical", observedTemperature: "Temperatura observada",
+    signalPrefix: "La señal {trend}.", viewSource: "Ver fuente ↗", sourceAsOf: "hasta {date}", seasonYear: "{season} de {year}",
+    weeklyError: "No se pudo cargar la serie semanal.", comparisonError: "No se pudo cargar la comparación anual.", historyError: "No se pudo cargar el historial.",
+    csvDate: "fecha", csvFilename: "anomalias-nino-desde-{year}.csv",
+  },
+  en: {
+    metaTitle: "Sea surface temperature and El Niño",
+    metaDescription: "Public dashboard showing how much the tropical Pacific is warming or cooling and whether conditions associated with El Niño persist.",
+    ogDescription: "Weekly monitoring of the tropical Pacific using official NOAA data.",
+    skipLink: "Skip to content", navLabel: "Main navigation", homeLabel: "Home",
+    brand: "Tropical Pacific temperature", officialSources: "Official NOAA sources",
+    languageSwitch: "Español", languageAria: "Switch to Spanish",
+    heroEyebrow: "Official NOAA data · updated weekly",
+    heroTitle: "Sea surface temperature<br><span>and El Niño.</span>",
+    heroLede: "See whether the tropical Pacific surface is warmer or cooler than normal and whether that change persists for several months.",
+    threeMonthAverage: "Average over the latest 3 months", loading: "Loading",
+    loadingOfficialSeries: "Loading the official series…", adjustedCentralTemperature: "Adjusted central Pacific temperature",
+    weeklyKicker: "Weekly temperature change", weeklyTitle: "Which regions are warmer than normal?",
+    weeklyInitial: "Each value shows how many degrees a region is above or below the tropical average.",
+    downloadCsv: "Download CSV", weeklyControlsAria: "Weekly chart controls", regionsAria: "Niño regions",
+    regionsLabel: "Regions", startYear: "Start year", weeklyStartYearAria: "Start year for the weekly chart",
+    weeklyChartAria: "Chart of weekly temperature differences across four tropical Pacific regions",
+    weeklyLoading: "Preparing the weekly series…",
+    thresholdNote: "The dotted lines mark ±0.5 °C as a reference. A single warm or cold week does not confirm El Niño or La Niña.",
+    latestObservation: "Latest observation", regionsTitle: "Temperature by Pacific region",
+    comparisonKicker: "Within-year comparison", comparisonTitle: "How does each region evolve from January to December?",
+    comparisonInitial: "Each line represents one year. Weekly data are summarized as monthly averages for easier comparison.",
+    comparisonControlsAria: "Annual comparison controls", zoneLabel: "Region",
+    comparisonRegionAria: "Pacific region to compare", comparisonStartYearAria: "Start year for the comparison",
+    legendAria: "Legend", previousYears: "Previous years", currentYearPlaceholder: "Current year",
+    comparisonChartAria: "January-to-December comparison by year for a tropical Pacific region",
+    comparisonLoading: "Preparing the annual comparison…",
+    historyKicker: "Long-term evolution", historyTitle: "Does the warming persist for several months?",
+    historyDescription: "This indicator averages three months of temperature in the central Pacific and compares it with the rest of the tropics. NOAA calls it the Relative Oceanic Niño Index, or RONI.",
+    historyStartYearAria: "Start year for the historical ocean-average chart", neutral: "Neutral",
+    historyChartAria: "Historical three-month ocean-average series since 1950", historyLoading: "Preparing the historical series…",
+    methodKicker: "How to interpret the data", methodTitle: "First, see where it changes.<br>Then, check how long it lasts.",
+    step1Title: "Start with the coast", step1Body: "The Niño 1+2 region lies off Ecuador and Peru. It can warm sharply without the entire Pacific experiencing El Niño conditions.",
+    step2Title: "See whether it reaches the center", step2Body: "The Niño 3.4 region shows whether warming also reaches the central Pacific, an important condition for El Niño.",
+    step3Title: "Check whether it lasts for months", step3Body: "The three-month indicator reduces short-lived changes and helps distinguish a weekly fluctuation from a persistent ocean signal.",
+    transparency: "Transparency", sourcesTitle: "Sources and updates",
+    footerSource: "<strong>Sea surface temperature monitoring</strong> · Independent visualization using public NOAA/CPC data.",
+    footerDisclaimer: "The dashboard describes the ocean signal; it does not replace official advisories and is not a forecast.",
+    loadError: "The data could not be loaded. Please try again in a few minutes.",
+    warmPersistent: "Persistent warming consistent with El Niño", warmDeveloping: "Ocean warming is developing",
+    coldPersistent: "Persistent cooling consistent with La Niña", coldDeveloping: "Ocean cooling is developing",
+    neutralTemperature: "Temperature close to normal", persistenceNone: "no consecutive periods outside the normal range",
+    persistenceOne: "1 consecutive period outside the normal range", persistenceMany: "{count} consecutive periods outside the normal range",
+    periodMeta: "{season} {year} · {persistence}", recentData: "Recent data", delayedSource: "Source is delayed",
+    weeklySummary: "{count} weeks since {year}. Positive values mean warmer than normal; negative values mean cooler.",
+    differenceAxis: "Difference from normal (°C)", monthAxis: "Month",
+    comparisonSummary: "{region}: {count} lines, one per year since {year}. Previous years are gray and {currentYear} is red.",
+    threeMonthDataset: "Three-month average", differenceTooltip: "Difference from normal",
+    trendStable: "was stable over four weeks", trendRose: "rose <strong>{value} °C</strong> over four weeks", trendFell: "fell <strong>{value} °C</strong> over four weeks",
+    weekOf: "Week of {date}", relativeToTropics: "Relative to the tropical average", observedTemperature: "Observed temperature",
+    signalPrefix: "The signal {trend}.", viewSource: "View source ↗", sourceAsOf: "through {date}", seasonYear: "{season} {year}",
+    weeklyError: "The weekly series could not be loaded.", comparisonError: "The annual comparison could not be loaded.", historyError: "The historical series could not be loaded.",
+    csvDate: "date", csvFilename: "nino-anomalies-since-{year}.csv",
+  },
+};
 
 const state = {
+  language: "es",
   data: null,
   regions: new Set(["nino34"]),
   weeklyStartYear: null,
@@ -34,19 +182,39 @@ const state = {
   roniChart: null,
 };
 
-const number = new Intl.NumberFormat("es-EC", { minimumFractionDigits: 1, maximumFractionDigits: 1, signDisplay: "always" });
-const dateFormat = new Intl.DateTimeFormat("es-EC", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+function t(key, values = {}) {
+  const template = TRANSLATIONS[state.language][key] ?? TRANSLATIONS.es[key] ?? key;
+  return template.replace(/\{(\w+)\}/g, (_match, name) => values[name] ?? `{${name}}`);
+}
+
+function locale() {
+  return state.language === "en" ? "en-US" : "es-EC";
+}
+
+function regionCopy(region) {
+  return REGION_META[region][state.language];
+}
+
+function sourceCopy(source) {
+  return SOURCE_META[source][state.language];
+}
 
 function parseIsoDate(value) {
   return new Date(`${value}T00:00:00Z`);
 }
 
 function formatDate(value) {
-  return dateFormat.format(parseIsoDate(value)).replace(".", "");
+  return new Intl.DateTimeFormat(locale(), { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })
+    .format(parseIsoDate(value)).replace(".", "");
 }
 
 function loadStateFromUrl() {
   const params = new URLSearchParams(window.location.search);
+  const requestedLanguage = params.get("lang");
+  let storedLanguage = null;
+  try { storedLanguage = localStorage.getItem("enso-language"); } catch (_error) { /* Storage may be unavailable. */ }
+  if (["es", "en"].includes(requestedLanguage)) state.language = requestedLanguage;
+  else if (["es", "en"].includes(storedLanguage)) state.language = storedLanguage;
   const weeklyStartYear = Number(params.get("desde_semana"));
   const comparisonStartYear = Number(params.get("desde_comparacion"));
   const roniStartYear = Number(params.get("desde_roni"));
@@ -61,6 +229,7 @@ function loadStateFromUrl() {
 
 function syncUrl() {
   const params = new URLSearchParams();
+  params.set("lang", state.language);
   params.set("desde_semana", state.weeklyStartYear);
   params.set("comparar", state.comparisonRegion);
   params.set("desde_comparacion", state.comparisonStartYear);
@@ -70,17 +239,60 @@ function syncUrl() {
 }
 
 function signed(value) {
-  return number.format(value).replace("+", "+").replace("-", "−");
+  return new Intl.NumberFormat(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1, signDisplay: "always" })
+    .format(value).replace("-", "−");
+}
+
+function decimal(value, digits = 1) {
+  return new Intl.NumberFormat(locale(), { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(value);
+}
+
+function applyLanguage() {
+  document.documentElement.lang = state.language;
+  document.title = t("metaTitle");
+  document.querySelector('meta[name="description"]').content = t("metaDescription");
+  document.querySelector('meta[property="og:title"]').content = t("metaTitle");
+  document.querySelector('meta[property="og:description"]').content = t("ogDescription");
+  document.querySelectorAll("[data-i18n]").forEach((element) => {
+    element.textContent = t(element.dataset.i18n);
+  });
+  document.querySelectorAll("[data-i18n-html]").forEach((element) => {
+    element.innerHTML = t(element.dataset.i18nHtml);
+  });
+  document.querySelectorAll("[data-i18n-aria-label]").forEach((element) => {
+    element.setAttribute("aria-label", t(element.dataset.i18nAriaLabel));
+  });
+
+  const languageToggle = document.querySelector("#languageToggle");
+  languageToggle.textContent = t("languageSwitch");
+  languageToggle.setAttribute("aria-label", t("languageAria"));
+  languageToggle.lang = state.language === "es" ? "en" : "es";
+
+  document.querySelectorAll("#regionControls [data-region]").forEach((button) => {
+    button.innerHTML = `<i></i>${regionCopy(button.dataset.region).control}`;
+  });
+  document.querySelectorAll("#comparisonRegion option").forEach((option) => {
+    option.textContent = regionCopy(option.value).control;
+  });
+  if (!state.data) {
+    document.querySelector("#weeklyAsOf").textContent = t("weekOf", { date: "—" });
+    document.querySelector("#comparisonCurrentYear").textContent = t("currentYearPlaceholder");
+    if (!document.querySelector("#errorBanner").hidden) {
+      document.querySelector("#weeklyLoading").textContent = t("weeklyError");
+      document.querySelector("#comparisonLoading").textContent = t("comparisonError");
+      document.querySelector("#roniLoading").textContent = t("historyError");
+    }
+  }
 }
 
 function classCopy(classification, count) {
   if (classification === "warm") {
-    return count >= 5 ? "Calentamiento persistente compatible con El Niño" : "Calentamiento del océano en desarrollo";
+    return t(count >= 5 ? "warmPersistent" : "warmDeveloping");
   }
   if (classification === "cold") {
-    return count >= 5 ? "Enfriamiento persistente compatible con La Niña" : "Enfriamiento del océano en desarrollo";
+    return t(count >= 5 ? "coldPersistent" : "coldDeveloping");
   }
-  return "Temperatura cercana a lo normal";
+  return t("neutralTemperature");
 }
 
 function renderHeadline() {
@@ -89,15 +301,19 @@ function renderHeadline() {
   document.querySelector("#roniValue").textContent = signed(roni.value);
   document.querySelector("#roniStatus").textContent = classCopy(roni.classification, roni.consecutive_seasons);
   const persistence = roni.consecutive_seasons === 0
-    ? "sin periodos consecutivos fuera de lo normal"
+    ? t("persistenceNone")
     : roni.consecutive_seasons === 1
-      ? "1 periodo consecutivo fuera de lo normal"
-      : `${roni.consecutive_seasons} periodos consecutivos fuera de lo normal`;
-  document.querySelector("#roniMeta").textContent = `${SEASON_LABELS[roni.season]} de ${roni.year} · ${persistence}`;
+      ? t("persistenceOne")
+      : t("persistenceMany", { count: roni.consecutive_seasons });
+  document.querySelector("#roniMeta").textContent = t("periodMeta", {
+    season: SEASON_LABELS[state.language][roni.season],
+    year: roni.year,
+    persistence,
+  });
 
   const ageDays = Math.floor((Date.now() - parseIsoDate(meta.main_observation_date)) / 86_400_000);
   const freshness = document.querySelector("#freshnessLabel");
-  freshness.textContent = ageDays <= 21 ? "Datos recientes" : "Fuente con rezago";
+  freshness.textContent = t(ageDays <= 21 ? "recentData" : "delayedSource");
   freshness.parentElement.classList.toggle("stale", ageDays > 21);
 }
 
@@ -167,7 +383,7 @@ function chartDefaults() {
 function renderWeeklyChart() {
   const rows = getWeeklyWindow();
   const datasets = [...state.regions].map((region) => ({
-    label: REGION_META[region].label,
+    label: regionCopy(region).label,
     data: rows.map((row) => row[region]),
     borderColor: REGION_META[region].color,
     backgroundColor: REGION_META[region].color,
@@ -210,7 +426,7 @@ function renderWeeklyChart() {
             maxRotation: 0,
             callback: (_value, index) => {
               const d = parseIsoDate(rows[index].date);
-              return d.toLocaleDateString("es-EC", { month: "short", year: "2-digit", timeZone: "UTC" }).replace(".", "");
+              return d.toLocaleDateString(locale(), { month: "short", year: "2-digit", timeZone: "UTC" }).replace(".", "");
             },
           },
         },
@@ -219,7 +435,7 @@ function renderWeeklyChart() {
           suggestedMax: 2,
           border: { display: false },
           ticks: { callback: (value) => `${value > 0 ? "+" : ""}${value}°` },
-          title: { display: true, text: "Diferencia frente a lo normal (°C)", color: "#667985", font: { size: 11, weight: "500" } },
+          title: { display: true, text: t("differenceAxis"), color: "#667985", font: { size: 11, weight: "500" } },
         },
       },
     },
@@ -228,7 +444,10 @@ function renderWeeklyChart() {
   if (state.weeklyChart) state.weeklyChart.destroy();
   state.weeklyChart = new Chart(document.querySelector("#weeklyChart"), config);
   document.querySelector("#weeklyLoading").classList.add("hidden");
-  document.querySelector("#weeklySummary").textContent = `${rows.length.toLocaleString("es-EC")} semanas desde ${state.weeklyStartYear}. Los valores positivos indican más calor de lo normal; los negativos, más frío.`;
+  document.querySelector("#weeklySummary").textContent = t("weeklySummary", {
+    count: rows.length.toLocaleString(locale()),
+    year: state.weeklyStartYear,
+  });
 }
 
 function getMonthlyComparisonSeries() {
@@ -250,6 +469,7 @@ function getMonthlyComparisonSeries() {
 
 function renderComparisonChart() {
   const series = getMonthlyComparisonSeries();
+  const monthLabels = MONTH_LABELS[state.language];
   const currentYear = series.at(-1).year;
   const previousColor = "rgba(102, 121, 133, .34)";
   const currentColor = "#d84335";
@@ -269,7 +489,7 @@ function renderComparisonChart() {
 
   const config = {
     type: "line",
-    data: { labels: MONTH_LABELS, datasets },
+    data: { labels: monthLabels, datasets },
     options: {
       responsive: true,
       maintainAspectRatio: false,
@@ -283,7 +503,7 @@ function renderComparisonChart() {
           mode: "nearest",
           intersect: false,
           callbacks: {
-            title: (items) => MONTH_LABELS[items[0].dataIndex],
+            title: (items) => monthLabels[items[0].dataIndex],
             label: (item) => ` ${item.dataset.label}: ${signed(item.raw)} °C`,
           },
         },
@@ -293,7 +513,7 @@ function renderComparisonChart() {
           grid: { display: false },
           border: { display: false },
           ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: window.innerWidth < 640 ? 4 : 12 },
-          title: { display: true, text: "Mes", color: "#667985", font: { size: 11, weight: "500" } },
+          title: { display: true, text: t("monthAxis"), color: "#667985", font: { size: 11, weight: "500" } },
         },
         y: {
           suggestedMin: -2.5,
@@ -301,7 +521,7 @@ function renderComparisonChart() {
           border: { display: false },
           grid: { color: (context) => context.tick.value === 0 ? "rgba(16, 43, 58, .34)" : "rgba(16, 43, 58, .09)" },
           ticks: { callback: (value) => `${value > 0 ? "+" : ""}${value}°` },
-          title: { display: true, text: "Diferencia frente a lo normal (°C)", color: "#667985", font: { size: 11, weight: "500" } },
+          title: { display: true, text: t("differenceAxis"), color: "#667985", font: { size: 11, weight: "500" } },
         },
       },
     },
@@ -311,7 +531,12 @@ function renderComparisonChart() {
   state.comparisonChart = new Chart(document.querySelector("#comparisonChart"), config);
   document.querySelector("#comparisonLoading").classList.add("hidden");
   document.querySelector("#comparisonCurrentYear").textContent = String(currentYear);
-  document.querySelector("#comparisonSummary").textContent = `${REGION_META[state.comparisonRegion].label}: ${series.length} líneas, una por año desde ${state.comparisonStartYear}. Los años anteriores aparecen en gris y ${currentYear} en rojo.`;
+  document.querySelector("#comparisonSummary").textContent = t("comparisonSummary", {
+    region: regionCopy(state.comparisonRegion).label,
+    count: series.length.toLocaleString(locale()),
+    year: state.comparisonStartYear,
+    currentYear,
+  });
 }
 
 function renderRoniChart() {
@@ -321,7 +546,7 @@ function renderRoniChart() {
     data: {
       labels: rows.map((row) => row.date),
       datasets: [{
-        label: "Promedio de tres meses",
+        label: t("threeMonthDataset"),
         data: rows.map((row) => row.value),
         borderColor: "#123f58",
         backgroundColor: "#123f58",
@@ -345,7 +570,7 @@ function renderRoniChart() {
           padding: 12,
           callbacks: {
             title: (items) => `${rows[items[0].dataIndex].season} ${rows[items[0].dataIndex].year}`,
-            label: (item) => ` Diferencia frente a lo normal: ${signed(item.raw)} °C`,
+            label: (item) => ` ${t("differenceTooltip")}: ${signed(item.raw)} °C`,
           },
         },
         decimation: { enabled: true, algorithm: "min-max" },
@@ -369,6 +594,7 @@ function renderRoniChart() {
       },
     },
   };
+  if (state.roniChart) state.roniChart.destroy();
   state.roniChart = new Chart(document.querySelector("#roniChart"), config);
   document.querySelector("#roniLoading").classList.add("hidden");
 }
@@ -378,21 +604,21 @@ function trendCopy(region) {
   const current = rows.at(-1)[region];
   const previous = rows.at(-5)?.[region] ?? current;
   const delta = current - previous;
-  if (Math.abs(delta) < 0.05) return "estable en cuatro semanas";
-  return `${delta > 0 ? "subió" : "bajó"} <strong>${signed(Math.abs(delta))} °C</strong> en cuatro semanas`;
+  if (Math.abs(delta) < 0.05) return t("trendStable");
+  return t(delta > 0 ? "trendRose" : "trendFell", { value: signed(Math.abs(delta)) });
 }
 
 function renderRegions() {
   const current = state.data.current.weekly;
-  document.querySelector("#weeklyAsOf").textContent = `Semana del ${formatDate(current.date)}`;
+  document.querySelector("#weeklyAsOf").textContent = t("weekOf", { date: formatDate(current.date) });
   const grid = document.querySelector("#regionGrid");
   grid.innerHTML = Object.entries(REGION_META).map(([key, meta]) => `
     <article class="region-card" style="--region-color:${meta.color}">
-      <div class="region-name"><h3>${meta.label}</h3><span>${meta.place}</span></div>
+      <div class="region-name"><h3>${regionCopy(key).label}</h3><span>${regionCopy(key).place}</span></div>
       <div class="region-anomaly">${signed(current[key])}<small>°C</small></div>
-      <p class="region-measure">Frente al promedio tropical</p>
-      <p class="region-sst">Temperatura observada: <strong>${current[`${key}_sst`].toFixed(1)} °C</strong></p>
-      <p class="region-trend">La señal ${trendCopy(key)}.</p>
+      <p class="region-measure">${t("relativeToTropics")}</p>
+      <p class="region-sst">${t("observedTemperature")}: <strong>${decimal(current[`${key}_sst`])} °C</strong></p>
+      <p class="region-trend">${t("signalPrefix", { trend: trendCopy(key) })}</p>
     </article>
   `).join("");
 }
@@ -401,12 +627,15 @@ function renderSources() {
   const list = document.querySelector("#sourceList");
   list.innerHTML = Object.entries(state.data.meta.sources).map(([key, source]) => {
     const latest = key === "roni"
-      ? `${state.data.current.roni.season} ${state.data.current.roni.year}`
+      ? t("seasonYear", {
+        season: SEASON_LABELS[state.language][state.data.current.roni.season],
+        year: state.data.current.roni.year,
+      })
       : formatDate(source.latest_observation);
     return `
       <a class="source-item" href="${source.url}" target="_blank" rel="noreferrer">
-        <span><strong>${SOURCE_META[key].label}</strong>${SOURCE_META[key].detail} · al ${latest}</span>
-        <b>Ver fuente ↗</b>
+        <span><strong>${sourceCopy(key).label}</strong>${sourceCopy(key).detail} · ${t("sourceAsOf", { date: latest })}</span>
+        <b>${t("viewSource")}</b>
       </a>
     `;
   }).join("");
@@ -423,6 +652,21 @@ function updateControls() {
 }
 
 function bindControls() {
+  document.querySelector("#languageToggle").addEventListener("click", () => {
+    state.language = state.language === "es" ? "en" : "es";
+    try { localStorage.setItem("enso-language", state.language); } catch (_error) { /* Storage may be unavailable. */ }
+    applyLanguage();
+    updateControls();
+    if (state.data) {
+      renderHeadline();
+      renderWeeklyChart();
+      renderComparisonChart();
+      renderRoniChart();
+      renderRegions();
+      renderSources();
+    }
+    syncUrl();
+  });
   document.querySelector("#regionControls").addEventListener("click", (event) => {
     const button = event.target.closest("button[data-region]");
     if (!button) return;
@@ -455,7 +699,6 @@ function bindControls() {
     state.roniStartYear = Number(event.target.value);
     updateControls();
     syncUrl();
-    if (state.roniChart) state.roniChart.destroy();
     renderRoniChart();
   });
   document.querySelector("#downloadCsv").addEventListener("click", downloadCsv);
@@ -463,19 +706,20 @@ function bindControls() {
 
 function downloadCsv() {
   const regions = [...state.regions];
-  const header = ["fecha", ...regions.map((key) => `${key}_anomalia_relativa_c`)];
+  const header = [t("csvDate"), ...regions.map((key) => `${key}_relative_anomaly_c`)];
   const rows = getWeeklyWindow().map((row) => [row.date, ...regions.map((key) => row[key])]);
   const csv = [header, ...rows].map((row) => row.join(",")).join("\n");
   const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
   const anchor = document.createElement("a");
   anchor.href = url;
-  anchor.download = `anomalias-nino-desde-${state.weeklyStartYear}.csv`;
+  anchor.download = t("csvFilename", { year: state.weeklyStartYear });
   anchor.click();
   URL.revokeObjectURL(url);
 }
 
 async function init() {
   loadStateFromUrl();
+  applyLanguage();
   bindControls();
   try {
     const response = await fetch("data/enso.json", { cache: "no-cache" });
@@ -495,9 +739,9 @@ async function init() {
   } catch (error) {
     console.error(error);
     document.querySelector("#errorBanner").hidden = false;
-    document.querySelector("#weeklyLoading").textContent = "No se pudo cargar la serie semanal.";
-    document.querySelector("#comparisonLoading").textContent = "No se pudo cargar la comparación anual.";
-    document.querySelector("#roniLoading").textContent = "No se pudo cargar el historial.";
+    document.querySelector("#weeklyLoading").textContent = t("weeklyError");
+    document.querySelector("#comparisonLoading").textContent = t("comparisonError");
+    document.querySelector("#roniLoading").textContent = t("historyError");
   }
 }
 

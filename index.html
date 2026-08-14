@@ -17,28 +17,31 @@
     <script defer src="app.js"></script>
   </head>
   <body>
-    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+    <a class="skip-link" href="#contenido" data-i18n="skipLink">Saltar al contenido</a>
 
     <header class="masthead">
-      <nav class="nav shell" aria-label="Navegación principal">
-        <a class="brand" href="./" aria-label="Inicio">Temperatura del Pacífico tropical</a>
-        <a class="source-link" href="https://www.cpc.ncep.noaa.gov/data/indices/" target="_blank" rel="noreferrer">Fuentes oficiales NOAA <span aria-hidden="true">↗</span></a>
+      <nav class="nav shell" aria-label="Navegación principal" data-i18n-aria-label="navLabel">
+        <a class="brand" href="./" aria-label="Inicio" data-i18n="brand" data-i18n-aria-label="homeLabel">Temperatura del Pacífico tropical</a>
+        <div class="nav-actions">
+          <a class="source-link" href="https://www.cpc.ncep.noaa.gov/data/indices/" target="_blank" rel="noreferrer"><span class="source-label" data-i18n="officialSources">Fuentes oficiales NOAA</span> <span aria-hidden="true">↗</span></a>
+          <button class="language-toggle" id="languageToggle" type="button" aria-label="Cambiar a inglés">English</button>
+        </div>
       </nav>
 
       <div class="hero shell">
         <div class="hero-copy">
-          <p class="eyebrow">Datos oficiales de NOAA · actualización semanal</p>
-          <h1>Temperatura del mar<br><span>y El Niño.</span></h1>
-          <p class="lede">Observa si la superficie del Pacífico tropical está más cálida o fría de lo normal y si ese cambio persiste durante varios meses.</p>
+          <p class="eyebrow" data-i18n="heroEyebrow">Datos oficiales de NOAA · actualización semanal</p>
+          <h1 data-i18n-html="heroTitle">Temperatura del mar<br><span>y El Niño.</span></h1>
+          <p class="lede" data-i18n="heroLede">Observa si la superficie del Pacífico tropical está más cálida o fría de lo normal y si ese cambio persiste durante varios meses.</p>
         </div>
         <div class="hero-reading" aria-labelledby="roni-title">
           <div class="reading-topline">
-            <span id="roni-title">Promedio de los últimos 3 meses</span>
-            <span class="live-dot"><i></i><span id="freshnessLabel">Cargando</span></span>
+            <span id="roni-title" data-i18n="threeMonthAverage">Promedio de los últimos 3 meses</span>
+            <span class="live-dot"><i></i><span id="freshnessLabel" data-i18n="loading">Cargando</span></span>
           </div>
           <div class="reading-value"><span id="roniValue">—</span><small>°C</small></div>
-          <p class="reading-status" id="roniStatus">Consultando la serie oficial…</p>
-          <p class="reading-meta" id="roniMeta">Temperatura ajustada del Pacífico central</p>
+          <p class="reading-status" id="roniStatus" data-i18n="loadingOfficialSeries">Consultando la serie oficial…</p>
+          <p class="reading-meta" id="roniMeta" data-i18n="adjustedCentralTemperature">Temperatura ajustada del Pacífico central</p>
         </div>
       </div>
     </header>
@@ -47,16 +50,16 @@
       <section class="panel pulse-panel" aria-labelledby="pulse-title">
         <div class="section-heading">
           <div>
-            <p class="section-kicker">Cambio semanal de la temperatura</p>
-            <h2 id="pulse-title">¿Qué zonas están más cálidas de lo normal?</h2>
-            <p id="weeklySummary">Cada valor indica cuántos grados está una zona por encima o por debajo del promedio tropical.</p>
+            <p class="section-kicker" data-i18n="weeklyKicker">Cambio semanal de la temperatura</p>
+            <h2 id="pulse-title" data-i18n="weeklyTitle">¿Qué zonas están más cálidas de lo normal?</h2>
+            <p id="weeklySummary" data-i18n="weeklyInitial">Cada valor indica cuántos grados está una zona por encima o por debajo del promedio tropical.</p>
           </div>
-          <button class="download-button" id="downloadCsv" type="button">Descargar CSV</button>
+          <button class="download-button" id="downloadCsv" type="button" data-i18n="downloadCsv">Descargar CSV</button>
         </div>
 
-        <div class="controls" aria-label="Controles del gráfico semanal">
-          <div class="control-group" aria-label="Regiones Niño">
-            <span class="control-label">Regiones</span>
+        <div class="controls" aria-label="Controles del gráfico semanal" data-i18n-aria-label="weeklyControlsAria">
+          <div class="control-group" aria-label="Regiones Niño" data-i18n-aria-label="regionsAria">
+            <span class="control-label" data-i18n="regionsLabel">Regiones</span>
             <div class="segmented regions" id="regionControls">
               <button type="button" data-region="nino12" aria-pressed="false"><i></i>Costa (Niño 1+2)</button>
               <button type="button" data-region="nino3" aria-pressed="false"><i></i>Este (Niño 3)</button>
@@ -65,23 +68,23 @@
             </div>
           </div>
           <label class="year-field" for="weeklyStartYear">
-            <span class="control-label">Año inicial</span>
-            <select id="weeklyStartYear" aria-label="Año inicial del gráfico semanal"></select>
+            <span class="control-label" data-i18n="startYear">Año inicial</span>
+            <select id="weeklyStartYear" aria-label="Año inicial del gráfico semanal" data-i18n-aria-label="weeklyStartYearAria"></select>
           </label>
         </div>
 
         <div class="chart-wrap chart-large">
-          <canvas id="weeklyChart" role="img" aria-label="Gráfico de diferencias semanales de temperatura en cuatro zonas del Pacífico tropical"></canvas>
-          <div class="chart-loading" id="weeklyLoading">Preparando la serie semanal…</div>
+          <canvas id="weeklyChart" role="img" aria-label="Gráfico de diferencias semanales de temperatura en cuatro zonas del Pacífico tropical" data-i18n-aria-label="weeklyChartAria"></canvas>
+          <div class="chart-loading" id="weeklyLoading" data-i18n="weeklyLoading">Preparando la serie semanal…</div>
         </div>
-        <div class="threshold-note"><span></span>Las líneas punteadas marcan ±0,5 °C como referencia. Una semana cálida o fría, por sí sola, no confirma El Niño ni La Niña.</div>
+        <div class="threshold-note"><span class="threshold-mark"></span><span data-i18n="thresholdNote">Las líneas punteadas marcan ±0,5 °C como referencia. Una semana cálida o fría, por sí sola, no confirma El Niño ni La Niña.</span></div>
       </section>
 
       <section class="route-section" aria-labelledby="route-title">
         <div class="section-heading compact">
           <div>
-            <p class="section-kicker">Última observación</p>
-            <h2 id="route-title">Temperatura por zona del Pacífico</h2>
+            <p class="section-kicker" data-i18n="latestObservation">Última observación</p>
+            <h2 id="route-title" data-i18n="regionsTitle">Temperatura por zona del Pacífico</h2>
           </div>
           <p class="as-of" id="weeklyAsOf">Semana —</p>
         </div>
@@ -91,14 +94,14 @@
       <section class="panel comparison-panel" aria-labelledby="comparison-title">
         <div class="section-heading">
           <div>
-            <p class="section-kicker">Comparación dentro del año</p>
-            <h2 id="comparison-title">¿Cómo se comporta cada zona de enero a diciembre?</h2>
-            <p id="comparisonSummary">Cada línea representa un año. Los datos semanales se resumen en promedios mensuales para facilitar la comparación.</p>
+            <p class="section-kicker" data-i18n="comparisonKicker">Comparación dentro del año</p>
+            <h2 id="comparison-title" data-i18n="comparisonTitle">¿Cómo se comporta cada zona de enero a diciembre?</h2>
+            <p id="comparisonSummary" data-i18n="comparisonInitial">Cada línea representa un año. Los datos semanales se resumen en promedios mensuales para facilitar la comparación.</p>
           </div>
-          <div class="comparison-tools" aria-label="Controles de la comparación anual">
+          <div class="comparison-tools" aria-label="Controles de la comparación anual" data-i18n-aria-label="comparisonControlsAria">
             <label class="year-field" for="comparisonRegion">
-              <span class="control-label">Zona</span>
-              <select id="comparisonRegion" aria-label="Zona del Pacífico para comparar">
+              <span class="control-label" data-i18n="zoneLabel">Zona</span>
+              <select id="comparisonRegion" aria-label="Zona del Pacífico para comparar" data-i18n-aria-label="comparisonRegionAria">
                 <option value="nino12">Costa (Niño 1+2)</option>
                 <option value="nino3">Este (Niño 3)</option>
                 <option value="nino34">Centro-este (Niño 3.4)</option>
@@ -106,71 +109,71 @@
               </select>
             </label>
             <label class="year-field" for="comparisonStartYear">
-              <span class="control-label">Año inicial</span>
-              <select id="comparisonStartYear" aria-label="Año inicial de la comparación"></select>
+              <span class="control-label" data-i18n="startYear">Año inicial</span>
+              <select id="comparisonStartYear" aria-label="Año inicial de la comparación" data-i18n-aria-label="comparisonStartYearAria"></select>
             </label>
-            <div class="comparison-key" aria-label="Leyenda">
-              <span><i class="previous"></i>Años anteriores</span>
+            <div class="comparison-key" aria-label="Leyenda" data-i18n-aria-label="legendAria">
+              <span><i class="previous"></i><em data-i18n="previousYears">Años anteriores</em></span>
               <span><i class="current"></i><b id="comparisonCurrentYear">Año actual</b></span>
             </div>
           </div>
         </div>
         <div class="chart-wrap chart-comparison">
-          <canvas id="comparisonChart" role="img" aria-label="Comparación de enero a diciembre por años para una zona del Pacífico tropical"></canvas>
-          <div class="chart-loading" id="comparisonLoading">Preparando la comparación anual…</div>
+          <canvas id="comparisonChart" role="img" aria-label="Comparación de enero a diciembre por años para una zona del Pacífico tropical" data-i18n-aria-label="comparisonChartAria"></canvas>
+          <div class="chart-loading" id="comparisonLoading" data-i18n="comparisonLoading">Preparando la comparación anual…</div>
         </div>
       </section>
 
       <section class="panel history-panel" aria-labelledby="history-title">
         <div class="section-heading">
           <div>
-            <p class="section-kicker">Evolución de largo plazo</p>
-            <h2 id="history-title">¿El calentamiento se mantiene durante varios meses?</h2>
-            <p>Este indicador promedia tres meses de temperatura en el Pacífico central y la compara con el resto de los trópicos. NOAA lo denomina Índice Oceánico Relativo, o RONI.</p>
+            <p class="section-kicker" data-i18n="historyKicker">Evolución de largo plazo</p>
+            <h2 id="history-title" data-i18n="historyTitle">¿El calentamiento se mantiene durante varios meses?</h2>
+            <p data-i18n="historyDescription">Este indicador promedia tres meses de temperatura en el Pacífico central y la compara con el resto de los trópicos. NOAA lo denomina Índice Oceánico Relativo, o RONI.</p>
           </div>
           <div class="history-tools">
             <label class="year-field" for="roniStartYear">
-              <span class="control-label">Año inicial</span>
-              <select id="roniStartYear" aria-label="Año inicial del gráfico histórico del promedio oceánico"></select>
+              <span class="control-label" data-i18n="startYear">Año inicial</span>
+              <select id="roniStartYear" aria-label="Año inicial del gráfico histórico del promedio oceánico" data-i18n-aria-label="historyStartYearAria"></select>
             </label>
-            <div class="legend-zones" aria-label="Leyenda">
+            <div class="legend-zones" aria-label="Leyenda" data-i18n-aria-label="legendAria">
               <span><i class="warm"></i>El Niño</span>
-              <span><i class="neutral"></i>Neutral</span>
+              <span><i class="neutral"></i><em data-i18n="neutral">Neutral</em></span>
               <span><i class="cold"></i>La Niña</span>
             </div>
           </div>
         </div>
         <div class="chart-wrap chart-history">
-          <canvas id="roniChart" role="img" aria-label="Serie histórica del promedio oceánico de tres meses desde 1950"></canvas>
-          <div class="chart-loading" id="roniLoading">Preparando el historial…</div>
+          <canvas id="roniChart" role="img" aria-label="Serie histórica del promedio oceánico de tres meses desde 1950" data-i18n-aria-label="historyChartAria"></canvas>
+          <div class="chart-loading" id="roniLoading" data-i18n="historyLoading">Preparando el historial…</div>
         </div>
       </section>
 
       <section class="method" aria-labelledby="method-title">
         <div class="method-intro">
-          <p class="section-kicker">Cómo interpretar los datos</p>
-          <h2 id="method-title">Primero observa dónde cambia.<br>Luego comprueba cuánto dura.</h2>
+          <p class="section-kicker" data-i18n="methodKicker">Cómo interpretar los datos</p>
+          <h2 id="method-title" data-i18n-html="methodTitle">Primero observa dónde cambia.<br>Luego comprueba cuánto dura.</h2>
         </div>
         <div class="method-steps">
           <article>
             <span>01</span>
-            <div><h3>Empieza por la costa</h3><p>La zona Niño 1+2 está frente a Ecuador y Perú. Puede calentarse con fuerza sin que todo el Pacífico esté bajo condiciones de El Niño.</p></div>
+            <div><h3 data-i18n="step1Title">Empieza por la costa</h3><p data-i18n="step1Body">La zona Niño 1+2 está frente a Ecuador y Perú. Puede calentarse con fuerza sin que todo el Pacífico esté bajo condiciones de El Niño.</p></div>
           </article>
           <article>
             <span>02</span>
-            <div><h3>Observa si avanza hacia el centro</h3><p>La zona Niño 3.4 permite saber si el calentamiento también alcanza el Pacífico central, una condición importante para El Niño.</p></div>
+            <div><h3 data-i18n="step2Title">Observa si avanza hacia el centro</h3><p data-i18n="step2Body">La zona Niño 3.4 permite saber si el calentamiento también alcanza el Pacífico central, una condición importante para El Niño.</p></div>
           </article>
           <article>
             <span>03</span>
-            <div><h3>Comprueba si dura varios meses</h3><p>El indicador de tres meses reduce los cambios pasajeros y permite distinguir una variación semanal de una señal oceánica persistente.</p></div>
+            <div><h3 data-i18n="step3Title">Comprueba si dura varios meses</h3><p data-i18n="step3Body">El indicador de tres meses reduce los cambios pasajeros y permite distinguir una variación semanal de una señal oceánica persistente.</p></div>
           </article>
         </div>
       </section>
 
       <section class="sources" aria-labelledby="sources-title">
         <div>
-          <p class="section-kicker">Transparencia</p>
-          <h2 id="sources-title">Fuentes y actualización</h2>
+          <p class="section-kicker" data-i18n="transparency">Transparencia</p>
+          <h2 id="sources-title" data-i18n="sourcesTitle">Fuentes y actualización</h2>
         </div>
         <div class="source-list" id="sourceList"></div>
       </section>
@@ -178,12 +181,12 @@
 
     <footer>
       <div class="shell footer-inner">
-        <p><strong>Monitoreo de temperatura superficial del mar</strong> · Visualización independiente con datos públicos de NOAA/CPC.</p>
-        <p>El tablero describe la señal oceánica; no sustituye los avisos oficiales ni constituye un pronóstico.</p>
+        <p data-i18n-html="footerSource"><strong>Monitoreo de temperatura superficial del mar</strong> · Visualización independiente con datos públicos de NOAA/CPC.</p>
+        <p data-i18n="footerDisclaimer">El tablero describe la señal oceánica; no sustituye los avisos oficiales ni constituye un pronóstico.</p>
       </div>
     </footer>
 
-    <div class="error-banner" id="errorBanner" role="alert" hidden>No fue posible cargar los datos. Intenta nuevamente en unos minutos.</div>
-    <noscript><div class="noscript">Este dashboard necesita JavaScript para dibujar las series interactivas.</div></noscript>
+    <div class="error-banner" id="errorBanner" role="alert" hidden data-i18n="loadError">No fue posible cargar los datos. Intenta nuevamente en unos minutos.</div>
+    <noscript><div class="noscript">Este dashboard necesita JavaScript para dibujar las series interactivas. / This dashboard requires JavaScript to draw the interactive series.</div></noscript>
   </body>
 </html>

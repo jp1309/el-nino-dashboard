@@ -94,6 +94,9 @@ a { color: inherit; }
 
 .source-link { color: #d9e7ed; font-size: .9rem; text-decoration: none; }
 .source-link:hover { color: white; }
+.nav-actions { display: flex; align-items: center; gap: 16px; }
+.language-toggle { padding: 7px 11px; border: 1px solid rgba(255,255,255,.35); border-radius: 8px; color: white; background: transparent; cursor: pointer; font-size: .78rem; font-weight: 700; }
+.language-toggle:hover { border-color: white; background: rgba(255,255,255,.07); }
 
 .hero {
   position: relative;
@@ -190,7 +193,7 @@ h1 span { color: #70c6dd; }
 .chart-loading { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); background: rgba(255,254,250,.86); font-size: .9rem; }
 .chart-loading.hidden { display: none; }
 .threshold-note { display: flex; align-items: center; gap: 9px; margin-top: 14px; color: var(--muted); font-size: .78rem; }
-.threshold-note span { width: 25px; border-top: 1px dashed #8ca0aa; }
+.threshold-note .threshold-mark { flex: none; width: 25px; border-top: 1px dashed #8ca0aa; }
 
 .route-section { padding: 74px 0; }
 .as-of { margin: 0; color: var(--muted); font-size: .88rem; }
@@ -212,6 +215,7 @@ h1 span { color: #70c6dd; }
 .comparison-tools { display: grid; min-width: 300px; gap: 12px; justify-items: end; }
 .comparison-key { display: flex; flex-wrap: wrap; gap: 14px; color: var(--muted); font-size: .77rem; }
 .comparison-key span { display: flex; align-items: center; gap: 7px; }
+.comparison-key em, .legend-zones em { font-style: normal; }
 .comparison-key b { color: inherit; font-weight: 700; }
 .comparison-key i { display: block; width: 25px; border-top: 2px solid #aab4b7; }
 .comparison-key i.current { border-color: #d84335; border-width: 3px; }
@@ -261,8 +265,11 @@ button:focus-visible, a:focus-visible { outline: 3px solid #57c7e5; outline-offs
   .shell { width: min(100% - 24px, 1180px); }
   .masthead { min-height: auto; }
   .nav { height: 70px; }
-  .source-link { font-size: 0; }
-  .source-link span { font-size: 1rem; }
+  .brand { max-width: 190px; font-size: .72rem; letter-spacing: .05em; line-height: 1.15; }
+  .nav-actions { gap: 10px; }
+  .language-toggle { padding: 6px 9px; }
+  .source-link .source-label { display: none; }
+  .source-link span[aria-hidden="true"] { font-size: 1rem; }
   .hero { padding: 52px 0 66px; }
   h1 { font-size: 3.2rem; }
   .lede { font-size: 1rem; }
