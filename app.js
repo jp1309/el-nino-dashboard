@@ -306,7 +306,7 @@ function initializeYearControls() {
   const roniMin = roniYears[0];
   const roniMax = roniYears.at(-1);
 
-  state.weeklyStartYear = Math.min(weeklyMax, Math.max(weeklyMin, state.weeklyStartYear ?? weeklyMax - 2));
+  state.weeklyStartYear = Math.min(weeklyMax, Math.max(weeklyMin, state.weeklyStartYear ?? 2017));
   state.comparisonStartYear = Math.min(weeklyMax, Math.max(weeklyMin, state.comparisonStartYear ?? weeklyMax - 10));
   state.roniStartYear = Math.min(roniMax, Math.max(roniMin, state.roniStartYear ?? 1990));
   populateYearSelect("#weeklyStartYear", weeklyYears, state.weeklyStartYear);

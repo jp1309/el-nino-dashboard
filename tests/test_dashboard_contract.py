@@ -31,6 +31,10 @@ class DashboardStructureTests(unittest.TestCase):
         self.assertIn("state.roniStartYear ?? 1990", self.app)
         self.assertIn('populateYearSelect("#roniStartYear", roniYears', self.app)
 
+    def test_weekly_chart_defaults_to_2017(self):
+        self.assertIn("state.weeklyStartYear ?? 2017", self.app)
+        self.assertIn('populateYearSelect("#weeklyStartYear", weeklyYears', self.app)
+
     def test_all_charts_use_half_degree_y_axis_steps(self):
         self.assertIn("stepSize: 0.5", self.app)
         self.assertIn("autoSkip: false", self.app)
