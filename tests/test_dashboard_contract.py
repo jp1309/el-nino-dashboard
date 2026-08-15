@@ -18,6 +18,7 @@ class DashboardStructureTests(unittest.TestCase):
         self.assertIn('id="weeklyUpdated"', main)
 
     def test_last_updated_label_is_prominent_red(self):
+        self.assertIn('href="styles.css?v=20260814-red"', self.html)
         self.assertIn(
             ".section-heading p.updated-label { margin: 0; color: #c62828; font-size: 1rem; font-weight: 800; }",
             self.styles,
