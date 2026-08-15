@@ -12,8 +12,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
     <link rel="stylesheet" href="styles.css">
     <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script defer src="app.js"></script>
   </head>
   <body>
@@ -145,39 +147,18 @@
           </div>
         </div>
 
-        <div class="map-scroll" role="img" tabindex="0" aria-label="Mapa esquemático del Pacífico tropical con las zonas Niño 1+2, Niño 3, Niño 3.4 y Niño 4" data-i18n-aria-label="mapAria">
-          <div class="pacific-map" aria-hidden="true">
-            <div class="map-grid"></div>
-            <div class="map-equator"><span data-i18n="mapEquator">Ecuador</span></div>
-            <span class="map-place map-place-west" data-i18n="mapWest">Pacífico occidental</span>
-            <span class="map-place map-place-east" data-i18n="mapEast">Costa de Sudamérica</span>
-            <div class="map-land map-land-west"></div>
-            <div class="map-land map-land-east"></div>
-
-            <span class="map-longitude" style="--x: 7.69%">160°E</span>
-            <span class="map-longitude" style="--x: 30.77%">170°W</span>
-            <span class="map-longitude" style="--x: 46.15%">150°W</span>
-            <span class="map-longitude" style="--x: 69.23%">120°W</span>
-            <span class="map-longitude" style="--x: 92.31%">90°W</span>
-            <span class="map-longitude map-longitude-end" style="--x: 100%">80°W</span>
-            <span class="map-latitude" style="--y: 33.33%">5°N</span>
-            <span class="map-latitude" style="--y: 66.67%">5°S</span>
-            <span class="map-latitude" style="--y: 83.33%">10°S</span>
-
-            <div class="map-zone map-zone-nino4"><strong>Niño 4</strong></div>
-            <div class="map-zone map-zone-nino34"><strong>Niño 3.4</strong></div>
-            <div class="map-zone map-zone-nino3"><strong>Niño 3</strong></div>
-            <div class="map-zone map-zone-nino12"><strong>1+2</strong></div>
-          </div>
+        <div class="map-frame">
+          <div id="ninoMap" class="nino-map" role="region" aria-label="Mapa geográfico interactivo del Pacífico tropical con las zonas Niño 1+2, Niño 3, Niño 3.4 y Niño 4" data-i18n-aria-label="mapAria"></div>
+          <button class="map-reset" id="mapReset" type="button" data-i18n="mapReset">Ver todas las zonas</button>
         </div>
 
         <div class="map-zone-grid">
-          <article style="--region-color: #f05a47"><h3>Niño 1+2</h3><span>0–10°S · 90–80°W</span><p data-i18n="mapNino12Body">Frente a Ecuador y Perú. Detecta con rapidez los cambios costeros del Pacífico oriental.</p></article>
-          <article style="--region-color: #e59b28"><h3>Niño 3</h3><span>5°N–5°S · 150–90°W</span><p data-i18n="mapNino3Body">Cubre el Pacífico oriental y permite observar cuánto se extiende la señal hacia el oeste.</p></article>
-          <article style="--region-color: #168fbd"><h3>Niño 3.4</h3><span>5°N–5°S · 170–120°W</span><p data-i18n="mapNino34Body">Cruza el Pacífico central y oriental. Es la principal referencia oceánica para seguir ENSO.</p></article>
-          <article style="--region-color: #6656c8"><h3>Niño 4</h3><span>5°N–5°S · 160°E–150°W</span><p data-i18n="mapNino4Body">Cubre el Pacífico central-occidental y muestra si la señal se concentra más hacia el oeste.</p></article>
+          <article data-map-region="nino12" style="--region-color: #f05a47"><h3>Niño 1+2</h3><span>0–10°S · 90–80°W</span><p data-i18n="mapNino12Body">Frente a Ecuador y Perú. Detecta con rapidez los cambios costeros del Pacífico oriental.</p></article>
+          <article data-map-region="nino3" style="--region-color: #e59b28"><h3>Niño 3</h3><span>5°N–5°S · 150–90°W</span><p data-i18n="mapNino3Body">Cubre el Pacífico oriental y permite observar cuánto se extiende la señal hacia el oeste.</p></article>
+          <article data-map-region="nino34" style="--region-color: #168fbd"><h3>Niño 3.4</h3><span>5°N–5°S · 170–120°W</span><p data-i18n="mapNino34Body">Cruza el Pacífico central y oriental. Es la principal referencia oceánica para seguir ENSO.</p></article>
+          <article data-map-region="nino4" style="--region-color: #6656c8"><h3>Niño 4</h3><span>5°N–5°S · 160°E–150°W</span><p data-i18n="mapNino4Body">Cubre el Pacífico central-occidental y muestra si la señal se concentra más hacia el oeste.</p></article>
         </div>
-        <p class="map-note" data-i18n="mapNote">Los límites representan las coordenadas utilizadas por NOAA; la forma de las costas es esquemática.</p>
+        <p class="map-note" data-i18n="mapNote">Haz clic sobre una zona o sobre su tarjeta para acercarla. El punto rojo identifica la costa de Ecuador.</p>
       </section>
 
       <section class="method" aria-labelledby="method-title">

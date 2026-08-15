@@ -24,7 +24,7 @@ Presenta un promedio móvil de tres meses para distinguir cambios persistentes d
 
 ### Mapa de las zonas Niño
 
-Ubica las cuatro áreas de monitoreo sobre un esquema del Pacífico tropical, muestra sus coordenadas y hace visibles los solapamientos entre Niño 3, Niño 3.4 y Niño 4. También explica qué aporta cada zona al seguimiento de la señal oceánica.
+Ubica las cuatro áreas de monitoreo sobre un mapa geográfico interactivo del Pacífico tropical, muestra sus coordenadas y hace visibles los solapamientos entre Niño 3, Niño 3.4 y Niño 4. La costa de Ecuador está identificada explícitamente y cada zona puede ampliarse para examinarla con más detalle.
 
 ## Zonas de monitoreo
 

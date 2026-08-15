@@ -55,8 +55,13 @@ class DashboardStructureTests(unittest.TestCase):
         method = self.html.index('class="method"')
         self.assertLess(history, region_map)
         self.assertLess(region_map, method)
-        self.assertEqual(self.html.count('class="map-zone map-zone-'), 4)
+        self.assertIn('id="ninoMap"', self.html)
+        self.assertIn("leaflet@1.9.4", self.html)
+        self.assertEqual(self.html.count("data-map-region="), 4)
         self.assertIn('data-i18n-aria-label="mapAria"', self.html)
+        self.assertIn("REGION_MAP_BOUNDS", self.app)
+        self.assertIn('L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png"', self.app)
+        self.assertIn('bindTooltip("Ecuador"', self.app)
 
 
 if __name__ == "__main__":

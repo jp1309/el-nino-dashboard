@@ -23,6 +23,15 @@ const REGION_META = {
   },
 };
 
+const REGION_MAP_BOUNDS = {
+  nino12: { bounds: [[-10, 270], [0, 280]], fillOpacity: 0.22 },
+  nino3: { bounds: [[-5, 210], [5, 270]], fillOpacity: 0.13 },
+  nino34: { bounds: [[-5, 190], [5, 240]], fillOpacity: 0.16 },
+  nino4: { bounds: [[-5, 160], [5, 210]], fillOpacity: 0.13 },
+};
+
+const PACIFIC_MAP_BOUNDS = [[-18, 155], [18, 283]];
+
 const SOURCE_META = {
   relative_weekly: {
     es: { label: "Cambio semanal frente al promedio tropical", detail: "Cuatro zonas del Pacífico · datos OISST v2.1" },
@@ -87,13 +96,13 @@ const TRANSLATIONS = {
     historyChartAria: "Serie histórica del promedio oceánico de tres meses en la zona Niño 3.4 desde 1950", historyLoading: "Preparando el historial…",
     mapKicker: "Geografía del monitoreo", mapTitle: "¿Dónde están las zonas Niño?",
     mapDescription: "NOAA divide el Pacífico tropical en cuatro áreas de referencia. Los rectángulos se superponen porque cada zona responde a una pregunta distinta sobre la extensión del calentamiento o enfriamiento.",
-    mapAria: "Mapa esquemático del Pacífico tropical con las zonas Niño 1+2, Niño 3, Niño 3.4 y Niño 4",
-    mapWest: "Pacífico occidental", mapEast: "Costa de Sudamérica", mapEquator: "Ecuador",
+    mapAria: "Mapa geográfico interactivo del Pacífico tropical con las zonas Niño 1+2, Niño 3, Niño 3.4 y Niño 4",
+    mapReset: "Ver todas las zonas", mapFocus: "Acercar el mapa a", mapUnavailable: "No fue posible cargar el mapa geográfico.",
     mapNino12Body: "Frente a Ecuador y Perú. Detecta con rapidez los cambios costeros del Pacífico oriental.",
     mapNino3Body: "Cubre el Pacífico oriental y permite observar cuánto se extiende la señal hacia el oeste.",
     mapNino34Body: "Cruza el Pacífico central y oriental. Es la principal referencia oceánica para seguir ENSO.",
     mapNino4Body: "Cubre el Pacífico central-occidental y muestra si la señal se concentra más hacia el oeste.",
-    mapNote: "Los límites representan las coordenadas utilizadas por NOAA; la forma de las costas es esquemática.",
+    mapNote: "Haz clic sobre una zona o sobre su tarjeta para acercarla. El punto rojo identifica la costa de Ecuador.",
     methodKicker: "Cómo interpretar los datos", methodTitle: "Primero observa dónde cambia.<br>Luego comprueba cuánto dura.",
     step1Title: "Empieza por la costa", step1Body: "La zona Niño 1+2 está frente a Ecuador y Perú. Puede calentarse con fuerza sin que todo el Pacífico esté bajo condiciones de El Niño.",
     step2Title: "Observa si avanza hacia el centro", step2Body: "La zona Niño 3.4 permite saber si el calentamiento también alcanza el Pacífico central, una condición importante para El Niño.",
@@ -141,13 +150,13 @@ const TRANSLATIONS = {
     historyChartAria: "Historical three-month ocean-average series for the Niño 3.4 region since 1950", historyLoading: "Preparing the historical series…",
     mapKicker: "Monitoring geography", mapTitle: "Where are the Niño regions?",
     mapDescription: "NOAA divides the tropical Pacific into four reference areas. The rectangles overlap because each region answers a different question about how far warming or cooling extends.",
-    mapAria: "Schematic map of the tropical Pacific showing the Niño 1+2, Niño 3, Niño 3.4 and Niño 4 regions",
-    mapWest: "Western Pacific", mapEast: "South American coast", mapEquator: "Equator",
+    mapAria: "Interactive geographic map of the tropical Pacific showing the Niño 1+2, Niño 3, Niño 3.4 and Niño 4 regions",
+    mapReset: "Show all regions", mapFocus: "Zoom the map to", mapUnavailable: "The geographic map could not be loaded.",
     mapNino12Body: "Off Ecuador and Peru. It quickly detects coastal changes in the eastern Pacific.",
     mapNino3Body: "Covers the eastern Pacific and shows how far the signal extends westward.",
     mapNino34Body: "Spans the central and eastern Pacific. It is the main ocean reference for monitoring ENSO.",
     mapNino4Body: "Covers the west-central Pacific and shows whether the signal is concentrated farther west.",
-    mapNote: "The boundaries represent the coordinates used by NOAA; coastlines are schematic.",
+    mapNote: "Click a region or its card to zoom in. The red point marks the coast of Ecuador.",
     methodKicker: "How to interpret the data", methodTitle: "First, see where it changes.<br>Then, check how long it lasts.",
     step1Title: "Start with the coast", step1Body: "The Niño 1+2 region lies off Ecuador and Peru. It can warm sharply without the entire Pacific experiencing El Niño conditions.",
     step2Title: "See whether it reaches the center", step2Body: "The Niño 3.4 region shows whether warming also reaches the central Pacific, an important condition for El Niño.",
@@ -180,6 +189,8 @@ const state = {
   weeklyChart: null,
   comparisonChart: null,
   roniChart: null,
+  regionMap: null,
+  regionMapLayers: {},
 };
 
 function t(key, values = {}) {
@@ -297,6 +308,7 @@ function applyLanguage() {
       document.querySelector("#roniLoading").textContent = t("historyError");
     }
   }
+  if (state.regionMap) updateRegionMapLanguage();
 }
 
 function getWeeklyWindow() {
@@ -330,6 +342,100 @@ function initializeYearControls() {
   populateYearSelect("#weeklyStartYear", weeklyYears, state.weeklyStartYear);
   populateYearSelect("#comparisonStartYear", weeklyYears, state.comparisonStartYear);
   populateYearSelect("#roniStartYear", roniYears, state.roniStartYear);
+}
+
+function updateRegionMapLanguage() {
+  Object.entries(state.regionMapLayers).forEach(([region, layer]) => {
+    layer.setTooltipContent(regionCopy(region).place);
+  });
+  document.querySelectorAll("[data-map-region]").forEach((card) => {
+    card.setAttribute("aria-label", `${t("mapFocus")} ${regionCopy(card.dataset.mapRegion).place}`);
+  });
+}
+
+function resetRegionMap() {
+  if (!state.regionMap) return;
+  state.regionMap.fitBounds(PACIFIC_MAP_BOUNDS, { padding: [18, 18], maxZoom: 3, animate: false });
+}
+
+function focusRegionOnMap(region) {
+  if (!state.regionMap || !REGION_MAP_BOUNDS[region]) return;
+  state.regionMap.fitBounds(REGION_MAP_BOUNDS[region].bounds, { padding: [44, 44], maxZoom: 4, animate: true });
+  state.regionMapLayers[region]?.bringToFront();
+}
+
+function initializeRegionMap() {
+  const container = document.querySelector("#ninoMap");
+  if (!container || state.regionMap) return;
+  if (!window.L) {
+    container.classList.add("map-unavailable");
+    container.textContent = t("mapUnavailable");
+    return;
+  }
+
+  const map = L.map(container, {
+    preferCanvas: true,
+    zoomSnap: 0.25,
+    zoomDelta: 0.5,
+    minZoom: 1,
+    maxZoom: 7,
+    scrollWheelZoom: false,
+    worldCopyJump: false,
+  });
+  state.regionMap = map;
+
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    minZoom: 1,
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  }).addTo(map);
+
+  ["nino4", "nino3", "nino34", "nino12"].forEach((region) => {
+    const meta = REGION_MAP_BOUNDS[region];
+    const layer = L.rectangle(meta.bounds, {
+      color: REGION_META[region].color,
+      fillColor: REGION_META[region].color,
+      fillOpacity: meta.fillOpacity,
+      opacity: 0.95,
+      weight: region === "nino12" ? 3 : 2.5,
+      interactive: true,
+    }).addTo(map);
+    layer.bindTooltip(regionCopy(region).place, {
+      permanent: true,
+      direction: "center",
+      className: `nino-map-label nino-map-label-${region}`,
+    });
+    layer.on("click", () => focusRegionOnMap(region));
+    state.regionMapLayers[region] = layer;
+  });
+
+  L.circleMarker([-1.1, 279.2], {
+    radius: 6,
+    color: "#ffffff",
+    fillColor: "#d84335",
+    fillOpacity: 1,
+    opacity: 1,
+    weight: 2,
+  }).addTo(map).bindTooltip("Ecuador", {
+    permanent: true,
+    direction: "top",
+    className: "ecuador-map-label",
+    offset: [0, -7],
+  });
+
+  document.querySelectorAll("[data-map-region]").forEach((card) => {
+    card.setAttribute("role", "button");
+    card.setAttribute("tabindex", "0");
+    card.addEventListener("click", () => focusRegionOnMap(card.dataset.mapRegion));
+    card.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      focusRegionOnMap(card.dataset.mapRegion);
+    });
+  });
+  document.querySelector("#mapReset").addEventListener("click", resetRegionMap);
+  updateRegionMapLanguage();
+  resetRegionMap();
 }
 
 const zonePlugin = {
@@ -721,6 +827,15 @@ async function init() {
   loadStateFromUrl();
   applyLanguage();
   bindControls();
+  try {
+    initializeRegionMap();
+  } catch (error) {
+    console.error(error);
+    const mapContainer = document.querySelector("#ninoMap");
+    mapContainer.classList.add("map-unavailable");
+    mapContainer.textContent = t("mapUnavailable");
+    document.querySelector("#mapReset").hidden = true;
+  }
   try {
     const response = await fetch("data/enso.json", { cache: "no-cache" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
