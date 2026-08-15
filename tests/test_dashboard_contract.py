@@ -17,6 +17,12 @@ class DashboardStructureTests(unittest.TestCase):
         self.assertLess(main.index('class="panel pulse-panel"'), main.index('class="route-section"'))
         self.assertIn('id="weeklyUpdated"', main)
 
+    def test_last_updated_label_is_prominent_red(self):
+        self.assertIn(
+            ".section-heading p.updated-label { margin: 0; color: #c62828; font-size: 1rem; font-weight: 800; }",
+            self.styles,
+        )
+
     def test_removed_hero_has_no_remaining_contract(self):
         self.assertNotIn('class="hero', self.html)
         self.assertNotIn("renderHeadline", self.app)
