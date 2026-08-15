@@ -63,6 +63,12 @@ class DashboardStructureTests(unittest.TestCase):
         self.assertIn('L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png"', self.app)
         self.assertIn('bindTooltip("Ecuador"', self.app)
 
+    def test_footer_credits_the_author_and_codex(self):
+        self.assertIn('data-i18n-html="footerCredit"', self.html)
+        self.assertIn("Juan Pablo Erraez", self.html)
+        self.assertIn("Desarrollo asistido por Codex", self.app)
+        self.assertIn("Developed with assistance from Codex", self.app)
+
 
 if __name__ == "__main__":
     unittest.main()
