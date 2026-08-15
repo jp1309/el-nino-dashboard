@@ -114,7 +114,7 @@ h2, h3 { font-family: "Manrope", sans-serif; letter-spacing: -.035em; }
 }
 .download-button:hover { border-color: var(--blue); color: var(--blue); }
 .weekly-heading-actions { display: grid; flex: none; gap: 10px; justify-items: end; }
-.updated-label { margin: 0; color: var(--muted); font-size: .82rem; font-weight: 700; }
+.updated-label { margin: 0; color: var(--warm); font-size: 1rem; font-weight: 800; }
 
 .controls { display: flex; flex-wrap: wrap; gap: 24px 40px; justify-content: space-between; margin-bottom: 22px; padding: 15px 18px; background: #f5f7f5; border-radius: 13px; }
 .control-group { display: flex; align-items: center; gap: 12px; }
