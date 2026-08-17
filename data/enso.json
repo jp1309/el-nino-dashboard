@@ -1,17 +1,17 @@
 {
   "meta": {
     "title": "Temperatura del mar y El Niño",
-    "main_observation_date": "2026-08-05",
+    "main_observation_date": "2026-08-12",
     "sources": {
       "relative_weekly": {
         "url": "https://www.cpc.ncep.noaa.gov/data/indices/rel_wksst9120.txt",
-        "sha256": "895b7f1355572b91fc828ff02b01ba8ad742b0ad24d4db09736907d53f7f4ffe",
-        "latest_observation": "2026-08-05"
+        "sha256": "598941eb612799a6efba00412b1706e79aab54947e4eed0f41771b352a8423ce",
+        "latest_observation": "2026-08-12"
       },
       "absolute_weekly": {
         "url": "https://www.cpc.ncep.noaa.gov/data/indices/wksst9120.for",
-        "sha256": "432ae3eb31820de67dc3da5bbc1d9ebd0095f2ae30b40f5ce2a99cd957c342fd",
-        "latest_observation": "2026-08-05"
+        "sha256": "d54f69dd8067ed2d005440251d9c3c4f617c14f91fb7153b259e41f57749b7c6",
+        "latest_observation": "2026-08-12"
       },
       "roni": {
         "url": "https://www.cpc.ncep.noaa.gov/data/indices/RONI.ascii.txt",
@@ -22,19 +22,19 @@
   },
   "current": {
     "weekly": {
-      "date": "2026-08-05",
-      "nino12": 3.3,
-      "nino12_sst": 25.3,
-      "nino12_anom": 4.1,
-      "nino3": 2.4,
+      "date": "2026-08-12",
+      "nino12": 3.2,
+      "nino12_sst": 25.0,
+      "nino12_anom": 4.0,
+      "nino3": 2.5,
       "nino3_sst": 28.4,
-      "nino3_anom": 3.1,
+      "nino3_anom": 3.2,
       "nino34": 1.8,
-      "nino34_sst": 29.5,
-      "nino34_anom": 2.6,
-      "nino4": 0.3,
-      "nino4_sst": 29.8,
-      "nino4_anom": 1.1
+      "nino34_sst": 29.6,
+      "nino34_anom": 2.7,
+      "nino4": 0.2,
+      "nino4_sst": 29.7,
+      "nino4_anom": 1.0
     },
     "roni": {
       "date": "2026-06-15",
@@ -35164,13 +35164,13 @@
     {
       "date": "2026-07-22",
       "nino12": 3.0,
-      "nino12_sst": 25.4,
-      "nino12_anom": 3.8,
+      "nino12_sst": 25.2,
+      "nino12_anom": 3.6,
       "nino3": 1.8,
       "nino3_sst": 28.1,
       "nino3_anom": 2.5,
       "nino34": 1.4,
-      "nino34_sst": 29.3,
+      "nino34_sst": 29.4,
       "nino34_anom": 2.2,
       "nino4": 0.3,
       "nino4_sst": 29.8,
@@ -35205,6 +35205,21 @@
       "nino4": 0.3,
       "nino4_sst": 29.8,
       "nino4_anom": 1.1
+    },
+    {
+      "date": "2026-08-12",
+      "nino12": 3.2,
+      "nino12_sst": 25.0,
+      "nino12_anom": 4.0,
+      "nino3": 2.5,
+      "nino3_sst": 28.4,
+      "nino3_anom": 3.2,
+      "nino34": 1.8,
+      "nino34_sst": 29.6,
+      "nino34_anom": 2.7,
+      "nino4": 0.2,
+      "nino4_sst": 29.7,
+      "nino4_anom": 1.0
     }
   ],
   "roni": [
