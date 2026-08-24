@@ -42,6 +42,13 @@ class DashboardStructureTests(unittest.TestCase):
         self.assertIn("state.weeklyStartYear ?? 2017", self.app)
         self.assertIn('populateYearSelect("#weeklyStartYear", weeklyYears', self.app)
 
+    def test_annual_comparison_preserves_weekly_observations(self):
+        self.assertIn("function getWeeklyComparisonSeries()", self.app)
+        self.assertNotIn("function getMonthlyComparisonSeries()", self.app)
+        self.assertIn('cubicInterpolationMode: "monotone"', self.app)
+        self.assertIn("parsing: false", self.app)
+        self.assertNotIn("promedios mensuales", self.html)
+
     def test_all_charts_use_half_degree_y_axis_steps(self):
         self.assertIn("stepSize: 0.5", self.app)
         self.assertIn("autoSkip: false", self.app)

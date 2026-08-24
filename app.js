@@ -67,6 +67,9 @@ const MONTH_LABELS = {
   en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
 };
 
+const DAY_MS = 86_400_000;
+const COMPARISON_MONTH_STARTS = [1, 32, 61, 92, 122, 153, 183, 214, 245, 275, 306, 336];
+
 const TRANSLATIONS = {
   es: {
     metaTitle: "Temperatura del mar y El Niño",
@@ -83,12 +86,12 @@ const TRANSLATIONS = {
     weeklyLoading: "Preparando la serie semanal…",
     thresholdNote: "Las líneas punteadas marcan ±0,5 °C como referencia. Una semana cálida o fría, por sí sola, no confirma El Niño ni La Niña.",
     latestObservation: "Última observación", regionsTitle: "Temperatura por zona del Pacífico",
-    comparisonKicker: "Comparación dentro del año", comparisonTitle: "¿Cómo se comporta cada zona de enero a diciembre?",
-    comparisonInitial: "Cada línea representa un año. Los datos semanales se resumen en promedios mensuales para facilitar la comparación.",
+    comparisonKicker: "Comparación semanal entre años", comparisonTitle: "¿Cómo evoluciona cada zona semana a semana dentro del año?",
+    comparisonInitial: "Cada línea representa un año y conserva todas las observaciones semanales disponibles.",
     comparisonControlsAria: "Controles de la comparación anual", zoneLabel: "Zona",
     comparisonRegionAria: "Zona del Pacífico para comparar", comparisonStartYearAria: "Año inicial de la comparación",
     legendAria: "Leyenda", previousYears: "Años anteriores", currentYearPlaceholder: "Año actual",
-    comparisonChartAria: "Comparación de enero a diciembre por años para una zona del Pacífico tropical",
+    comparisonChartAria: "Comparación semanal entre años para una zona del Pacífico tropical",
     comparisonLoading: "Preparando la comparación anual…",
     historyKicker: "Evolución de largo plazo · Zona Niño 3.4", historyTitle: "¿El calentamiento en la zona Niño 3.4 se mantiene durante varios meses?",
     historyDescription: "Este indicador promedia tres meses de temperatura en la zona Niño 3.4 del Pacífico central y la compara con el resto de los trópicos. NOAA lo denomina Índice Oceánico Relativo, o RONI.",
@@ -114,8 +117,8 @@ const TRANSLATIONS = {
     loadError: "No fue posible cargar los datos. Intenta nuevamente en unos minutos.",
     lastUpdated: "Datos actualizados al {date}",
     weeklySummary: "{count} semanas desde {year}. Los valores positivos indican más calor de lo normal; los negativos, más frío.",
-    differenceAxis: "Diferencia frente a lo normal (°C)", monthAxis: "Mes",
-    comparisonSummary: "{region}: {count} líneas, una por año desde {year}. Los años anteriores aparecen en gris y {currentYear} en rojo.",
+    differenceAxis: "Diferencia frente a lo normal (°C)", weekAxis: "Semana dentro del año",
+    comparisonSummary: "{region}: {count} líneas semanales desde {year}. Los años anteriores aparecen en gris y {currentYear} en rojo hasta el {latest}.",
     threeMonthDataset: "Zona Niño 3.4 · promedio de tres meses", differenceTooltip: "Diferencia frente a lo normal",
     trendStable: "estable en cuatro semanas", trendRose: "subió <strong>{value} °C</strong> en cuatro semanas", trendFell: "bajó <strong>{value} °C</strong> en cuatro semanas",
     weekOf: "Semana del {date}", relativeToTropics: "Frente al promedio tropical", observedTemperature: "Temperatura observada",
@@ -138,12 +141,12 @@ const TRANSLATIONS = {
     weeklyLoading: "Preparing the weekly series…",
     thresholdNote: "The dotted lines mark ±0.5 °C as a reference. A single warm or cold week does not confirm El Niño or La Niña.",
     latestObservation: "Latest observation", regionsTitle: "Temperature by Pacific region",
-    comparisonKicker: "Within-year comparison", comparisonTitle: "How does each region evolve from January to December?",
-    comparisonInitial: "Each line represents one year. Weekly data are summarized as monthly averages for easier comparison.",
+    comparisonKicker: "Weekly comparison across years", comparisonTitle: "How does each region evolve week by week through the year?",
+    comparisonInitial: "Each line represents one year and preserves every available weekly observation.",
     comparisonControlsAria: "Annual comparison controls", zoneLabel: "Region",
     comparisonRegionAria: "Pacific region to compare", comparisonStartYearAria: "Start year for the comparison",
     legendAria: "Legend", previousYears: "Previous years", currentYearPlaceholder: "Current year",
-    comparisonChartAria: "January-to-December comparison by year for a tropical Pacific region",
+    comparisonChartAria: "Weekly comparison across years for a tropical Pacific region",
     comparisonLoading: "Preparing the annual comparison…",
     historyKicker: "Long-term evolution · Niño 3.4 region", historyTitle: "Does warming in the Niño 3.4 region persist for several months?",
     historyDescription: "This indicator averages three months of temperature in the Niño 3.4 region of the central Pacific and compares it with the rest of the tropics. NOAA calls it the Relative Oceanic Niño Index, or RONI.",
@@ -169,8 +172,8 @@ const TRANSLATIONS = {
     loadError: "The data could not be loaded. Please try again in a few minutes.",
     lastUpdated: "Data updated through {date}",
     weeklySummary: "{count} weeks since {year}. Positive values mean warmer than normal; negative values mean cooler.",
-    differenceAxis: "Difference from normal (°C)", monthAxis: "Month",
-    comparisonSummary: "{region}: {count} lines, one per year since {year}. Previous years are gray and {currentYear} is red.",
+    differenceAxis: "Difference from normal (°C)", weekAxis: "Week within the year",
+    comparisonSummary: "{region}: {count} weekly lines since {year}. Previous years are gray and {currentYear} is red through {latest}.",
     threeMonthDataset: "Niño 3.4 region · three-month average", differenceTooltip: "Difference from normal",
     trendStable: "was stable over four weeks", trendRose: "rose <strong>{value} °C</strong> over four weeks", trendFell: "fell <strong>{value} °C</strong> over four weeks",
     weekOf: "Week of {date}", relativeToTropics: "Relative to the tropical average", observedTemperature: "Observed temperature",
@@ -301,8 +304,8 @@ function applyLanguage() {
     option.textContent = regionCopy(option.value).control;
   });
   if (!state.data) {
-    document.querySelector("#weeklyUpdated").textContent = t("lastUpdated", { date: "—" });
-    document.querySelector("#weeklyAsOf").textContent = t("weekOf", { date: "—" });
+    document.querySelector("#weeklyUpdated").textContent = t("lastUpdated", { date: "..." });
+    document.querySelector("#weeklyAsOf").textContent = t("weekOf", { date: "..." });
     document.querySelector("#comparisonCurrentYear").textContent = t("currentYearPlaceholder");
     if (!document.querySelector("#errorBanner").hidden) {
       document.querySelector("#weeklyLoading").textContent = t("weeklyError");
@@ -557,46 +560,53 @@ function renderWeeklyChart() {
   });
 }
 
-function getMonthlyComparisonSeries() {
+function comparisonDay(date) {
+  const month = Number(date.slice(5, 7)) - 1;
+  const day = Number(date.slice(8, 10));
+  return Math.round((Date.UTC(2000, month, day) - Date.UTC(2000, 0, 1)) / DAY_MS) + 1;
+}
+
+function getWeeklyComparisonSeries() {
   const byYear = new Map();
   state.data.weekly.forEach((row) => {
     const year = Number(row.date.slice(0, 4));
     if (year < state.comparisonStartYear) return;
-    const month = Number(row.date.slice(5, 7)) - 1;
-    if (!byYear.has(year)) byYear.set(year, Array.from({ length: 12 }, () => []));
-    byYear.get(year)[month].push(row[state.comparisonRegion]);
+    if (!byYear.has(year)) byYear.set(year, []);
+    byYear.get(year).push({
+      x: comparisonDay(row.date),
+      y: row[state.comparisonRegion],
+      date: row.date,
+    });
   });
-  return [...byYear.entries()].map(([year, months]) => ({
-    year,
-    values: months.map((values) => values.length
-      ? Number((values.reduce((sum, value) => sum + value, 0) / values.length).toFixed(2))
-      : null),
-  }));
+  return [...byYear.entries()].map(([year, values]) => ({ year, values }));
 }
 
 function renderComparisonChart() {
-  const series = getMonthlyComparisonSeries();
+  const series = getWeeklyComparisonSeries();
   const monthLabels = MONTH_LABELS[state.language];
   const currentYear = series.at(-1).year;
+  const latestDate = series.at(-1).values.at(-1).date;
   const previousColor = "rgba(102, 121, 133, .34)";
   const currentColor = "#d84335";
   const datasets = series.map(({ year, values }) => ({
     label: String(year),
     data: values,
+    parsing: false,
     borderColor: year === currentYear ? currentColor : previousColor,
     backgroundColor: year === currentYear ? currentColor : previousColor,
     borderWidth: year === currentYear ? 3 : 1.35,
     pointRadius: 0,
     pointHoverRadius: year === currentYear ? 4 : 2.5,
     pointHitRadius: 10,
-    tension: 0.32,
+    cubicInterpolationMode: "monotone",
+    tension: 0.18,
     spanGaps: false,
     order: year === currentYear ? 0 : 1,
   }));
 
   const config = {
     type: "line",
-    data: { labels: monthLabels, datasets },
+    data: { datasets },
     plugins: [zonePlugin],
     options: {
       responsive: true,
@@ -612,17 +622,27 @@ function renderComparisonChart() {
           mode: "nearest",
           intersect: false,
           callbacks: {
-            title: (items) => monthLabels[items[0].dataIndex],
-            label: (item) => ` ${item.dataset.label}: ${signed(item.raw)} °C`,
+            title: (items) => formatDate(items[0].raw.date),
+            label: (item) => ` ${item.dataset.label}: ${signed(item.raw.y)} °C`,
           },
         },
       },
       scales: {
         x: {
+          type: "linear",
+          min: 1,
+          max: 366,
           grid: { display: false },
           border: { display: false },
-          ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: window.innerWidth < 640 ? 4 : 12 },
-          title: { display: true, text: t("monthAxis"), color: "#667985", font: { size: 11, weight: "500" } },
+          afterBuildTicks: (axis) => {
+            const indexes = window.innerWidth < 640 ? [0, 4, 8, 11] : monthLabels.map((_label, index) => index);
+            axis.ticks = indexes.map((index) => ({ value: COMPARISON_MONTH_STARTS[index] }));
+          },
+          ticks: {
+            maxRotation: 0,
+            callback: (value) => monthLabels[COMPARISON_MONTH_STARTS.indexOf(value)] ?? "",
+          },
+          title: { display: true, text: t("weekAxis"), color: "#667985", font: { size: 11, weight: "500" } },
         },
         y: {
           suggestedMin: -2.5,
@@ -645,6 +665,7 @@ function renderComparisonChart() {
     count: series.length.toLocaleString(locale()),
     year: state.comparisonStartYear,
     currentYear,
+    latest: formatDate(latestDate),
   });
 }
 

@@ -14,9 +14,9 @@ No requiere instalación. La interfaz funciona en computadoras y dispositivos m�
 
 Compara las variaciones recientes de temperatura en las cuatro zonas del Pacífico tropical. La zona Niño 3.4 aparece seleccionada inicialmente porque es la referencia central más utilizada para seguir la evolución oceánica de El Niño y La Niña. El usuario puede activar o desactivar las demás zonas y escoger el año inicial.
 
-### Comparación de meses entre años
+### Comparación semanal entre años
 
-Superpone los valores de enero a diciembre para distintos años. Los años anteriores se muestran en gris y el año más reciente en rojo, lo que permite reconocer rápidamente si el calentamiento o enfriamiento actual se aparta de otros años. El usuario puede elegir la zona y desde qué año comparar.
+Superpone todas las observaciones semanales disponibles para distintos años, alineadas de enero a diciembre. Los años anteriores se muestran en gris y el año más reciente en rojo, que termina en la última semana publicada. Esto permite reconocer rápidamente si el calentamiento o enfriamiento actual se aparta de otros años. El usuario puede elegir la zona y desde qué año comparar.
 
 ### Evolución de largo plazo en la zona Niño 3.4
 
@@ -49,15 +49,15 @@ Los archivos originales descargados se conservan en [`data/raw/`](data/raw/). Lo
 
 ## Actualización semanal
 
-GitHub Actions ejecuta la actualización todos los **martes a las 14:17 UTC**, después de la publicación semanal de NOAA de los lunes. Este margen permite que los distintos archivos oficiales terminen de sincronizarse.
+GitHub Actions comprueba la actualización cada hora los **lunes y martes, desde las 08:00 hasta las 22:00, hora del Este de Estados Unidos**. La zona horaria `America/New_York` ajusta automáticamente los cambios estacionales. El lunes es la ventana principal, después de la publicación semanal de NOAA, y el martes sirve como red de seguridad si la publicación se retrasa.
 
 En cada ejecución, el proceso:
 
-1. descarga las tres fuentes oficiales;
-2. valida su estructura, fechas, rangos y duplicados;
-3. reemplaza los datos publicados únicamente si todas las comprobaciones terminan correctamente;
-4. registra los cambios cuando NOAA publicó información nueva;
-5. vuelve a desplegar el dashboard en GitHub Pages.
+1. compara el miércoles semanal esperado con las fechas de las dos fuentes OISST registradas en el manifiesto;
+2. termina sin descargar ni desplegar si ambas fuentes ya están al día;
+3. si falta la semana nueva, descarga las tres fuentes oficiales y valida su estructura, fechas, rangos y duplicados;
+4. reemplaza los datos publicados únicamente si todas las comprobaciones terminan correctamente;
+5. registra los cambios cuando NOAA publicó información nueva y vuelve a desplegar el dashboard en GitHub Pages.
 
 También se ejecuta después de cada cambio enviado a la rama `main` y puede iniciarse manualmente desde [GitHub Actions](https://github.com/jp1309/el-nino-dashboard/actions).
 

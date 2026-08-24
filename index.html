@@ -41,7 +41,7 @@
             <p id="weeklySummary" data-i18n="weeklyInitial">Cada valor indica cuántos grados está una zona por encima o por debajo del promedio tropical.</p>
           </div>
           <div class="weekly-heading-actions">
-            <p class="updated-label" id="weeklyUpdated">Datos actualizados al —</p>
+            <p class="updated-label" id="weeklyUpdated">Datos actualizados al...</p>
             <button class="download-button" id="downloadCsv" type="button" data-i18n="downloadCsv">Descargar CSV</button>
           </div>
         </div>
@@ -75,7 +75,7 @@
             <p class="section-kicker" data-i18n="latestObservation">Última observación</p>
             <h2 id="route-title" data-i18n="regionsTitle">Temperatura por zona del Pacífico</h2>
           </div>
-          <p class="as-of" id="weeklyAsOf">Semana —</p>
+          <p class="as-of" id="weeklyAsOf">Semana...</p>
         </div>
         <div class="region-grid" id="regionGrid" aria-live="polite"></div>
       </section>
@@ -83,9 +83,9 @@
       <section class="panel comparison-panel" aria-labelledby="comparison-title">
         <div class="section-heading">
           <div>
-            <p class="section-kicker" data-i18n="comparisonKicker">Comparación dentro del año</p>
-            <h2 id="comparison-title" data-i18n="comparisonTitle">¿Cómo se comporta cada zona de enero a diciembre?</h2>
-            <p id="comparisonSummary" data-i18n="comparisonInitial">Cada línea representa un año. Los datos semanales se resumen en promedios mensuales para facilitar la comparación.</p>
+            <p class="section-kicker" data-i18n="comparisonKicker">Comparación semanal entre años</p>
+            <h2 id="comparison-title" data-i18n="comparisonTitle">¿Cómo evoluciona cada zona semana a semana dentro del año?</h2>
+            <p id="comparisonSummary" data-i18n="comparisonInitial">Cada línea representa un año y conserva todas las observaciones semanales disponibles.</p>
           </div>
           <div class="comparison-tools" aria-label="Controles de la comparación anual" data-i18n-aria-label="comparisonControlsAria">
             <label class="year-field" for="comparisonRegion">
@@ -108,7 +108,7 @@
           </div>
         </div>
         <div class="chart-wrap chart-comparison">
-          <canvas id="comparisonChart" role="img" aria-label="Comparación de enero a diciembre por años para una zona del Pacífico tropical" data-i18n-aria-label="comparisonChartAria"></canvas>
+          <canvas id="comparisonChart" role="img" aria-label="Comparación semanal entre años para una zona del Pacífico tropical" data-i18n-aria-label="comparisonChartAria"></canvas>
           <div class="chart-loading" id="comparisonLoading" data-i18n="comparisonLoading">Preparando la comparación anual…</div>
         </div>
       </section>
