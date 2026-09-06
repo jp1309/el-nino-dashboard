@@ -116,15 +116,24 @@
             <label><span data-ocean="week">Semana centrada en</span><select id="oceanWeek"></select></label>
             <label class="ocean-zones"><input type="checkbox" id="oceanZones" checked><span data-ocean="zones">Zonas Niño</span></label>
           </div>
-          <p id="oceanPeriod" class="ocean-period" aria-live="polite"></p>
+          <div class="ocean-playback">
+            <div class="ocean-timeline-heading"><strong id="oceanSelectedDate"></strong><span id="oceanPosition"></span></div>
+            <div class="ocean-slider">
+              <input id="oceanTimeline" type="range" min="0" max="12" step="1" value="12" aria-label="Semana centrada en" aria-describedby="oceanTimelineHint">
+              <div class="ocean-ticks" id="oceanTicks" aria-hidden="true"></div>
+              <div class="ocean-timeline-dates"><span id="oceanFirst"></span><span id="oceanLast"></span></div>
+            </div>
+            <div class="ocean-transport">
+              <button id="oceanPrevious" type="button" aria-label="Semana anterior">←</button><button id="oceanPlay" type="button" aria-pressed="false"><span id="oceanPlayIcon" aria-hidden="true">▶</span> <span id="oceanPlayLabel" data-ocean="play">Reproducir</span></button><button id="oceanNext" type="button" aria-label="Semana siguiente">→</button>
+              <label class="ocean-speed"><span data-ocean="speed">Velocidad</span><select id="oceanSpeed"><option value="2400">0.5×</option><option value="1200" selected>1×</option><option value="600">2×</option></select></label>
+              <button id="oceanLatest" type="button" data-ocean="latest">Última semana</button>
+            </div>
+            <p id="oceanTimelineHint" data-ocean="timelineHint">Arrastra el deslizador o reproduce la evolución semanal en bucle.</p>
+          </div>
+          <p id="oceanPeriod" class="ocean-period"></p>
           <div class="ocean-canvas-wrap"><canvas id="oceanCanvas" role="img" aria-describedby="oceanExplanation oceanRegional"></canvas></div>
           <div id="oceanLegend" class="ocean-legend"></div>
           <p id="oceanReading" class="ocean-reading"></p>
-          <div class="ocean-playback">
-            <button id="oceanPrevious" type="button" aria-label="Semana anterior">←</button><button id="oceanPlay" type="button" data-ocean="play">Reproducir</button><button id="oceanNext" type="button" aria-label="Semana siguiente">→</button>
-            <div class="ocean-slider"><input id="oceanTimeline" type="range" min="0" max="12" step="1" value="12" aria-label="Semana centrada en"><div><span id="oceanFirst"></span><span id="oceanLast"></span></div></div>
-            <button id="oceanLatest" type="button" data-ocean="latest">Última semana</button>
-          </div>
           <p id="oceanExplanation" class="metric-explanation"></p>
           <p class="section-kicker" data-ocean="regional">Promedios de la malla · cálculo propio</p><div id="oceanRegional" class="ocean-regional"></div>
           <details class="ocean-method"><summary data-ocean="method">Fuente, cálculo y validación</summary><p id="oceanMethod"></p><div class="ocean-source-links"><a href="https://www.ncei.noaa.gov/products/optimum-interpolation-sst" target="_blank" rel="noreferrer">NOAA OISST v2.1 ↗</a><a href="https://psl.noaa.gov/data/gridded/data.noaa.oisst.v2.highres.html" target="_blank" rel="noreferrer">NOAA PSL ↗</a><a href="https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso_advisory/ensodisc.shtml" target="_blank" rel="noreferrer" data-ocean="reference">Comparar con el mapa oficial NOAA ↗</a><a href="data/spatial.json" download data-ocean="download">Descargar datos del mapa</a></div></details>

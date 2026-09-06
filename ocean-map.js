@@ -10,6 +10,8 @@ const OceanMap = (() => {
     week: ['Semana centrada en', 'Week centered on'], zones: ['Zonas Niño', 'Niño regions'],
     play: ['Reproducir', 'Play'], pause: ['Pausar', 'Pause'], latest: ['Última semana', 'Latest week'],
     previous: ['Semana anterior', 'Previous week'], next: ['Semana siguiente', 'Next week'],
+    speed: ['Velocidad', 'Speed'],
+    timelineHint: ['Arrastra el deslizador o reproduce la evolución semanal en bucle.', 'Drag the slider or play the weekly evolution on a loop.'],
     download: ['Descargar datos del mapa', 'Download map data'], method: ['Fuente, cálculo y validación', 'Source, calculation and validation'],
     hover: ['Toca el océano o pasa el cursor para consultar una celda.', 'Tap the ocean or hover to inspect a grid cell.'],
     regional: ['Promedios de la malla · cálculo propio', 'Grid averages · own calculation'],
@@ -25,6 +27,7 @@ const OceanMap = (() => {
   const colors = ['#145eb0','#297fd2','#60ace2','#a4d7ef','#e6f5f6','#fff8b0','#ffcf61','#ff942b','#f34d12','#d32012','#98070d'];
   const bounds = [-3,-2,-1,-.5,0,.5,1,2,3];
   let data=null,land=null,lang='es',index=0,metric='relative',timer=null,geometry=null,loaded=false,requested=null;
+  let playbackMs=1200;
   const $ = (id) => document.getElementById(id);
   const tr = (key) => copy[key][lang==='en'?1:0];
   const choose = (es,en) => lang==='en'?en:es;
@@ -65,7 +68,18 @@ const OceanMap = (() => {
     return col>=0 && col<grid.cols && row>=0 && row<grid.rows ? row*grid.cols+col : -1;
   }
 
-  function stop() { if(timer) clearInterval(timer);timer=null; if($('oceanPlay')) $('oceanPlay').textContent=tr('play'); }
+  function playbackState() {
+    if(!$('oceanPlay'))return;
+    $('oceanPlayLabel').textContent=tr(timer!==null?'pause':'play');
+    $('oceanPlayIcon').textContent=timer!==null?'❚❚':'▶';
+    $('oceanPlay').setAttribute('aria-pressed',String(timer!==null));
+  }
+  function stop() { if(timer!==null)clearInterval(timer);timer=null;playbackState(); }
+  function start() {
+    if(timer!==null)clearInterval(timer);
+    timer=setInterval(()=>show((index+1)%data.frames.length),playbackMs);
+    playbackState();
+  }
   function show(i) { index=Math.max(0,Math.min(data.frames.length-1,i));render(); }
 
   function language(value) {
@@ -142,13 +156,19 @@ const OceanMap = (() => {
     $('oceanWeek').value=index;$('oceanMeasure').value=metric;
     $('oceanTimeline').max=data.frames.length-1;$('oceanTimeline').value=index;
     $('oceanTimeline').setAttribute('aria-valuetext',dateText(frame.center));
+    $('oceanTimeline').style.setProperty('--ocean-progress',`${data.frames.length>1?index/(data.frames.length-1)*100:0}%`);
+    $('oceanTimeline').disabled=data.frames.length<2;
+    $('oceanSelectedDate').textContent=dateText(frame.center);
+    $('oceanPosition').textContent=choose(`Semana ${index+1} de ${data.frames.length}`,`Week ${index+1} of ${data.frames.length}`);
+    $('oceanTicks').innerHTML=data.frames.map((_,i)=>`<i class="${i<=index?'elapsed':''}"></i>`).join('');
     $('oceanPeriod').textContent=`${dateText(frame.start)} — ${dateText(frame.end)} · ${choose('promedio de 7 días','7-day average')}`;
     $('oceanFirst').textContent=dateText(data.frames[0].center);$('oceanLast').textContent=dateText(last.center);
     const age=Math.floor((Date.now()-Date.parse(last.center+'T00:00:00Z'))/86400000);
     $('oceanFreshness').textContent=`${choose('Último mapa disponible','Latest available map')}: ${dateText(last.center)}${age>14?choose(' · Revisar actualización',' · Check update'):''}`;
     $('oceanFreshness').classList.toggle('stale',age>14);
     $('oceanPrevious').disabled=index===0;$('oceanNext').disabled=index===data.frames.length-1;
-    $('oceanPlay').textContent=tr(timer?'pause':'play');
+    $('oceanPlay').disabled=data.frames.length<2;
+    playbackState();
     $('oceanReading').textContent=tr('hover');
     const limits=metric==='sst'?[16,18,20,22,24,26,28,30,32]:bounds;
     $('oceanLegend').innerHTML=`<span>${choose('Escala fija','Fixed scale')} · °C</span><div class="ocean-colorbar">${limits.concat(Infinity).map((v,i)=>`<i style="background:${color(i===0?limits[0]-1:i===limits.length?limits.at(-1)+1:(limits[i-1]+v)/2)}"></i>`).join('')}</div><div class="ocean-legend-labels">${limits.map(v=>`<span>${number(v)}</span>`).join('')}</div>`;
@@ -190,11 +210,17 @@ const OceanMap = (() => {
         $('oceanMeasure').addEventListener('change',e=>{metric=e.target.value;render();});
         $('oceanWeek').addEventListener('change',e=>{stop();show(Number(e.target.value));});
         $('oceanTimeline').addEventListener('input',e=>{stop();show(Number(e.target.value));});
+        $('oceanTimeline').addEventListener('pointerdown',stop);
         $('oceanPrevious').addEventListener('click',()=>{stop();show(index-1);});
         $('oceanNext').addEventListener('click',()=>{stop();show(index+1);});
         $('oceanLatest').addEventListener('click',()=>{stop();show(data.frames.length-1);});
         $('oceanZones').addEventListener('change',draw);
-        $('oceanPlay').addEventListener('click',()=>{if(timer){stop();return;}show(index===data.frames.length-1?0:index);timer=setInterval(()=>show((index+1)%data.frames.length),1200);$('oceanPlay').textContent=tr('pause');});
+        $('oceanPlay').addEventListener('click',()=>{if(timer!==null){stop();return;}show(index===data.frames.length-1?0:index);start();});
+        $('oceanSpeed').addEventListener('change',e=>{
+          const speed=Number(e.target.value);
+          if(![600,1200,2400].includes(speed))return;
+          playbackMs=speed;if(timer!==null)start();
+        });
         document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});
         new ResizeObserver(draw).observe($('oceanCanvas').parentElement);
         const inspect=e=>{
