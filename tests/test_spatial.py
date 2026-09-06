@@ -1,6 +1,7 @@
 import io
 import json
 import unittest
+import zipfile
 from datetime import date
 
 import numpy as np
@@ -8,6 +9,13 @@ from scripts import update_spatial as S
 
 
 class SpatialTests(unittest.TestCase):
+    def test_archive_is_stable_across_operating_systems_and_roundtrips_exactly(self):
+        with np.load(S.RAW) as a: arrays={k:a[k] for k in a.files}
+        encoded=S.archive(**arrays)
+        self.assertEqual(encoded,S.RAW.read_bytes())
+        with zipfile.ZipFile(io.BytesIO(encoded)) as bundle:
+            self.assertTrue(all(entry.create_system==3 and entry.date_time==(1980,1,1,0,0,0) for entry in bundle.infolist()))
+
     def test_leap_day_and_cross_year_week_climatology(self):
         clim=np.arange(365,dtype=float)[:,None,None]
         self.assertEqual(S.day_clim(clim,date(2024,2,29)).item(),58.5)

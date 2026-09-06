@@ -12,6 +12,7 @@ import io
 import json
 import sys
 import warnings
+import zipfile
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -39,7 +40,16 @@ def digest(payload):
 
 def archive(**arrays):
     stream = io.BytesIO()
-    np.savez_compressed(stream, **arrays)
+    # Stable ZIP headers across Windows and Linux: identical extracts must not
+    # trigger a new publication solely because the producer's OS changed.
+    with zipfile.ZipFile(stream,'w',compression=zipfile.ZIP_DEFLATED) as bundle:
+        for name,values in arrays.items():
+            info=zipfile.ZipInfo(name+'.npy',date_time=(1980,1,1,0,0,0))
+            info.create_system=3
+            info.compress_type=zipfile.ZIP_DEFLATED
+            info.external_attr=0o600 << 16
+            with bundle.open(info,'w',force_zip64=True) as target:
+                np.lib.format.write_array(target,np.asanyarray(values),allow_pickle=False)
     return stream.getvalue()
 
 
