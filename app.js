@@ -271,6 +271,7 @@ function syncUrl() {
   params.set("desde_comparacion", state.comparisonStartYear);
   params.set("desde_roni", state.roniStartYear);
   params.set("regiones", [...state.regions].join(","));
+  if (typeof OceanMap !== "undefined") OceanMap.saveFilters(params);
   history.replaceState(null, "", `${window.location.pathname}?${params}`);
 }
 
@@ -818,6 +819,7 @@ function bindControls() {
     state.language = state.language === "es" ? "en" : "es";
     try { localStorage.setItem("enso-language", state.language); } catch (_error) { /* Storage may be unavailable. */ }
     applyLanguage();
+    OceanMap.language(state.language);
     updateControls();
     if (state.data) {
       renderWeeklyChart();
@@ -915,6 +917,7 @@ async function init() {
     renderRoniChart();
     renderRegions();
     renderSources();
+    void OceanMap.load(manifest, state.language);
     if (manifest.id) {
       // A tab left open should discover a new edition without a forced refresh.
       const checkEdition = () => ReleaseData.current(manifest).catch((error) => {

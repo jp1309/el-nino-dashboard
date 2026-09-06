@@ -5,6 +5,7 @@ const MONITOR_COPY = {
   eyebrow: ["OBSERVATORIO DEL PACÍFICO · NOAA / CPC", "PACIFIC OBSERVATORY · NOAA / CPC"],
   title: ["El Niño, bajo observación.", "El Niño, under observation."],
   loading: ["Comprobando datos…", "Checking observations…"],
+  navMap: ["Mapa del Pacífico", "Pacific map"],
   navNow: ["Estado actual", "Current state"], navTrend: ["Evolución", "Evolution"], navOutlook: ["Pronóstico", "Outlook"], navCompare: ["Contexto histórico", "Historical context"], navSources: ["Fuentes y método", "Sources & method"],
   range6: ["6 meses", "6 months"], range12: ["12 meses", "12 months"], range36: ["3 años", "3 years"], rangeAll: ["Todo", "All"],
   measure: ["Medida", "Measure"], relative: ["Anomalía relativa", "Relative anomaly"], conventional: ["Anomalía convencional", "Conventional anomaly"], sst: ["Temperatura del mar", "Sea temperature"], smooth: ["Promedio de 4 semanas", "4-week average"],

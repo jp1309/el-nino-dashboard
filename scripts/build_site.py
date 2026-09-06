@@ -11,7 +11,7 @@ import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-ASSETS = ("styles.css", "analytics.js", "release.js", "monitor.js", "app.js")
+ASSETS = ("styles.css", "analytics.js", "release.js", "monitor.js", "ocean-map.js", "app.js")
 
 
 def sha256(payload: bytes) -> str:
@@ -26,7 +26,7 @@ def build(root: Path = ROOT, destination: Path | None = None) -> dict:
     shutil.copyfile(root / "LICENSE", destination / "LICENSE")
     html = (root / "index.html").read_text(encoding="utf-8")
     files = {}
-    for name in (*ASSETS, "data/enso.json", "data/outlook.json"):
+    for name in (*ASSETS, "data/enso.json", "data/outlook.json", "data/spatial.json", "data/land.json"):
         payload = (root / name).read_bytes()
         # Text assets are canonicalized across Windows and Linux checkouts.
         payload = payload.replace(b"\r\n", b"\n")

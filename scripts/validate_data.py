@@ -8,10 +8,12 @@ import sys
 
 import update_data
 import update_outlook
+import update_spatial
 
 
 def main() -> int:
     try:
+        update_spatial.validate()
         manifest = json.loads(update_data.MANIFEST_PATH.read_text(encoding="utf-8"))
         dataset = json.loads(update_data.OUTPUT_PATH.read_text(encoding="utf-8"))
 

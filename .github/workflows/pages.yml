@@ -43,6 +43,15 @@ jobs:
         id: estado
         run: python scripts/check_pending.py >> "$GITHUB_OUTPUT"
 
+      - name: Preparar calculo espacial
+        run: python -m pip install -r requirements-spatial.txt
+
+      - name: Reutilizar climatologia espacial
+        uses: actions/cache@v4
+        with:
+          path: .cache/spatial/clim-1991-2020.npz
+          key: oisst-climatology-sampled-v1
+
       - name: Descargar y procesar datos NOAA
         id: observaciones
         continue-on-error: true
@@ -55,9 +64,17 @@ jobs:
           python scripts/validate_data.py
           node --test tests/analytics.test.cjs
           node --test tests/release.test.cjs
+          node --test tests/ocean-map.test.cjs
           node --check app.js
           node --check monitor.js
           node --check release.js
+          node --check ocean-map.js
+
+      - name: Actualizar mapa semanal OISST
+        id: mapa
+        continue-on-error: true
+        timeout-minutes: 10
+        run: python scripts/update_spatial.py
 
       - name: Actualizar pronostico mensual NOAA
         id: pronostico
@@ -68,7 +85,7 @@ jobs:
         run: python scripts/validate_data.py
 
       - name: Informar fuentes temporalmente no disponibles
-        if: steps.observaciones.outcome == 'failure' || steps.pronostico.outcome == 'failure'
+        if: steps.observaciones.outcome == 'failure' || steps.pronostico.outcome == 'failure' || steps.mapa.outcome == 'failure'
         run: echo "::warning::Alguna fuente NOAA no pudo actualizarse. Se conserva su ultima edicion validada y su fecha visible en el dashboard."
 
       - name: Guardar nuevos datos si cambiaron

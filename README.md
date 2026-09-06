@@ -13,7 +13,13 @@ Herramienta independiente de monitoreo del Pacífico tropical con observaciones 
 - **¿Qué espera NOAA?** Nueve trimestres de pronóstico de RONI: mediana e intervalos centrales del 50 % y 90 %, fecha de emisión, aviso oficial, tabla de valores y descarga JSON.
 - **¿Cuánto dura?** Ocho trimestres RONI recientes con dos decimales y serie histórica desde 1950, abierta inicialmente desde 1990.
 
-Los filtros se guardan en la URL. El CSV del explorador contiene la medida, regiones, fechas y suavizado seleccionados. Las observaciones completas y el pronóstico también pueden descargarse en JSON. El pronóstico de RONI no es un pronóstico de lluvia o de impactos locales en Ecuador.
+Los filtros se guardan en la URL. El CSV del explorador contiene la medida, regiones, fechas y suavizado seleccionados. Las observaciones completas, el pronóstico y los campos del mapa también pueden descargarse en JSON. El pronóstico de RONI no es un pronóstico de lluvia o de impactos locales en Ecuador.
+
+## Mapa semanal del Pacífico
+
+El explorador espacial añade 13 semanas de campos OISST, selector de temperatura/anomalía convencional/anomalía relativa, reproducción temporal, consulta de celdas y regiones Niño superpuestas. Cada mapa muestra su intervalo completo y su fecha propia. Es una elaboración independiente muestreada a 1°, con referencia 1991–2020; sus promedios no sustituyen los índices oficiales CPC. El procesamiento, las fuentes y la comparación cuantitativa se documentan en [docs/spatial-map.md](docs/spatial-map.md).
+
+Antes de ejecutar validaciones o actualizar el mapa, instalar `python -m pip install -r requirements-spatial.txt`. El flujo de GitHub Actions instala estas dependencias automáticamente y actualiza el mapa con los horarios existentes.
 
 ## Fuente → descarga → transformación → publicación
 
@@ -23,6 +29,7 @@ Los filtros se guardan en la URL. El CSV del explorador contiene la medida, regi
 | [SST y anomalías convencionales OISST](https://www.cpc.ncep.noaa.gov/data/indices/wksst9120.for) | `data/raw/wksst9120.for` | Mismas semanas, alineadas por fecha |
 | [RONI](https://www.cpc.ncep.noaa.gov/data/indices/RONI.ascii.txt) | `data/raw/RONI.ascii.txt` | `data/enso.json`, desde 1950 |
 | [Pronóstico RONI](https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/roni/outlook/) | `data/raw/outlook.html` | `data/outlook.json`, siete percentiles por trimestre |
+| [Campos OISST y climatología NOAA PSL](https://psl.noaa.gov/data/gridded/data.noaa.oisst.v2.highres.html) | `data/raw/spatial.npz` y metadatos (extractos numéricos muestreados) | `data/spatial.json`, 13 semanas y tres medidas |
 | [Diagnóstico ENSO](https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso_advisory/ensodisc.shtml) | `data/raw/advisory.html` | Fecha y estado del aviso en `data/outlook.json` |
 
 `scripts/update_data.py` descarga y valida las tres series antes de reemplazarlas. `scripts/update_outlook.py` extrae la tabla oficial y el aviso: exige nueve temporadas consecutivas, columnas esperadas, percentiles finitos y ordenados, y que aviso y pronóstico correspondan a la misma edición mensual. Ninguna probabilidad se calcula o inventa a partir de la mediana.
@@ -37,7 +44,7 @@ Solo el flujo de GitHub Actions publica el sitio (`build_type: workflow`); la pu
 
 La ingestión también rechaza descargas que retrocedan de temporada o recorten el historial. Se permiten las revisiones de valores del mismo período que realiza NOAA. Un pronóstico de una fecha anterior no puede reemplazar una edición más reciente.
 
-`release.js` comprueba primero la edición publicada y luego la huella de ambos archivos de datos antes de mostrarlos. Si recibe datos distintos, reintenta una vez sin reutilizar caché; si siguen sin coincidir, muestra un error y no renderiza las cifras. Las pestañas visibles comprueban nuevas ediciones cada cinco minutos y al recuperar visibilidad, y recargan automáticamente conservando los filtros. Un fallo de conexión en esas comprobaciones posteriores conserva la edición ya validada; su fecha de observación sigue visible. Esto evita mezclar ediciones, pero no garantiza disponibilidad de red ni publicación puntual de NOAA.
+`release.js` comprueba primero la edición publicada y luego la huella de ambos archivos de datos antes de mostrarlos. Si recibe datos distintos, reintenta una vez sin reutilizar caché; si siguen sin coincidir, muestra un error y no renderiza las cifras. El mapa carga después, verifica por separado sus datos y costas contra el mismo manifiesto, y contiene sus errores dentro de su panel. Las pestañas visibles comprueban nuevas ediciones cada cinco minutos y al recuperar visibilidad, y recargan automáticamente conservando los filtros. Un fallo de conexión en esas comprobaciones posteriores conserva la edición ya validada; su fecha de observación sigue visible. Esto evita mezclar ediciones, pero no garantiza disponibilidad de red ni publicación puntual de NOAA.
 
 Después del despliegue, `scripts/verify_publication.py` descarga del sitio público el HTML, el identificador de edición y todos los archivos del manifiesto. El flujo solo termina correctamente si sus contenidos coinciden exactamente con el paquete preparado. No se da por verificada una publicación solo porque responda HTTP 200.
 
