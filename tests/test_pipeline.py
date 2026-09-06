@@ -4,6 +4,16 @@ from scripts import update_data
 
 
 class ParserTests(unittest.TestCase):
+    def test_download_cannot_replace_august_roni_with_july(self):
+        current = {"weekly": [{"date":"1981-09-09"},{"date":"2026-08-26"}],
+                   "roni": [{"date":"1950-01-15"},{"date":"2026-07-15", "value":1.36}]}
+        proposed = {**current, "roni": [{"date":"1950-01-15"},{"date":"2026-06-15", "value":.98}]}
+        with self.assertRaisesRegex(ValueError,"retrocede"):
+            update_data.validate_no_regression(proposed,current)
+        # A revision of the same season is legitimate and must remain accepted.
+        proposed["roni"][-1] = {"date":"2026-07-15", "value":1.35}
+        update_data.validate_no_regression(proposed,current)
+
     def test_weekly_gaps_are_rejected(self):
         with self.assertRaisesRegex(ValueError, "semanas ausentes"):
             update_data.validate_series([{"date":"2026-01-01"},{"date":"2026-01-15"}], "relative_weekly", 2)

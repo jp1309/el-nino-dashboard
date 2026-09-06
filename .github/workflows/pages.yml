@@ -54,8 +54,10 @@ jobs:
           python -m unittest discover -s tests -v
           python scripts/validate_data.py
           node --test tests/analytics.test.cjs
+          node --test tests/release.test.cjs
           node --check app.js
           node --check monitor.js
+          node --check release.js
 
       - name: Actualizar pronostico mensual NOAA
         id: pronostico
@@ -86,11 +88,7 @@ jobs:
 
       - name: Preparar sitio estatico
         if: github.event_name != 'schedule' || steps.guardado.outputs.cambio == 'true'
-        run: |
-          mkdir _site
-          cp index.html styles.css app.js analytics.js monitor.js LICENSE _site/
-          cp -R data _site/data
-          touch _site/.nojekyll
+        run: python scripts/build_site.py
 
       - name: Configurar GitHub Pages
         if: github.event_name != 'schedule' || steps.guardado.outputs.cambio == 'true'
@@ -106,3 +104,7 @@ jobs:
         id: deployment
         if: github.event_name != 'schedule' || steps.guardado.outputs.cambio == 'true'
         uses: actions/deploy-pages@v4
+
+      - name: Verificar HTML y datos en el sitio publico
+        if: github.event_name != 'schedule' || steps.guardado.outputs.cambio == 'true'
+        run: python scripts/verify_publication.py --url https://jp1309.github.io/el-nino-dashboard/

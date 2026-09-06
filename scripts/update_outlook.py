@@ -103,6 +103,10 @@ def main() -> int:
     try:
         payloads = {source.key: data.download(source) for source in (OUTLOOK, ADVISORY)}
         result = build(payloads)
+        if OUTPUT.exists():
+            previous = json.loads(OUTPUT.read_text(encoding="utf-8"))
+            if result["advisory"]["issued_date"] < previous["advisory"]["issued_date"]:
+                raise ValueError("La descarga retrocede a una edicion anterior del pronostico")
         age = (date.today() - date.fromisoformat(result["advisory"]["issued_date"])).days
         if not 0 <= age <= 62:
             raise ValueError("Fecha de emision futura o de mas de 62 dias")

@@ -31,6 +31,16 @@ Los filtros se guardan en la URL. El CSV del explorador contiene la medida, regi
 
 GitHub Pages publica los archivos estáticos y `data/`. El navegador consume exclusivamente esos archivos versionados; no descarga ni interpreta páginas de NOAA en tiempo real.
 
+### Coherencia de la publicación
+
+Solo el flujo de GitHub Actions publica el sitio (`build_type: workflow`); la publicación paralela desde la rama debe permanecer desactivada. `scripts/build_site.py` genera una edición con nombres basados en SHA-256 para el código, estilos y datos. El HTML contiene el manifiesto de esa edición y verifica los scripts y estilos con integridad de subrecursos.
+
+La ingestión también rechaza descargas que retrocedan de temporada o recorten el historial. Se permiten las revisiones de valores del mismo período que realiza NOAA. Un pronóstico de una fecha anterior no puede reemplazar una edición más reciente.
+
+`release.js` comprueba primero la edición publicada y luego la huella de ambos archivos de datos antes de mostrarlos. Si recibe datos distintos, reintenta una vez sin reutilizar caché; si siguen sin coincidir, muestra un error y no renderiza las cifras. Las pestañas visibles comprueban nuevas ediciones cada cinco minutos y al recuperar visibilidad, y recargan automáticamente conservando los filtros. Un fallo de conexión en esas comprobaciones posteriores conserva la edición ya validada; su fecha de observación sigue visible. Esto evita mezclar ediciones, pero no garantiza disponibilidad de red ni publicación puntual de NOAA.
+
+Después del despliegue, `scripts/verify_publication.py` descarga del sitio público el HTML, el identificador de edición y todos los archivos del manifiesto. El flujo solo termina correctamente si sus contenidos coinciden exactamente con el paquete preparado. No se da por verificada una publicación solo porque responda HTTP 200.
+
 ## Definiciones y cálculos
 
 **SST** es temperatura superficial observada. La anomalía convencional resta la climatología local 1991–2020; la relativa ajusta además por la anomalía tropical. Los umbrales de anomalía no se dibujan en el modo SST.
@@ -61,9 +71,14 @@ python scripts/update_outlook.py
 python scripts/validate_data.py
 python -m unittest discover -s tests -v
 node --test tests/analytics.test.cjs
+node --test tests/release.test.cjs
 node --check app.js
 node --check monitor.js
 node --check analytics.js
+node --check release.js
+python scripts/build_site.py
+# Despues de publicar esa misma edicion:
+python scripts/verify_publication.py --url https://jp1309.github.io/el-nino-dashboard/
 git diff --check
 python -m http.server 8765 --bind 127.0.0.1
 ```

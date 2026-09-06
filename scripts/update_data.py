@@ -288,6 +288,15 @@ def build_dataset(
     }
 
 
+def validate_no_regression(proposed: dict[str, Any], current: dict[str, Any]) -> None:
+    """NOAA may revise values, but a download must not roll coverage backwards."""
+    for key in ("weekly", "roni"):
+        if proposed[key][-1]["date"] < current[key][-1]["date"]:
+            raise ValueError(f"{key}: la descarga retrocede a un periodo anterior al publicado")
+        if proposed[key][0]["date"] > current[key][0]["date"]:
+            raise ValueError(f"{key}: la descarga recorta el historial publicado")
+
+
 def main() -> int:
     try:
         payloads = {source.key: download(source) for source in SOURCES}
@@ -298,6 +307,8 @@ def main() -> int:
         validate_freshness(relative, absolute, roni)
         hashes = {key: sha256(payload) for key, payload in payloads.items()}
         dataset = build_dataset(relative, absolute, roni, hashes)
+        if OUTPUT_PATH.exists():
+            validate_no_regression(dataset, json.loads(OUTPUT_PATH.read_text(encoding="utf-8")))
 
         manifest = {
             "sources": {

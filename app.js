@@ -891,13 +891,10 @@ async function init() {
     document.querySelector("#mapReset").hidden = true;
   }
   try {
-    const response = await fetch("data/enso.json", { cache: "no-cache" });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    state.data = await response.json();
-    try {
-      const outlookResponse = await fetch("data/outlook.json", { cache: "no-cache" });
-      if (outlookResponse.ok) state.outlook = await outlookResponse.json();
-    } catch (_error) { state.outlook = null; }
+    const manifest = JSON.parse(document.querySelector("#releaseManifest").textContent);
+    const loaded = await ReleaseData.load(manifest);
+    state.data = loaded.data;
+    state.outlook = loaded.outlook;
     renderMonitor();
     if (!window.Chart) throw new Error("Chart.js no esta disponible");
     chartDefaults();
@@ -908,16 +905,42 @@ async function init() {
     renderRoniChart();
     renderRegions();
     renderSources();
+    if (manifest.id) {
+      // A tab left open should discover a new edition without a forced refresh.
+      const checkEdition = () => ReleaseData.current(manifest).catch((error) => {
+        if (error instanceof ReleaseData.EditionChanged) refreshEdition(error.edition);
+      });
+      document.addEventListener("visibilitychange", () => { if (!document.hidden) checkEdition(); });
+      setInterval(() => { if (!document.hidden) checkEdition(); }, 300000);
+      document.querySelectorAll('a[download][href="data/enso.json"], a[download][href="data/outlook.json"]').forEach((link) => {
+        link.href = manifest.files[link.getAttribute("href")].path;
+      });
+    }
     syncUrl();
   } catch (error) {
+    if (error instanceof ReleaseData.EditionChanged && refreshEdition(error.edition)) return;
     console.error(error);
     document.querySelector("#errorBanner").hidden = false;
+    document.querySelector("#errorBanner").textContent = say("No se pudo verificar la edición de los datos. Recarga la página para volver a intentarlo.", "The data edition could not be verified. Reload the page to try again.");
     document.querySelector("#dataFreshness").textContent = say("Datos no disponibles", "Data unavailable");
     if (!state.data) document.querySelector("#oceanStatus").textContent = say("No se pudo determinar el estado oceánico.", "The ocean state could not be determined.");
     document.querySelector("#weeklyLoading").textContent = t("weeklyError");
     document.querySelector("#comparisonLoading").textContent = t("comparisonError");
     document.querySelector("#roniLoading").textContent = t("historyError");
   }
+}
+
+function refreshEdition(id) {
+  const url = new URL(window.location.href);
+  if (url.searchParams.get("edition") === id) return false; // Never enter a redirect loop.
+  url.searchParams.set("edition", id);
+  window.location.replace(url.href);
+  return true;
+}
+
+function editionDataUrl(path) {
+  const manifest = JSON.parse(document.querySelector("#releaseManifest").textContent);
+  return manifest.files?.[path]?.path ?? path;
 }
 
 init();
