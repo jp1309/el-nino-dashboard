@@ -7,6 +7,7 @@ import json
 import sys
 
 import update_data
+import update_outlook
 
 
 def main() -> int:
@@ -31,15 +32,26 @@ def main() -> int:
             )
             if len(parsed[source.key]) != expected["records"]:
                 raise ValueError(f"Conteo incorrecto para {source.key}")
+            expected_metadata = {
+                "url": source.url, "file": f"data/raw/{source.filename}", "bytes": len(payload),
+                "first_observation": parsed[source.key][0]["date"],
+                "latest_observation": parsed[source.key][-1]["date"],
+            }
+            if any(expected.get(key) != value for key, value in expected_metadata.items()):
+                raise ValueError(f"Metadatos incorrectos para {source.key}")
 
-        if dataset["current"]["weekly"]["date"] != parsed["relative_weekly"][-1]["date"]:
-            raise ValueError("La fecha principal no coincide con la fuente semanal")
-        if dataset["current"]["roni"]["date"] != parsed["roni"][-1]["date"]:
-            raise ValueError("El RONI actual no coincide con la fuente")
-        if len(dataset["weekly"]) != len(parsed["relative_weekly"]):
-            raise ValueError("La serie semanal publicada esta incompleta")
-        if len(dataset["roni"]) != len(parsed["roni"]):
-            raise ValueError("La serie RONI publicada esta incompleta")
+        rebuilt = update_data.build_dataset(
+            parsed["relative_weekly"], parsed["absolute_weekly"], parsed["roni"],
+            {key: source["sha256"] for key, source in manifest["sources"].items()},
+        )
+        if dataset != rebuilt:
+            raise ValueError("Los valores publicados no coinciden con la reconstruccion de las fuentes")
+        if update_outlook.OUTPUT.exists():
+            outlook = json.loads(update_outlook.OUTPUT.read_text(encoding="utf-8"))
+            rebuilt_outlook = update_outlook.build({source.key: (update_data.RAW_DIR / source.filename).read_bytes()
+                                                   for source in (update_outlook.OUTLOOK, update_outlook.ADVISORY)})
+            if outlook != rebuilt_outlook:
+                raise ValueError("El pronostico publicado no coincide con sus fuentes originales")
 
         print(
             "Validacion correcta:",
@@ -54,4 +66,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

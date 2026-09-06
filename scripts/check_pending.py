@@ -44,6 +44,20 @@ def is_pending(manifest_path: Path = MANIFEST_PATH, now: datetime | None = None)
         return True
 
     pending = any(observation < target for observation in latest.values())
+    current = now.astimezone(EASTERN).date() if now else datetime.now(EASTERN).date()
+    # On/after the 5th, CPC should have published the season ending last month.
+    # The stored RONI date identifies the middle month of that season.
+    middle_month = current.year * 12 + current.month - (2 if current.day >= 5 else 3)
+    roni_date = manifest["sources"].get("roni", {}).get("latest_observation")
+    if not roni_date:
+        pending = True
+    else:
+        try:
+            observed_date = date.fromisoformat(roni_date)
+            observed_month = observed_date.year * 12 + observed_date.month
+            pending = pending or observed_month < middle_month
+        except (TypeError, ValueError):
+            pending = True
     details = ", ".join(f"{key}={value.isoformat()}" for key, value in latest.items())
     print(f"Objetivo={target.isoformat()}; {details}", file=sys.stderr)
     return pending

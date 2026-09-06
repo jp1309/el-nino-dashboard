@@ -8,6 +8,19 @@ from scripts import check_pending
 
 
 class PendingCheckTests(unittest.TestCase):
+    def test_monthly_roni_can_be_pending_with_current_weekly_data(self):
+        manifest = {"sources": {
+            "relative_weekly": {"latest_observation": "2026-09-02"},
+            "absolute_weekly": {"latest_observation": "2026-09-02"},
+            "roni": {"latest_observation": "2026-06-15"},
+        }}
+        run_time = datetime(2026, 9, 7, 8, tzinfo=check_pending.EASTERN)
+        with patch.object(Path, "read_text", return_value=json.dumps(manifest)):
+            self.assertTrue(check_pending.is_pending(now=run_time))
+        manifest["sources"]["roni"]["latest_observation"] = "2026-07-15"
+        with patch.object(Path, "read_text", return_value=json.dumps(manifest)):
+            self.assertFalse(check_pending.is_pending(now=run_time))
+
     def test_previous_wednesday_for_monday(self):
         self.assertEqual(
             check_pending.previous_wednesday(date(2026, 8, 24)),

@@ -5,7 +5,7 @@
     "sources": {
       "relative_weekly": {
         "url": "https://www.cpc.ncep.noaa.gov/data/indices/rel_wksst9120.txt",
-        "sha256": "9544fbf35feb0b31ef29b7c3664be803dc65d57f44dfe7170bc849a1720c6e98",
+        "sha256": "2a35e9da18bd7fe0c1313db5fa2c08ad741907079bf91a403df2d204cff02349",
         "latest_observation": "2026-08-26"
       },
       "absolute_weekly": {
@@ -15,8 +15,8 @@
       },
       "roni": {
         "url": "https://www.cpc.ncep.noaa.gov/data/indices/RONI.ascii.txt",
-        "sha256": "3292d9f2597ee6d7fea3b76584d2357786fcd8e472f04a2e6765a3802600264d",
-        "latest_observation": "2026-06-15"
+        "sha256": "2f1c446b0c293358af6452808799b0dca75f89b0a1d6f86eb1887dc3de9b5eae",
+        "latest_observation": "2026-07-15"
       }
     }
   },
@@ -37,12 +37,12 @@
       "nino4_anom": 1.0
     },
     "roni": {
-      "date": "2026-06-15",
-      "season": "MJJ",
+      "date": "2026-07-15",
+      "season": "JJA",
       "year": 2026,
-      "value": 0.98,
+      "value": 1.36,
       "classification": "warm",
-      "consecutive_seasons": 1
+      "consecutive_seasons": 2
     }
   },
   "weekly": [
@@ -35208,7 +35208,7 @@
     },
     {
       "date": "2026-08-12",
-      "nino12": 3.3,
+      "nino12": 3.4,
       "nino12_sst": 25.0,
       "nino12_anom": 4.0,
       "nino3": 2.5,
@@ -40759,7 +40759,13 @@
       "date": "2026-06-15",
       "season": "MJJ",
       "year": 2026,
-      "value": 0.98
+      "value": 0.97
+    },
+    {
+      "date": "2026-07-15",
+      "season": "JJA",
+      "year": 2026,
+      "value": 1.36
     }
   ]
 }

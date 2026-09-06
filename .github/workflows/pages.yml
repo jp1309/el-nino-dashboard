@@ -10,6 +10,9 @@ on:
       timezone: "America/New_York"
     - cron: "0 8-22 * * 2"
       timezone: "America/New_York"
+    # Comprobar tambien la edicion mensual del pronostico (segundo jueves).
+    - cron: "0 15 * * 4"
+      timezone: "America/New_York"
   workflow_dispatch:
 
 permissions:
@@ -41,18 +44,33 @@ jobs:
         run: python scripts/check_pending.py >> "$GITHUB_OUTPUT"
 
       - name: Descargar y procesar datos NOAA
+        id: observaciones
+        continue-on-error: true
         if: steps.estado.outputs.pendiente == 'true'
         run: python scripts/update_data.py
 
       - name: Ejecutar pruebas
-        if: steps.estado.outputs.pendiente == 'true'
         run: |
           python -m unittest discover -s tests -v
           python scripts/validate_data.py
+          node --test tests/analytics.test.cjs
+          node --check app.js
+          node --check monitor.js
+
+      - name: Actualizar pronostico mensual NOAA
+        id: pronostico
+        continue-on-error: true
+        run: python scripts/update_outlook.py --if-due
+
+      - name: Verificar fuentes y pronostico antes de publicar
+        run: python scripts/validate_data.py
+
+      - name: Informar fuentes temporalmente no disponibles
+        if: steps.observaciones.outcome == 'failure' || steps.pronostico.outcome == 'failure'
+        run: echo "::warning::Alguna fuente NOAA no pudo actualizarse. Se conserva su ultima edicion validada y su fecha visible en el dashboard."
 
       - name: Guardar nuevos datos si cambiaron
         id: guardado
-        if: steps.estado.outputs.pendiente == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -70,7 +88,7 @@ jobs:
         if: github.event_name != 'schedule' || steps.guardado.outputs.cambio == 'true'
         run: |
           mkdir _site
-          cp index.html styles.css app.js LICENSE _site/
+          cp index.html styles.css app.js analytics.js monitor.js LICENSE _site/
           cp -R data _site/data
           touch _site/.nojekyll
 

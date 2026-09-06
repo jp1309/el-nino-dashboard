@@ -1,0 +1,2 @@
+# Keep NOAA's exact bytes, including original whitespace, for SHA-256 verification.
+data/raw/* -text -whitespace

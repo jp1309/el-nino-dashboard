@@ -4,6 +4,14 @@ from scripts import update_data
 
 
 class ParserTests(unittest.TestCase):
+    def test_weekly_gaps_are_rejected(self):
+        with self.assertRaisesRegex(ValueError, "semanas ausentes"):
+            update_data.validate_series([{"date":"2026-01-01"},{"date":"2026-01-15"}], "relative_weekly", 2)
+
+    def test_roni_gaps_are_rejected(self):
+        with self.assertRaisesRegex(ValueError, "trimestres ausentes"):
+            update_data.validate_series([{"date":"2026-01-15"},{"date":"2026-03-15"}], "roni", 2)
+
     def test_week_date_is_locale_independent(self):
         self.assertEqual(update_data.parse_week_date("13AUG2026").isoformat(), "2026-08-13")
 
@@ -20,4 +28,3 @@ class ParserTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

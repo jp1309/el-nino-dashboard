@@ -12,13 +12,14 @@ class DashboardStructureTests(unittest.TestCase):
         cls.app = (ROOT / "app.js").read_text(encoding="utf-8")
         cls.styles = (ROOT / "styles.css").read_text(encoding="utf-8")
 
-    def test_weekly_chart_is_the_first_content_section(self):
+    def test_monitoring_summary_precedes_weekly_explorer(self):
         main = self.html.split('<main id="contenido"', 1)[1]
+        self.assertLess(main.index('id="overview"'), main.index('class="panel pulse-panel"'))
         self.assertLess(main.index('class="panel pulse-panel"'), main.index('class="route-section"'))
         self.assertIn('id="weeklyUpdated"', main)
 
     def test_last_updated_label_is_prominent_red(self):
-        self.assertIn('href="styles.css?v=20260814-red"', self.html)
+        self.assertRegex(self.html, r'href="styles.css\?v=[^"]+"')
         self.assertIn(
             ".section-heading p.updated-label { margin: 0; color: #c62828; font-size: 1rem; font-weight: 800; }",
             self.styles,
@@ -38,8 +39,8 @@ class DashboardStructureTests(unittest.TestCase):
         self.assertIn("state.roniStartYear ?? 1990", self.app)
         self.assertIn('populateYearSelect("#roniStartYear", roniYears', self.app)
 
-    def test_weekly_chart_defaults_to_2017(self):
-        self.assertIn("state.weeklyStartYear ?? 2017", self.app)
+    def test_weekly_chart_defaults_to_recent_year(self):
+        self.assertIn("state.weeklyStartYear ?? weeklyMax - 1", self.app)
         self.assertIn('populateYearSelect("#weeklyStartYear", weeklyYears', self.app)
 
     def test_annual_comparison_preserves_weekly_observations(self):
@@ -56,7 +57,8 @@ class DashboardStructureTests(unittest.TestCase):
 
     def test_all_charts_share_the_same_five_temperature_bands(self):
         self.assertEqual(self.app.count("plugins: [zonePlugin]"), 3)
-        self.assertEqual(self.app.count("ensoZones: { enabled: true }"), 3)
+        self.assertEqual(self.app.count("ensoZones: { enabled: true }"), 2)
+        self.assertIn('ensoZones: { enabled: state.weeklyMetric !== "sst" }', self.app)
         self.assertIn('pixelForValue(1.5)', self.app)
         self.assertIn('pixelForValue(-1.5)', self.app)
         self.assertIn('"rgba(255, 255, 255, 1)"', self.app)

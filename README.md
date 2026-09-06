@@ -1,94 +1,84 @@
-# Temperatura del Pacífico tropical y El Niño
+# Observatorio de El Niño
 
-Dashboard público para observar cómo cambia la temperatura superficial del mar en las principales zonas de monitoreo de El Niño. Utiliza datos oficiales del Climate Prediction Center de NOAA y se actualiza automáticamente cada semana.
+[**Abrir el dashboard público**](https://jp1309.github.io/el-nino-dashboard/)
 
-## Ver el dashboard
+Herramienta independiente de monitoreo del Pacífico tropical con observaciones y pronósticos oficiales de NOAA/CPC. Interfaz en español e inglés, adaptable a móviles, sin cuentas ni servicios de pago.
 
-### [Abrir el dashboard público](https://jp1309.github.io/el-nino-dashboard/)
+## Qué responde
 
-No requiere instalación. La interfaz funciona en computadoras y dispositivos móviles y puede cambiarse entre español e inglés desde el botón ubicado en la esquina superior derecha.
+- **¿Cuál es la señal actual?** Anomalía relativa de Niño 3.4, cambio a cuatro semanas, RONI y número de trimestres consecutivos sobre el umbral cálido o frío. El resumen oceánico se distingue del aviso oficial de NOAA.
+- **¿Está aumentando o disminuyendo?** Explorador semanal con ventanas de 6 meses, 12 meses, 3 años o toda la historia; también permite elegir un año inicial. Alterna anomalía relativa, anomalía convencional y temperatura observada, con suavizado opcional de cuatro semanas.
+- **¿Dónde se concentra?** Tarjetas de las cuatro zonas, minigráficos de 26 semanas, matriz de anomalías y diferencia entre Niño 1+2 y Niño 3.4. El mapa permite ubicar las zonas y sus solapamientos.
+- **¿Es inusual para esta época?** Percentil estacional frente a fechas equivalentes de años anteriores y comparación de todas las observaciones semanales de enero a diciembre.
+- **¿Qué espera NOAA?** Nueve trimestres de pronóstico de RONI: mediana e intervalos centrales del 50 % y 90 %, fecha de emisión, aviso oficial, tabla de valores y descarga JSON.
+- **¿Cuánto dura?** Ocho trimestres RONI recientes con dos decimales y serie histórica desde 1950, abierta inicialmente desde 1990.
 
-## Qué permite analizar
+Los filtros se guardan en la URL. El CSV del explorador contiene la medida, regiones, fechas y suavizado seleccionados. Las observaciones completas y el pronóstico también pueden descargarse en JSON. El pronóstico de RONI no es un pronóstico de lluvia o de impactos locales en Ecuador.
 
-### Evolución semanal por zona
+## Fuente → descarga → transformación → publicación
 
-Compara las variaciones recientes de temperatura en las cuatro zonas del Pacífico tropical. La zona Niño 3.4 aparece seleccionada inicialmente porque es la referencia central más utilizada para seguir la evolución oceánica de El Niño y La Niña. El usuario puede activar o desactivar las demás zonas y escoger el año inicial.
-
-### Comparación semanal entre años
-
-Superpone todas las observaciones semanales disponibles para distintos años, alineadas de enero a diciembre. Los años anteriores se muestran en gris y el año más reciente en rojo, que termina en la última semana publicada. Esto permite reconocer rápidamente si el calentamiento o enfriamiento actual se aparta de otros años. El usuario puede elegir la zona y desde qué año comparar.
-
-### Evolución de largo plazo en la zona Niño 3.4
-
-Presenta un promedio móvil de tres meses para distinguir cambios persistentes de fluctuaciones breves. El gráfico abre desde 1990, aunque el selector permite consultar la serie completa disponible desde 1950.
-
-### Mapa de las zonas Niño
-
-Ubica las cuatro áreas de monitoreo sobre un mapa geográfico interactivo del Pacífico tropical, muestra sus coordenadas y hace visibles los solapamientos entre Niño 3, Niño 3.4 y Niño 4. La costa de Ecuador está identificada explícitamente y cada zona puede ampliarse para examinarla con más detalle.
-
-## Zonas de monitoreo
-
-| Zona | Ubicación | Para qué resulta útil |
+| Fuente oficial | Archivo conservado | Producto |
 |---|---|---|
-| **Niño 1+2** | Frente a las costas de Ecuador y Perú | Detectar cambios costeros y calentamientos que pueden aparecer primero en el Pacífico oriental. |
-| **Niño 3** | Pacífico tropical oriental | Seguir la extensión del calentamiento o enfriamiento hacia el oeste. |
-| **Niño 3.4** | Pacífico tropical central | Observar la señal oceánica central asociada con la evolución de El Niño y La Niña. |
-| **Niño 4** | Pacífico tropical centro-occidental | Identificar cambios concentrados más al oeste. |
+| [Anomalías relativas semanales OISST](https://www.cpc.ncep.noaa.gov/data/indices/rel_wksst9120.txt) | `data/raw/rel_wksst9120.txt` | `data/enso.json`, desde 1981 |
+| [SST y anomalías convencionales OISST](https://www.cpc.ncep.noaa.gov/data/indices/wksst9120.for) | `data/raw/wksst9120.for` | Mismas semanas, alineadas por fecha |
+| [RONI](https://www.cpc.ncep.noaa.gov/data/indices/RONI.ascii.txt) | `data/raw/RONI.ascii.txt` | `data/enso.json`, desde 1950 |
+| [Pronóstico RONI](https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/roni/outlook/) | `data/raw/outlook.html` | `data/outlook.json`, siete percentiles por trimestre |
+| [Diagnóstico ENSO](https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso_advisory/ensodisc.shtml) | `data/raw/advisory.html` | Fecha y estado del aviso en `data/outlook.json` |
 
-Los valores positivos indican que el mar está más cálido que la referencia correspondiente; los negativos indican condiciones más frías. El dashboard es una herramienta de seguimiento oceánico y no sustituye los avisos oficiales de NOAA. La declaración de un episodio de El Niño o La Niña también considera la atmósfera, la persistencia y los pronósticos.
+`scripts/update_data.py` descarga y valida las tres series antes de reemplazarlas. `scripts/update_outlook.py` extrae la tabla oficial y el aviso: exige nueve temporadas consecutivas, columnas esperadas, percentiles finitos y ordenados, y que aviso y pronóstico correspondan a la misma edición mensual. Ninguna probabilidad se calcula o inventa a partir de la mediana.
 
-## Datos oficiales
+`data/source_manifest.json` conserva cobertura, conteos y SHA-256 de las observaciones; `data/outlook.json` incluye las fuentes y sus SHA-256. `.gitattributes` impide que Git cambie los saltos de línea de los archivos originales. La validación reconstruye **todos** los valores publicados desde las fuentes conservadas, incluido el pronóstico, y exige igualdad exacta.
 
-| Conjunto de datos | Cobertura | Uso en el dashboard |
-|---|---|---|
-| [Temperatura relativa semanal OISST v2.1](https://www.cpc.ncep.noaa.gov/data/indices/rel_wksst9120.txt) | Desde 1981; Niño 1+2, 3, 3.4 y 4 | Evolución semanal y comparación anual por zona. |
-| [Temperatura semanal OISST v2.1](https://www.cpc.ncep.noaa.gov/data/indices/wksst9120.for) | Desde 1981; cuatro zonas Niño | Temperatura superficial observada y anomalía convencional. |
-| [Índice Oceánico Relativo](https://www.cpc.ncep.noaa.gov/data/indices/RONI.ascii.txt) | Desde 1950; zona Niño 3.4 | Promedio móvil de tres meses y evolución de largo plazo. |
+GitHub Pages publica los archivos estáticos y `data/`. El navegador consume exclusivamente esos archivos versionados; no descarga ni interpreta páginas de NOAA en tiempo real.
 
-Los archivos originales descargados se conservan en [`data/raw/`](data/raw/). Los datos procesados que consume la visualización están en [`data/enso.json`](data/enso.json), y [`data/source_manifest.json`](data/source_manifest.json) registra la cobertura, el número de observaciones y la huella SHA-256 de cada fuente.
+## Definiciones y cálculos
 
-## Actualización semanal
+**SST** es temperatura superficial observada. La anomalía convencional resta la climatología local 1991–2020; la relativa ajusta además por la anomalía tropical. Los umbrales de anomalía no se dibujan en el modo SST.
 
-GitHub Actions comprueba la actualización cada hora los **lunes y martes, desde las 08:00 hasta las 22:00, hora del Este de Estados Unidos**. La zona horaria `America/New_York` ajusta automáticamente los cambios estacionales. El lunes es la ventana principal, después de la publicación semanal de NOAA, y el martes sirve como red de seguridad si la publicación se retrasa.
+**RONI** es un promedio móvil de tres meses de anomalías de Niño 3.4, ajustado por la anomalía tropical y su variabilidad. Usa ERSST; las series semanales usan OISST. Por tanto, el promedio de cuatro semanas no es el RONI. La fecha de RONI representa el mes central: `2026-07-15` corresponde a junio–agosto. Los valores recientes son revisables. [Definición oficial de NOAA](https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/roni/).
 
-En cada ejecución, el proceso:
+**Persistencia** cuenta trimestres consecutivos con RONI ≥ +0,50 °C o ≤ −0,50 °C del mismo signo. Usa los dos decimales originales, sin redondear antes de comparar: +0,49 no cuenta como +0,50. Se detiene en un trimestre neutral, un cambio de signo o una discontinuidad. Es un conteo local de la serie, no la clasificación oficial de episodios. La referencia de cinco temporadas solapadas no constituye una regla automática para emitir avisos; también interviene la atmósfera.
 
-1. compara el miércoles semanal esperado con las fechas de las dos fuentes OISST registradas en el manifiesto;
-2. termina sin descargar ni desplegar si ambas fuentes ya están al día;
-3. si falta la semana nueva, descarga las tres fuentes oficiales y valida su estructura, fechas, rangos y duplicados;
-4. reemplaza los datos publicados únicamente si todas las comprobaciones terminan correctamente;
-5. registra los cambios cuando NOAA publicó información nueva y vuelve a desplegar el dashboard en GitHub Pages.
+**Cambio a cuatro semanas** = último valor menos el de exactamente 28 días antes. **Media móvil** = promedio de cuatro observaciones consecutivas separadas por siete días. Si faltan observaciones, no se sustituye el resultado por cero ni se promedian ventanas incompletas.
 
-También se ejecuta después de cada cambio enviado a la rama `main` y puede iniciarse manualmente desde [GitHub Actions](https://github.com/jp1309/el-nino-dashboard/actions).
+**Percentil estacional** usa una observación por cada año anterior: la más cercana a la misma fecha del calendario, a una distancia máxima de cuatro días. Se usa un calendario común bisiesto para alinear febrero. En distancias empatadas se conserva la observación anterior. Percentil = 100 × (valores inferiores + 0,5 × valores iguales) / años comparables. La mediana utiliza interpolación lineal. Se calcula sobre todo el historial, independientemente del año inicial de la comparación. No mide probabilidad de ENSO.
 
-## Reproducibilidad y controles
+**Actualidad**: alerta semanal a partir de más de 14 días desde la observación; RONI a más de 45 días desde el final del trimestre; pronóstico a más de 35 días desde la emisión. Las edades usan días UTC. Son reglas del tablero, no compromisos de publicación de NOAA. Una descarga fallida conserva la edición anterior con su fecha, y el tablero muestra su antigüedad.
 
-El procesamiento se realiza con Python y no requiere dependencias externas. Para descargar nuevamente las fuentes, validar el resultado y ejecutar las pruebas:
+## Actualización automática
+
+Se mantienen los intentos cada hora los **lunes y martes, de 08:00 a 22:00, America/New_York**. Se añade una comprobación los **jueves a las 15:00** para la publicación mensual del pronóstico del segundo jueves. La zona horaria ajusta el horario estacional.
+
+`check_pending.py` comprueba las dos series semanales y también la temporada mensual esperada de RONI a partir del día 5. El pronóstico se consulta cuando falta la edición mensual esperada. Si una descarga falla, el flujo emite una advertencia, conserva la última edición validada y permite actualizar la otra fuente. Si la reconstrucción de los datos falla, se bloquea la publicación. Las ejecuciones programadas solo despliegan cuando los datos cambian; los cambios en `main` y las ejecuciones manuales también publican el sitio.
+
+## Desarrollo y verificación
+
+Python estándar para el procesamiento; Node para pruebas de cálculos y exportación. En Windows puede utilizarse `py -3` en lugar de `python`.
 
 ```bash
 python scripts/update_data.py
+python scripts/update_outlook.py
 python scripts/validate_data.py
 python -m unittest discover -s tests -v
+node --test tests/analytics.test.cjs
+node --check app.js
+node --check monitor.js
+node --check analytics.js
+git diff --check
+python -m http.server 8765 --bind 127.0.0.1
 ```
 
-La actualización se detiene sin reemplazar los datos vigentes si una fuente no responde, cambia de formato, presenta fechas duplicadas o desordenadas, contiene valores fuera de rangos físicos amplios o no coincide con el manifiesto generado.
+Abrir `http://127.0.0.1:8765/` (no `file://`, porque los datos se cargan con `fetch`). Las pruebas cubren discontinuidades, ventanas completas, umbrales sin redondear, cambios de año, comparaciones estacionales, CSV, edición del pronóstico y reconstrucción de las fuentes. La revisión visual debe comprobar escritorio, móvil, idiomas, filtros y la versión pública después del despliegue.
 
-## Estructura del proyecto
+| Archivo | Responsabilidad |
+|---|---|
+| `index.html`, `styles.css` | Estructura y diseño adaptable |
+| `app.js` | Gráficos históricos, filtros, traducciones y CSV |
+| `analytics.js` | Cálculos puros verificables |
+| `monitor.js` | Resumen, matriz, contexto histórico, pronóstico y metodología |
+| `scripts/` | Actualización, control de pendientes y validación |
+| `tests/` | Pruebas Python y Node |
 
-```text
-index.html                 Estructura del dashboard
-styles.css                 Diseño adaptable
-app.js                     Gráficos, filtros, traducciones y descargas CSV
-data/enso.json             Datos procesados para la interfaz
-data/source_manifest.json  Procedencia e integridad de las fuentes
-data/raw/                  Copias de los archivos originales de NOAA
-scripts/update_data.py     Descarga y transformación
-scripts/validate_data.py   Validación independiente
-tests/                     Pruebas del procesamiento y la interfaz
-```
+## Atribución
 
-El frontend es estático y usa Chart.js. Los filtros se reflejan en la URL para que una vista específica pueda compartirse, y los datos visibles pueden descargarse como CSV.
-
-## Licencia y atribución
-
-El código se distribuye bajo la [licencia MIT](LICENSE). Los datos pertenecen a NOAA y mantienen sus condiciones de uso y atribución originales.
+Elaborado por **Juan Pablo Erraez**, con desarrollo asistido por Codex. Código bajo [licencia MIT](LICENSE). Datos y diagnósticos de NOAA/CPC; cartografía de OpenStreetMap. Chart.js y Leaflet se cargan desde sus CDN.

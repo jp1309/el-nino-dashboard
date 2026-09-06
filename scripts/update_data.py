@@ -172,6 +172,13 @@ def validate_series(records: list[dict[str, Any]], name: str, minimum: int) -> N
     dates = [record["date"] for record in records]
     if dates != sorted(dates) or len(dates) != len(set(dates)):
         raise ValueError(f"{name}: fechas duplicadas o fuera de orden")
+    if name.endswith("weekly"):
+        if any((date.fromisoformat(b) - date.fromisoformat(a)).days != 7 for a, b in zip(dates, dates[1:])):
+            raise ValueError(f"{name}: semanas ausentes o intervalo distinto de 7 dias")
+    elif name == "roni":
+        months = [int(value[:4]) * 12 + int(value[5:7]) for value in dates]
+        if any(b - a != 1 for a, b in zip(months, months[1:])):
+            raise ValueError("roni: trimestres ausentes")
 
 
 def validate_freshness(relative: list[dict[str, Any]], absolute: list[dict[str, Any]], roni: list[dict[str, Any]]) -> None:
@@ -179,6 +186,8 @@ def validate_freshness(relative: list[dict[str, Any]], absolute: list[dict[str, 
     relative_age = (today - date.fromisoformat(relative[-1]["date"])).days
     absolute_age = (today - date.fromisoformat(absolute[-1]["date"])).days
     roni_age = (today - date.fromisoformat(roni[-1]["date"])).days
+    if min(relative_age, absolute_age, roni_age) < 0:
+        raise ValueError("Las fuentes contienen observaciones futuras")
     if relative_age > 21:
         raise ValueError(f"relative_weekly: la ultima semana tiene {relative_age} dias de rezago")
     if absolute_age > 21:

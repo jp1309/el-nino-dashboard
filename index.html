@@ -13,10 +13,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-    <link rel="stylesheet" href="styles.css?v=20260814-red">
+    <link rel="stylesheet" href="styles.css?v=20260906-monitor">
     <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <script defer src="app.js"></script>
+    <script defer src="analytics.js?v=20260906"></script>
+    <script defer src="monitor.js?v=20260906"></script>
+    <script defer src="app.js?v=20260906"></script>
   </head>
   <body>
     <a class="skip-link" href="#contenido" data-i18n="skipLink">Saltar al contenido</a>
@@ -33,6 +35,18 @@
     </header>
 
     <main id="contenido" class="shell main-content">
+      <div class="monitor-heading">
+        <div><p class="section-kicker" data-monitor="eyebrow">OBSERVATORIO DEL PACÍFICO · NOAA / CPC</p><h1 data-monitor="title">El Niño, bajo observación.</h1></div>
+        <p id="dataFreshness" class="freshness" role="status" data-monitor="loading">Comprobando datos…</p>
+      </div>
+      <nav class="section-nav" aria-label="Secciones">
+        <a href="#overview" data-monitor="navNow">Estado actual</a><a href="#pulse-title" data-monitor="navTrend">Evolución</a><a href="#outlook-title" data-monitor="navOutlook">Pronóstico</a><a href="#comparison-title" data-monitor="navCompare">Contexto histórico</a><a href="#sources-title" data-monitor="navSources">Fuentes y método</a>
+      </nav>
+      <section id="overview" class="overview" aria-label="Resumen del monitoreo">
+        <div class="status-strip" id="oceanStatus" role="status"><span data-monitor="loading">Comprobando datos…</span></div>
+        <div class="metric-grid" id="metricGrid"></div>
+        <div class="monitor-reading" id="monitorReading"></div>
+      </section>
       <section class="panel pulse-panel" aria-labelledby="pulse-title">
         <div class="section-heading">
           <div>
@@ -62,6 +76,12 @@
           </label>
         </div>
 
+        <div class="explorer-toolbar">
+          <div class="segmented" id="rangeControls" aria-label="Ventana temporal"><button type="button" data-range="6" data-monitor="range6">6 meses</button><button type="button" data-range="12" data-monitor="range12">12 meses</button><button type="button" data-range="36" data-monitor="range36">3 años</button><button type="button" data-range="all" data-monitor="rangeAll">Todo</button></div>
+          <label class="metric-field"><span data-monitor="measure">Medida</span><select id="weeklyMetric"><option value="relative" data-monitor="relative">Anomalía relativa</option><option value="anom" data-monitor="conventional">Anomalía convencional</option><option value="sst" data-monitor="sst">Temperatura del mar</option></select></label>
+          <label class="smoothing-field"><input type="checkbox" id="smoothWeekly"><span data-monitor="smooth">Promedio de 4 semanas</span></label>
+        </div>
+        <p class="metric-explanation" id="metricExplanation"></p>
         <div class="chart-wrap chart-large">
           <canvas id="weeklyChart" role="img" aria-label="Gráfico de diferencias semanales de temperatura en cuatro zonas del Pacífico tropical" data-i18n-aria-label="weeklyChartAria"></canvas>
           <div class="chart-loading" id="weeklyLoading" data-i18n="weeklyLoading">Preparando la serie semanal…</div>
@@ -78,6 +98,14 @@
           <p class="as-of" id="weeklyAsOf">Semana...</p>
         </div>
         <div class="region-grid" id="regionGrid" aria-live="polite"></div>
+        <div class="panel regional-detail"><div class="section-heading compact"><div><p class="section-kicker" data-monitor="spatialKicker">EXTENSIÓN DE LA SEÑAL</p><h2 data-monitor="spatialTitle">¿Dónde se concentra el cambio?</h2></div><span class="heatmap-key" data-monitor="heatmapKey">Frío ← anomalía relativa → cálido</span></div><p id="coastalReading"></p><div id="heatmap" class="heatmap-scroll"></div><p class="chart-footnote" data-monitor="heatmapNote">Últimas 26 semanas · cada celda muestra la anomalía relativa en °C. Las cuatro zonas se superponen: no son observaciones independientes.</p></div>
+      </section>
+
+      <section class="panel outlook-panel" aria-labelledby="outlook-title">
+        <div class="section-heading"><div><p class="section-kicker" data-monitor="outlookKicker">PERSPECTIVA OFICIAL · NOAA / CPC</p><h2 id="outlook-title" data-monitor="outlookTitle">Qué se espera en los próximos meses</h2><p id="outlookSummary" data-monitor="outlookLoading">Cargando la edición del pronóstico…</p></div><a class="download-button" href="https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/roni/outlook/" target="_blank" rel="noreferrer" data-monitor="officialOutlook">Consultar NOAA ↗</a></div>
+        <div class="outlook-layout"><div><div class="outlook-legend"><span class="legend-median" data-monitor="median">Mediana</span><span class="legend-50" data-monitor="range50">Intervalo central del 50 %</span><span class="legend-90" data-monitor="range90">Intervalo central del 90 %</span></div><div class="chart-wrap chart-outlook"><canvas id="outlookChart" role="img" aria-label="Pronóstico oficial de RONI con intervalos de incertidumbre"></canvas></div></div><aside class="outlook-context" id="outlookContext"></aside></div>
+        <details class="data-details"><summary data-monitor="outlookTable">Ver valores del pronóstico</summary><div id="outlookTable" class="table-scroll"></div><a href="data/outlook.json" download data-monitor="downloadOutlook">Descargar pronóstico JSON</a></details>
+        <p class="chart-footnote" data-monitor="outlookNote">Los intervalos expresan incertidumbre sobre el RONI, no probabilidades de lluvia. La mediana no es un resultado garantizado. Cada punto corresponde a tres meses que se solapan con los siguientes.</p>
       </section>
 
       <section class="panel comparison-panel" aria-labelledby="comparison-title">
@@ -107,6 +135,7 @@
             </div>
           </div>
         </div>
+        <div class="historical-context" id="historicalContext"></div>
         <div class="chart-wrap chart-comparison">
           <canvas id="comparisonChart" role="img" aria-label="Comparación semanal entre años para una zona del Pacífico tropical" data-i18n-aria-label="comparisonChartAria"></canvas>
           <div class="chart-loading" id="comparisonLoading" data-i18n="comparisonLoading">Preparando la comparación anual…</div>
@@ -126,12 +155,13 @@
               <select id="roniStartYear" aria-label="Año inicial del gráfico histórico del promedio oceánico" data-i18n-aria-label="historyStartYearAria"></select>
             </label>
             <div class="legend-zones" aria-label="Leyenda" data-i18n-aria-label="legendAria">
-              <span><i class="warm"></i>El Niño</span>
+              <span><i class="warm"></i><em data-monitor="warmSignal">Señal cálida</em></span>
               <span><i class="neutral"></i><em data-i18n="neutral">Neutral</em></span>
-              <span><i class="cold"></i>La Niña</span>
+              <span><i class="cold"></i><em data-monitor="coldSignal">Señal fría</em></span>
             </div>
           </div>
         </div>
+        <div id="roniRecent" class="roni-recent"></div>
         <div class="chart-wrap chart-history">
           <canvas id="roniChart" role="img" aria-label="Serie histórica del promedio oceánico de tres meses en la zona Niño 3.4 desde 1950" data-i18n-aria-label="historyChartAria"></canvas>
           <div class="chart-loading" id="roniLoading" data-i18n="historyLoading">Preparando el historial…</div>
@@ -189,6 +219,7 @@
         </div>
         <div class="source-list" id="sourceList"></div>
       </section>
+      <details class="data-details methodology-details"><summary data-monitor="methodology">Definiciones, cálculos y límites del monitoreo</summary><div id="calculationNotes"></div></details>
     </main>
 
     <footer>
