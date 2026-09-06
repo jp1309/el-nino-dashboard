@@ -127,6 +127,14 @@
                 <option value="nino4">Centro (Niño 4)</option>
               </select>
             </label>
+            <label class="year-field" for="comparisonMetric">
+              <span class="control-label" data-monitor="measure">Medida</span>
+              <select id="comparisonMetric" aria-describedby="comparisonMetricExplanation">
+                <option value="relative" data-monitor="relative">Anomalía relativa</option>
+                <option value="anom" data-monitor="conventional">Anomalía convencional</option>
+                <option value="sst" data-monitor="sst">Temperatura del mar</option>
+              </select>
+            </label>
             <label class="year-field" for="comparisonStartYear">
               <span class="control-label" data-i18n="startYear">Año inicial</span>
               <select id="comparisonStartYear" aria-label="Año inicial de la comparación" data-i18n-aria-label="comparisonStartYearAria"></select>
@@ -138,6 +146,7 @@
           </div>
         </div>
         <div class="historical-context" id="historicalContext"></div>
+        <p class="metric-explanation" id="comparisonMetricExplanation"></p>
         <div class="chart-wrap chart-comparison">
           <canvas id="comparisonChart" role="img" aria-label="Comparación semanal entre años para una zona del Pacífico tropical" data-i18n-aria-label="comparisonChartAria"></canvas>
           <div class="chart-loading" id="comparisonLoading" data-i18n="comparisonLoading">Preparando la comparación anual…</div>

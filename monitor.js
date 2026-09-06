@@ -20,7 +20,7 @@ const MONITOR_COPY = {
   outlookNote: ["Los intervalos expresan incertidumbre sobre el RONI, no probabilidades de lluvia. La mediana no es un resultado garantizado. Cada punto corresponde a tres meses que se solapan con los siguientes.", "Ranges express uncertainty in RONI, not rainfall probabilities. The median is not a guaranteed outcome. Each point represents three months that overlap with the next season."],
 };
 const say = (es, en) => state.language === "en" ? en : es;
-const metricKey = (region) => state.weeklyMetric === "relative" ? region : `${region}_${state.weeklyMetric}`;
+const metricKey = (region, metric = state.weeklyMetric) => metric === "relative" ? region : `${region}_${metric}`;
 const formatValue = (value, digits = 1) => Number.isFinite(value) ? decimal(value, digits) : "—";
 const formatDelta = (value) => Number.isFinite(value) ? `${signed(value)} °C` : "—";
 
@@ -30,6 +30,7 @@ function applyMonitorLanguage() {
     element.textContent = copy[state.language === "en" ? 1 : 0];
   });
   document.querySelector("#weeklyMetric").setAttribute("aria-label", say("Medida del gráfico semanal", "Weekly chart measure"));
+  document.querySelector("#comparisonMetric").setAttribute("aria-label", say("Medida de la comparación semanal entre años", "Weekly year comparison measure"));
   document.querySelector("#outlookChart").setAttribute("aria-label", say("Pronóstico oficial de RONI con intervalos de incertidumbre", "Official RONI outlook with uncertainty ranges"));
   document.querySelector(".section-nav").setAttribute("aria-label", say("Secciones", "Sections"));
   document.querySelector("#rangeControls").setAttribute("aria-label", say("Ventana temporal", "Time range"));
@@ -97,15 +98,20 @@ function renderSpatial() {
 }
 
 function renderHistoricalContext() {
-  const key = state.comparisonRegion;
+  const region = state.comparisonRegion;
+  const key = metricKey(region, state.comparisonMetric);
+  const valueText = state.comparisonMetric === "sst" ? decimal : signed;
   const rank = EnsoAnalytics.seasonalRank(state.data.weekly, key);
   const latest = state.data.weekly.at(-1);
-  document.querySelector("#historicalContext").innerHTML = rank ? `<div class="rank-number">P${Math.round(rank.percentile)}<span>${say("percentil estacional", "seasonal percentile")}</span></div><p><strong>${regionCopy(key).place}: ${signed(latest[key])} °C</strong>. ${say("Comparado con", "Compared with")} ${rank.count} ${say("años anteriores en fechas equivalentes (±4 días). Mediana histórica", "previous years at equivalent calendar dates (±4 days). Historical median")}: <strong>${signed(rank.median)} °C</strong>.<br><small>${say("Usa toda la serie disponible, independientemente del filtro del gráfico. P100 significa que supera todos esos valores; no es una probabilidad de El Niño.", "Uses the full available record, independently of the chart filter. P100 means it exceeds all those values; it is not an El Niño probability.")}</small></p>` : say("Historial insuficiente para comparar.", "Insufficient history to compare.");
+  document.querySelector("#historicalContext").innerHTML = rank ? `<div class="rank-number">P${Math.round(rank.percentile)}<span>${say("percentil estacional", "seasonal percentile")}</span></div><p><strong>${regionCopy(region).place}: ${valueText(latest[key])} °C</strong>. ${say("Comparado con", "Compared with")} ${rank.count} ${say("años anteriores en fechas equivalentes (±4 días). Mediana histórica", "previous years at equivalent calendar dates (±4 days). Historical median")}: <strong>${valueText(rank.median)} °C</strong>.<br><small>${say("Usa toda la serie disponible, independientemente del filtro del gráfico. P100 significa que supera todos esos valores; no es una probabilidad de El Niño.", "Uses the full available record, independently of the chart filter. P100 means it exceeds all those values; it is not an El Niño probability.")}</small></p>` : say("Historial insuficiente para comparar.", "Insufficient history to compare.");
+}
+
+function metricDescription(metric) {
+  return metric === "sst" ? say("Temperatura superficial observada, en °C. Incluye el ciclo estacional: un aumento de temperatura no implica por sí solo El Niño.", "Observed sea surface temperature, in °C. Includes the seasonal cycle: a rise in temperature alone does not imply El Niño.") : metric === "anom" ? say("Anomalía convencional: temperatura menos la climatología local 1991–2020. Cero significa el valor esperado para esa zona y época del año.", "Conventional anomaly: temperature minus the local 1991–2020 climatology. Zero is the expected value for that region and time of year.") : say("Anomalía relativa: anomalía local ajustada por la anomalía media tropical. Aísla la señal regional del calentamiento de fondo de los trópicos; no es un cambio desde la semana anterior.", "Relative anomaly: local anomaly adjusted for the tropical mean anomaly. Separates the regional signal from background tropical warming; it is not a change from the previous week.");
 }
 
 function renderMetricExplanation() {
-  const copy = state.weeklyMetric === "sst" ? say("Temperatura superficial observada, en °C. Incluye el ciclo estacional: un aumento de temperatura no implica por sí solo El Niño.", "Observed sea surface temperature, in °C. Includes the seasonal cycle: a rise in temperature alone does not imply El Niño.") : state.weeklyMetric === "anom" ? say("Anomalía convencional: temperatura menos la climatología local 1991–2020. Cero significa el valor esperado para esa zona y época del año.", "Conventional anomaly: temperature minus the local 1991–2020 climatology. Zero is the expected value for that region and time of year.") : say("Anomalía relativa: anomalía local ajustada por la anomalía media tropical. Aísla la señal regional del calentamiento de fondo de los trópicos; no es un cambio desde la semana anterior.", "Relative anomaly: local anomaly adjusted for the tropical mean anomaly. Separates the regional signal from background tropical warming; it is not a change from the previous week.");
-  document.querySelector("#metricExplanation").textContent = copy;
+  document.querySelector("#metricExplanation").textContent = metricDescription(state.weeklyMetric);
   const note = document.querySelector(".threshold-note");
   note.hidden = state.weeklyMetric === "sst";
   document.querySelector("#weeklyMetric").value = state.weeklyMetric;

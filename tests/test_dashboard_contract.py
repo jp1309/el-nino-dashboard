@@ -53,11 +53,11 @@ class DashboardStructureTests(unittest.TestCase):
     def test_all_charts_use_half_degree_y_axis_steps(self):
         self.assertIn("stepSize: 0.5", self.app)
         self.assertIn("autoSkip: false", self.app)
-        self.assertEqual(self.app.count("ticks: temperatureAxisTicks()"), 3)
+        self.assertEqual(self.app.count("ticks: temperatureAxisTicks("), 3)
 
     def test_all_charts_share_the_same_five_temperature_bands(self):
         self.assertEqual(self.app.count("plugins: [zonePlugin]"), 3)
-        self.assertEqual(self.app.count("ensoZones: { enabled: true }"), 2)
+        self.assertEqual(self.app.count("ensoZones: { enabled: true }"), 1)
         self.assertIn('ensoZones: { enabled: state.weeklyMetric !== "sst" }', self.app)
         self.assertIn('pixelForValue(1.5)', self.app)
         self.assertIn('pixelForValue(-1.5)', self.app)

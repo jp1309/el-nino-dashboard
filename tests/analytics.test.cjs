@@ -63,3 +63,40 @@ test('CSV matches selected absolute measure and four-week smoothing', async () =
   assert.equal(Number(csv.at(-1).split(',')[1]),A.mean(dataset.weekly.slice(-4).map(row=>row.nino34_sst)));
   assert.equal(csv.length-1,run('getWeeklyWindow().length'));
 });
+
+test('annual weekly comparison changes data, percentile and chart units independently', () => {
+  const nodes = new Map();
+  context.document = {querySelector: (selector) => {
+    if (!nodes.has(selector)) nodes.set(selector, {classList: {add() {}}});
+    return nodes.get(selector);
+  }};
+  context.Chart = class { constructor(_canvas, config) { this.config = config; } destroy() {} };
+  context.window = {innerWidth: 1200};
+  run('state.weeklyMetric="relative";state.comparisonStartYear=1990');
+  for (const region of ['nino12', 'nino3', 'nino34', 'nino4']) {
+    for (const metric of ['relative', 'anom', 'sst']) {
+      run(`state.comparisonRegion="${region}";state.comparisonMetric="${metric}";renderComparisonChart()`);
+      const key = metric === 'relative' ? region : `${region}_${metric}`;
+      assert.equal(run('getWeeklyComparisonSeries().at(-1).values.at(-1).y'), run(`state.data.weekly.at(-1)["${key}"]`));
+      assert.equal(run('state.weeklyMetric'), 'relative');
+      const config = run('state.comparisonChart.config');
+      assert.equal(config.options.plugins.ensoZones.enabled, metric !== 'sst');
+      assert.equal(config.options.scales.y.suggestedMin, metric === 'sst' ? undefined : -2.5);
+      assert.equal(config.options.scales.y.ticks.callback(25), metric === 'sst' ? '25°' : '+25°');
+      const rank = run(`EnsoAnalytics.seasonalRank(state.data.weekly,"${key}")`);
+      assert.ok(nodes.get('#historicalContext').innerHTML.includes(`P${Math.round(rank.percentile)}`));
+      assert.equal(nodes.get('#comparisonMetricExplanation').textContent, run(`metricDescription("${metric}")`));
+    }
+  }
+});
+
+test('comparison measure survives shared URL reload independently of first chart', () => {
+  context.window = {location: {pathname: '/', search: ''}};
+  context.history = {replaceState: (_state, _title, url) => {context.window.location.search = url.slice(url.indexOf('?'));}};
+  run('state.weeklyMetric="anom";state.comparisonMetric="sst";syncUrl();state.weeklyMetric="relative";state.comparisonMetric="relative";loadStateFromUrl()');
+  assert.equal(run('state.weeklyMetric'), 'anom');
+  assert.equal(run('state.comparisonMetric'), 'sst');
+  context.window.location.search = '?medida_comparacion=invalid';
+  run('state.comparisonMetric="relative";loadStateFromUrl()');
+  assert.equal(run('state.comparisonMetric'), 'relative');
+});

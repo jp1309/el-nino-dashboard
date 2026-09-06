@@ -194,6 +194,7 @@ const state = {
   outlook: null,
   outlookChart: null,
   comparisonRegion: "nino12",
+  comparisonMetric: "relative",
   comparisonStartYear: null,
   roniStartYear: null,
   weeklyChart: null,
@@ -239,6 +240,7 @@ function loadStateFromUrl() {
   if (["6", "12", "36", "all", "custom"].includes(params.get("ventana"))) state.weeklyRange = params.get("ventana");
   else if (params.has("desde_semana")) state.weeklyRange = "custom";
   if (["relative", "anom", "sst"].includes(params.get("medida"))) state.weeklyMetric = params.get("medida");
+  if (["relative", "anom", "sst"].includes(params.get("medida_comparacion"))) state.comparisonMetric = params.get("medida_comparacion");
   state.smoothWeekly = params.get("suavizar") === "1";
   const requestedLanguage = params.get("lang");
   let storedLanguage = null;
@@ -265,6 +267,7 @@ function syncUrl() {
   params.set("suavizar", state.smoothWeekly ? "1" : "0");
   params.set("desde_semana", state.weeklyStartYear);
   params.set("comparar", state.comparisonRegion);
+  params.set("medida_comparacion", state.comparisonMetric);
   params.set("desde_comparacion", state.comparisonStartYear);
   params.set("desde_roni", state.roniStartYear);
   params.set("regiones", [...state.regions].join(","));
@@ -276,11 +279,11 @@ function signed(value, digits = 1) {
     .format(value).replace("-", "−");
 }
 
-function temperatureAxisTicks() {
+function temperatureAxisTicks(metric = "relative") {
   return {
     stepSize: 0.5,
     autoSkip: false,
-    callback: (value) => `${value > 0 ? "+" : ""}${value}°`,
+    callback: (value) => `${metric !== "sst" && value > 0 ? "+" : ""}${value}°`,
   };
 }
 
@@ -569,7 +572,7 @@ function renderWeeklyChart() {
           suggestedMin: state.weeklyMetric === "sst" ? undefined : -1,
           suggestedMax: state.weeklyMetric === "sst" ? undefined : 1,
           border: { display: false },
-          ticks: temperatureAxisTicks(),
+          ticks: temperatureAxisTicks(state.weeklyMetric),
           title: { display: true, text: state.weeklyMetric === "sst" ? say("Temperatura (°C)", "Temperature (°C)") : state.weeklyMetric === "anom" ? say("Anomalía convencional (°C)", "Conventional anomaly (°C)") : t("differenceAxis"), color: "#667985", font: { size: 11, weight: "500" } },
         },
       },
@@ -599,7 +602,7 @@ function getWeeklyComparisonSeries() {
     if (!byYear.has(year)) byYear.set(year, []);
     byYear.get(year).push({
       x: comparisonDay(row.date),
-      y: row[state.comparisonRegion],
+      y: row[metricKey(state.comparisonRegion, state.comparisonMetric)] ?? null,
       date: row.date,
     });
   });
@@ -608,6 +611,7 @@ function getWeeklyComparisonSeries() {
 
 function renderComparisonChart() {
   renderHistoricalContext();
+  document.querySelector("#comparisonMetricExplanation").textContent = metricDescription(state.comparisonMetric);
   const series = getWeeklyComparisonSeries();
   const monthLabels = MONTH_LABELS[state.language];
   const currentYear = series.at(-1).year;
@@ -641,7 +645,7 @@ function renderComparisonChart() {
       interaction: { mode: "nearest", intersect: false, axis: "xy" },
       plugins: {
         legend: { display: false },
-        ensoZones: { enabled: true },
+        ensoZones: { enabled: state.comparisonMetric !== "sst" },
         tooltip: {
           backgroundColor: "#071f33",
           padding: 12,
@@ -649,7 +653,7 @@ function renderComparisonChart() {
           intersect: false,
           callbacks: {
             title: (items) => formatDate(items[0].raw.date),
-            label: (item) => ` ${item.dataset.label}: ${signed(item.raw.y)} °C`,
+            label: (item) => ` ${item.dataset.label}: ${state.comparisonMetric === "sst" ? decimal(item.raw.y) : signed(item.raw.y)} °C`,
           },
         },
       },
@@ -671,12 +675,12 @@ function renderComparisonChart() {
           title: { display: true, text: t("weekAxis"), color: "#667985", font: { size: 11, weight: "500" } },
         },
         y: {
-          suggestedMin: -2.5,
-          suggestedMax: 3,
+          suggestedMin: state.comparisonMetric === "sst" ? undefined : -2.5,
+          suggestedMax: state.comparisonMetric === "sst" ? undefined : 3,
           border: { display: false },
           grid: { color: (context) => context.tick.value === 0 ? "rgba(16, 43, 58, .34)" : "rgba(16, 43, 58, .09)" },
-          ticks: temperatureAxisTicks(),
-          title: { display: true, text: t("differenceAxis"), color: "#667985", font: { size: 11, weight: "500" } },
+          ticks: temperatureAxisTicks(state.comparisonMetric),
+          title: { display: true, text: state.comparisonMetric === "sst" ? say("Temperatura (°C)", "Temperature (°C)") : state.comparisonMetric === "anom" ? say("Anomalía convencional (°C)", "Conventional anomaly (°C)") : t("differenceAxis"), color: "#667985", font: { size: 11, weight: "500" } },
         },
       },
     },
@@ -803,6 +807,7 @@ function updateControls() {
   });
   document.querySelector("#weeklyStartYear").value = String(state.weeklyStartYear);
   document.querySelector("#comparisonRegion").value = state.comparisonRegion;
+  document.querySelector("#comparisonMetric").value = state.comparisonMetric;
   document.querySelector("#comparisonStartYear").value = String(state.comparisonStartYear);
   document.querySelector("#roniStartYear").value = String(state.roniStartYear);
 }
@@ -844,6 +849,11 @@ function bindControls() {
   document.querySelector("#comparisonRegion").addEventListener("change", (event) => {
     state.comparisonRegion = event.target.value;
     updateControls();
+    syncUrl();
+    renderComparisonChart();
+  });
+  document.querySelector("#comparisonMetric").addEventListener("change", (event) => {
+    state.comparisonMetric = event.target.value;
     syncUrl();
     renderComparisonChart();
   });
