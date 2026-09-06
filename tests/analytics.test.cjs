@@ -82,7 +82,7 @@ test('annual weekly comparison changes data, percentile and chart units independ
       const config = run('state.comparisonChart.config');
       assert.equal(config.options.plugins.ensoZones.enabled, metric !== 'sst');
       assert.equal(config.options.scales.y.suggestedMin, metric === 'sst' ? undefined : -2.5);
-      assert.equal(config.options.scales.y.ticks.callback(25), metric === 'sst' ? '25°' : '+25°');
+      assert.equal(config.options.scales.y.ticks.callback(25), metric === 'sst' ? '25,0°' : '+25,0°');
       const rank = run(`EnsoAnalytics.seasonalRank(state.data.weekly,"${key}")`);
       assert.ok(nodes.get('#historicalContext').innerHTML.includes(`P${Math.round(rank.percentile)}`));
       assert.equal(nodes.get('#comparisonMetricExplanation').textContent, run(`metricDescription("${metric}")`));

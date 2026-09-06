@@ -160,7 +160,7 @@ function renderOutlook() {
       },
       scales: {
         x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: window.innerWidth < 640 ? 4 : 9, font: { size: 11 } } },
-        y: { suggestedMin: 0, suggestedMax: 2, ticks: { stepSize: .5 }, title: { display: true, text: "RONI (°C)" } },
+        y: { suggestedMin: 0, suggestedMax: 2, ticks: { stepSize: .5, callback: (value) => decimal(value, 1) }, title: { display: true, text: "RONI (°C)" } },
       },
     },
   });

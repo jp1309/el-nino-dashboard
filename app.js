@@ -283,7 +283,7 @@ function temperatureAxisTicks(metric = "relative") {
   return {
     stepSize: 0.5,
     autoSkip: false,
-    callback: (value) => `${metric !== "sst" && value > 0 ? "+" : ""}${value}°`,
+    callback: (value) => `${metric !== "sst" && value > 0 ? "+" : ""}${decimal(value, 1)}°`,
   };
 }
 
