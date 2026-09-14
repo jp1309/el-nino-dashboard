@@ -3,20 +3,20 @@
     "relative_weekly": {
       "url": "https://www.cpc.ncep.noaa.gov/data/indices/rel_wksst9120.txt",
       "file": "data/raw/rel_wksst9120.txt",
-      "sha256": "0ff0e6b84598c4aaab681f09ac461b65f97cdd2b98f3c61a343a085ae959287e",
-      "bytes": 131661,
-      "records": 2348,
+      "sha256": "1807566871b6f0810249c7ddf1f97799f2f39a355388882dac9f290f297c1049",
+      "bytes": 131717,
+      "records": 2349,
       "first_observation": "1981-09-09",
-      "latest_observation": "2026-09-02"
+      "latest_observation": "2026-09-09"
     },
     "absolute_weekly": {
       "url": "https://www.cpc.ncep.noaa.gov/data/indices/wksst9120.for",
       "file": "data/raw/wksst9120.for",
-      "sha256": "a497f97b7aad4491a333fd18d6de9990c9232278b1935f2ee3f4e1a442e3916e",
-      "bytes": 148164,
-      "records": 2349,
+      "sha256": "2731a546c235574e7e2bd1a66df5c9bf0c8fb6dd80ca53ce39ac732f8be8f838",
+      "bytes": 148227,
+      "records": 2350,
       "first_observation": "1981-09-02",
-      "latest_observation": "2026-09-02"
+      "latest_observation": "2026-09-09"
     },
     "roni": {
       "url": "https://www.cpc.ncep.noaa.gov/data/indices/RONI.ascii.txt",
