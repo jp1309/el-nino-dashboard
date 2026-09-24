@@ -5,7 +5,7 @@
     "sources": {
       "relative_weekly": {
         "url": "https://www.cpc.ncep.noaa.gov/data/indices/rel_wksst9120.txt",
-        "sha256": "ebdf2eb1f77a4e9f3fbb77e522686d1f912ce5ba2b50a4de80fb248a51c28561",
+        "sha256": "ae1e7ca294a4e956dc071be2a8dceb0508911586e2d63c9a73a16d23fea58571",
         "latest_observation": "2026-09-16"
       },
       "absolute_weekly": {
@@ -35253,13 +35253,13 @@
     },
     {
       "date": "2026-09-02",
-      "nino12": 3.9,
+      "nino12": 3.8,
       "nino12_sst": 25.3,
       "nino12_anom": 4.6,
       "nino3": 2.7,
       "nino3_sst": 28.4,
       "nino3_anom": 3.5,
-      "nino34": 1.8,
+      "nino34": 1.9,
       "nino34_sst": 29.4,
       "nino34_anom": 2.7,
       "nino4": 0.1,

@@ -3,7 +3,7 @@
     "relative_weekly": {
       "url": "https://www.cpc.ncep.noaa.gov/data/indices/rel_wksst9120.txt",
       "file": "data/raw/rel_wksst9120.txt",
-      "sha256": "ebdf2eb1f77a4e9f3fbb77e522686d1f912ce5ba2b50a4de80fb248a51c28561",
+      "sha256": "ae1e7ca294a4e956dc071be2a8dceb0508911586e2d63c9a73a16d23fea58571",
       "bytes": 131773,
       "records": 2350,
       "first_observation": "1981-09-09",
