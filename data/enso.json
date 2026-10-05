@@ -1,48 +1,48 @@
 {
   "meta": {
     "title": "Temperatura del mar y El Niño",
-    "main_observation_date": "2026-09-23",
+    "main_observation_date": "2026-09-30",
     "sources": {
       "relative_weekly": {
         "url": "https://www.cpc.ncep.noaa.gov/data/indices/rel_wksst9120.txt",
-        "sha256": "d79dbeffcbfc45e5b78007d5485dd88d6b7edb5949cc9276e97b51f73022d26f",
-        "latest_observation": "2026-09-23"
+        "sha256": "4acdbda778ef6221edc62ffc9b19bd0f62ee2750b8f11fcb1ac8787692b45b19",
+        "latest_observation": "2026-09-30"
       },
       "absolute_weekly": {
         "url": "https://www.cpc.ncep.noaa.gov/data/indices/wksst9120.for",
-        "sha256": "f257c99dfaa111e2503d208c93e93e380d0ffcc386bf5742fb2c48f980ecaa40",
-        "latest_observation": "2026-09-23"
+        "sha256": "1e9597620686b38e904adbe1b5fa50fb8bde2558e58e13f36b5b3aea37474296",
+        "latest_observation": "2026-09-30"
       },
       "roni": {
         "url": "https://www.cpc.ncep.noaa.gov/data/indices/RONI.ascii.txt",
-        "sha256": "2f1c446b0c293358af6452808799b0dca75f89b0a1d6f86eb1887dc3de9b5eae",
-        "latest_observation": "2026-07-15"
+        "sha256": "24d79a53c8c30aaf32200c08447291655fc1d693f11165793ba6d3aa378d98ff",
+        "latest_observation": "2026-08-15"
       }
     }
   },
   "current": {
     "weekly": {
-      "date": "2026-09-23",
-      "nino12": 3.9,
-      "nino12_sst": 25.4,
-      "nino12_anom": 4.7,
-      "nino3": 3.1,
-      "nino3_sst": 28.8,
-      "nino3_anom": 3.9,
-      "nino34": 2.2,
-      "nino34_sst": 29.7,
-      "nino34_anom": 3.1,
+      "date": "2026-09-30",
+      "nino12": 4.5,
+      "nino12_sst": 26.1,
+      "nino12_anom": 5.3,
+      "nino3": 3.3,
+      "nino3_sst": 29.0,
+      "nino3_anom": 4.0,
+      "nino34": 2.3,
+      "nino34_sst": 29.9,
+      "nino34_anom": 3.2,
       "nino4": 0.1,
-      "nino4_sst": 29.8,
-      "nino4_anom": 1.1
+      "nino4_sst": 29.9,
+      "nino4_anom": 1.2
     },
     "roni": {
-      "date": "2026-07-15",
-      "season": "JJA",
+      "date": "2026-08-15",
+      "season": "JAS",
       "year": 2026,
-      "value": 1.36,
+      "value": 1.69,
       "classification": "warm",
-      "consecutive_seasons": 2
+      "consecutive_seasons": 3
     }
   },
   "weekly": [
@@ -35268,18 +35268,18 @@
     },
     {
       "date": "2026-09-09",
-      "nino12": 3.7,
+      "nino12": 3.8,
       "nino12_sst": 25.2,
-      "nino12_anom": 4.5,
+      "nino12_anom": 4.6,
       "nino3": 2.9,
       "nino3_sst": 28.6,
       "nino3_anom": 3.7,
-      "nino34": 2.0,
-      "nino34_sst": 29.6,
-      "nino34_anom": 2.9,
-      "nino4": -0.1,
-      "nino4_sst": 29.6,
-      "nino4_anom": 0.9
+      "nino34": 1.9,
+      "nino34_sst": 29.5,
+      "nino34_anom": 2.8,
+      "nino4": -0.2,
+      "nino4_sst": 29.5,
+      "nino4_anom": 0.8
     },
     {
       "date": "2026-09-16",
@@ -35310,6 +35310,21 @@
       "nino4": 0.1,
       "nino4_sst": 29.8,
       "nino4_anom": 1.1
+    },
+    {
+      "date": "2026-09-30",
+      "nino12": 4.5,
+      "nino12_sst": 26.1,
+      "nino12_anom": 5.3,
+      "nino3": 3.3,
+      "nino3_sst": 29.0,
+      "nino3_anom": 4.0,
+      "nino34": 2.3,
+      "nino34_sst": 29.9,
+      "nino34_anom": 3.2,
+      "nino4": 0.1,
+      "nino4_sst": 29.9,
+      "nino4_anom": 1.2
     }
   ],
   "roni": [
@@ -40826,6 +40841,12 @@
       "season": "JJA",
       "year": 2026,
       "value": 1.36
+    },
+    {
+      "date": "2026-08-15",
+      "season": "JAS",
+      "year": 2026,
+      "value": 1.69
     }
   ]
 }
