@@ -21,11 +21,11 @@
     "roni": {
       "url": "https://www.cpc.ncep.noaa.gov/data/indices/RONI.ascii.txt",
       "file": "data/raw/RONI.ascii.txt",
-      "sha256": "24d79a53c8c30aaf32200c08447291655fc1d693f11165793ba6d3aa378d98ff",
-      "bytes": 14736,
-      "records": 920,
+      "sha256": "1297887f581b6190e459cbbf8bdec9a703ff65c1a229e2de4dd94285254f35c8",
+      "bytes": 14752,
+      "records": 921,
       "first_observation": "1950-01-15",
-      "latest_observation": "2026-08-15"
+      "latest_observation": "2026-09-15"
     }
   }
 }
