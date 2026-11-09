@@ -60,7 +60,9 @@ test('timeline, playback speeds and manual pause stay synchronized without dupli
     const params=new URLSearchParams();map.saveFilters(params);
     assert.equal(params.get('mapa_fecha'),i===payload.frames.length-1?null:payload.frames[i].center);
   };
-  await map.load({},'es');selected(12);
+  // Uses the published number of weeks (13 before, 53 now) instead of a fixed count.
+  const last=payload.frames.length-1,mid=Math.floor(last/2);
+  await map.load({},'es');selected(last);
   fire('oceanPlay','click');selected(0);
   assert.equal(element('oceanPlay').attributes['aria-pressed'],'true');
   assert.equal(intervals.values().next().value.ms,1200);
@@ -69,14 +71,14 @@ test('timeline, playback speeds and manual pause stay synchronized without dupli
     fire('oceanSpeed','change',ms);assert.equal(intervals.size,1);
     assert.equal(intervals.values().next().value.ms,ms);
   }
-  for(let i=0;i<12;i++)tick();selected(0);
+  for(let i=0;i<last;i++)tick();selected(0);
   fire('oceanTimeline','pointerdown');assert.equal(intervals.size,0);
-  fire('oceanTimeline','input',6);selected(6);
-  assert.equal(element('oceanTimeline').style['--ocean-progress'],'50%');
+  fire('oceanTimeline','input',mid);selected(mid);
+  assert.equal(element('oceanTimeline').style['--ocean-progress'],`${mid/last*100}%`);
   assert.equal(element('oceanPlay').attributes['aria-pressed'],'false');
-  fire('oceanPlay','click');tick();selected(7);
+  fire('oceanPlay','click');tick();selected(mid+1);
   map.language('en');assert.equal(element('oceanPlayLabel').textContent,'Pause');
-  assert.equal(element('oceanPosition').textContent,'Week 8 of 13');
+  assert.equal(element('oceanPosition').textContent,`Week ${mid+2} of ${last+1}`);
   document.hidden=true;events.visibilitychange();assert.equal(intervals.size,0);
-  fire('oceanLatest','click');selected(12);assert.equal(element('oceanNext').disabled,true);
+  fire('oceanLatest','click');selected(last);assert.equal(element('oceanNext').disabled,true);
 });
