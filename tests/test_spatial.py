@@ -42,8 +42,9 @@ class SpatialTests(unittest.TestCase):
 
     def test_public_map_rebuilds_exactly_and_preserves_dates_and_land(self):
         result=S.validate()
-        self.assertEqual(len(result['frames']),13)
         with np.load(S.RAW) as a:
+            self.assertEqual(len(result['frames']),len(a['starts']))
+            self.assertLessEqual(len(result['frames']),S.WEEKS)
             f=result['frames'][-1]
             self.assertEqual((date.fromisoformat(f['center'])-date.fromisoformat(f['start'])).days,3)
             self.assertEqual((date.fromisoformat(f['end'])-date.fromisoformat(f['start'])).days,6)
@@ -75,12 +76,16 @@ class SpatialTests(unittest.TestCase):
             self.assertTrue(S.is_due(date(2026,11,9),path))
             path.write_text('{"frames": []}',encoding='utf-8')
             self.assertTrue(S.is_due(date(2026,11,9),path))
-            path.write_text(json.dumps({'frames':[{'center':'2026-10-28'}]}),encoding='utf-8')
+            year=lambda last:[{'center':'2025-01-01'}]*(S.WEEKS-1)+[{'center':last}]
+            path.write_text(json.dumps({'frames':year('2026-10-28')}),encoding='utf-8')
             self.assertTrue(S.is_due(date(2026,11,9),path))
             self.assertFalse(S.is_due(date(2026,11,7),path))
-            path.write_text(json.dumps({'frames':[{'center':'2026-11-04'}]}),encoding='utf-8')
+            path.write_text(json.dumps({'frames':year('2026-11-04')}),encoding='utf-8')
             self.assertFalse(S.is_due(date(2026,11,9),path))
             self.assertTrue(S.is_due(date(2026,11,15),path))
+            # A shorter history is completed even when the latest week is present.
+            path.write_text(json.dumps({'frames':year('2026-11-04')[-13:]}),encoding='utf-8')
+            self.assertTrue(S.is_due(date(2026,11,9),path))
 
     def test_independent_official_indices_detect_wrong_spatial_or_temporal_values(self):
         result=S.validate()

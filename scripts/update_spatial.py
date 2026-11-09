@@ -27,6 +27,7 @@ BASE = 'https://psl.noaa.gov/thredds/dodsC/Datasets/noaa.oisst.v2.highres/'
 WEEKLY = BASE + 'sst.week.mean.nc'
 CLIM = BASE + 'sst.day.mean.ltm.1991-2020.nc'
 VERSION = 1
+WEEKS = 53  # one full year back plus the latest complete week
 LAT = np.arange(-29.875, 30, 1, dtype=np.float64)
 LON = np.arange(.125, 360, 1, dtype=np.float64)
 PACIFIC = (LON >= 120) & (LON < 290)
@@ -107,7 +108,7 @@ def build(raw, metadata):
         dates = [date.fromisoformat(str(v)) for v in a['starts']]
         if not np.array_equal(a['lat'], LAT) or not np.array_equal(a['lon'], LON):
             raise ValueError('Coordenadas inesperadas')
-        if not 1 <= len(dates) <= 13 or sst.shape != (len(dates), 60, 360) or clim.shape != sst.shape or scale.shape != (60, 360):
+        if not 1 <= len(dates) <= WEEKS or sst.shape != (len(dates), 60, 360) or clim.shape != sst.shape or scale.shape != (60, 360):
             raise ValueError('Dimensiones espaciales invalidas')
         if any(d.weekday() != 6 for d in dates) or any((b-a).days != 7 for a,b in zip(dates,dates[1:])):
             raise ValueError('Semanas incompletas o fuera de orden')
@@ -175,11 +176,11 @@ def fetch_inputs():
         # Require complete Sunday-Saturday weeks, even if a partial week appears upstream.
         valid = [i for i,t in enumerate(dates) if t+timedelta(days=6) < date.today()]
         last = valid[-1]
-        starts = dates[last-12:last+1]
+        starts = dates[last-WEEKS+1:last+1]
         if (date.today()-starts[-1]).days > 28:
             raise ValueError('La fuente espacial tiene mas de 28 dias de rezago')
-        print('Descargando 13 semanas OISST...', flush=True)
-        sst = np.ma.filled(d.variables['sst'][last-12:last+1,240:480:4,::4],np.nan)
+        print(f'Descargando {len(starts)} semanas OISST...', flush=True)
+        sst = np.ma.filled(d.variables['sst'][last-len(starts)+1:last+1,240:480:4,::4],np.nan)
         ref_cache = CACHE / 'reference-v1.npz'
         if RAW.exists() and META.exists() and '--rebuild-reference' not in sys.argv:
             previous=json.loads(META.read_text(encoding='utf-8'))
@@ -258,12 +259,13 @@ def expected_center(today):
 
 
 def is_due(today, path=OUTPUT):
-    """True unless the published map already holds the latest complete week."""
+    """True unless the published map already holds the full history up to the latest complete week."""
     try:
-        latest = date.fromisoformat(json.loads(path.read_text(encoding='utf-8'))['frames'][-1]['center'])
+        frames = json.loads(path.read_text(encoding='utf-8'))['frames']
+        latest = date.fromisoformat(frames[-1]['center'])
     except (OSError, UnicodeError, ValueError, KeyError, IndexError, TypeError):
         return True
-    return latest < expected_center(today)
+    return len(frames) < WEEKS or latest < expected_center(today)
 
 
 def main():

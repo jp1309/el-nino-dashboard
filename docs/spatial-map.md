@@ -28,13 +28,13 @@ La escala de color es fija para comparar semanas. La anomalía y la anomalía re
 
 ## Archivos y actualización
 
-`scripts/update_spatial.py` conserva los extractos numéricos muestreados de las últimas 13 semanas, sus climatologías semanales y los coeficientes y desviaciones de referencia en `data/raw/spatial.npz`. No es el NetCDF completo; es un extracto reproducible, identificado por las URLs, coordenadas, paso de muestreo, algoritmo y huellas de la referencia en `spatial_metadata.json`.
+`scripts/update_spatial.py` conserva los extractos numéricos muestreados de las últimas 53 semanas (un año completo más la semana más reciente), sus climatologías semanales y los coeficientes y desviaciones de referencia en `data/raw/spatial.npz`. No es el NetCDF completo; es un extracto reproducible, identificado por las URLs, coordenadas, paso de muestreo, algoritmo y huellas de la referencia en `spatial_metadata.json`.
 
 El JSON para el navegador almacena centésimas de °C como enteros y `null` para ausencia de datos. Su error de cuantización es como máximo 0,005 °C. Los datos y coordenadas quedan asociados a la misma edición mediante SHA-256. Un error del mapa deja visible un mensaje local sin sustituir los demás indicadores.
 
 La climatología completa muestreada se descarga en bloques acotados y se guarda en `.cache/spatial/`; GitHub Actions reutiliza ese archivo. La referencia de variabilidad se conserva en el extracto publicado, por lo que no se descargan 30 años en cada ejecución. Para recalibrar explícitamente existe `--rebuild-reference`. El código y los metadatos deben revisarse si cambia la referencia.
 
-La actualización del mapa usa los horarios ya existentes del proyecto. Se comprueba independientemente de si las tablas CPC tienen períodos pendientes. Con `--if-due` (el modo del flujo automático) solo se consulta NOAA PSL cuando el mapa publicado no tiene la última semana domingo–sábado completa; así se evitan consultas innecesarias a un servidor que limita solicitudes (HTTP 429). Cada descarga vuelve a traer las últimas 13 semanas, de modo que las revisiones recientes se incorporan, como tarde, con la semana siguiente. Una respuesta más antigua, incompleta o inválida no sustituye los datos publicados. Los fallos de red conservan la última edición validada, con su fecha y advertencia visual de rezago después de 14 días.
+La actualización del mapa usa los horarios ya existentes del proyecto. Se comprueba independientemente de si las tablas CPC tienen períodos pendientes. Con `--if-due` (el modo del flujo automático) solo se consulta NOAA PSL cuando el mapa publicado no tiene la última semana domingo–sábado completa o tiene menos de 53 semanas; así se evitan consultas innecesarias a un servidor que limita solicitudes (HTTP 429). Cada descarga vuelve a traer las últimas 53 semanas, de modo que las revisiones recientes se incorporan, como tarde, con la semana siguiente. Una respuesta más antigua, incompleta o inválida no sustituye los datos publicados. Los fallos de red conservan la última edición validada, con su fecha y advertencia visual de rezago después de 14 días.
 
 ## Validación inicial · 6 de septiembre de 2026
 

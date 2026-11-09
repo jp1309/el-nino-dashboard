@@ -543,6 +543,7 @@ input[type="checkbox"] { accent-color: #167b96; width: 16px; height: 16px; }
 .ocean-ticks { display:flex; justify-content:space-between; padding:0 12px; margin-top:-8px; pointer-events:none; }
 .ocean-ticks i { height:5px; width:2px; background:#bdcfd7; }
 .ocean-ticks i.elapsed { background:#167b96; }
+.ocean-ticks i.month { height:9px; }
 .ocean-timeline-dates { display:flex; justify-content:space-between; color:#526873; font-size:.7rem; margin-top:6px; }
 #oceanTimelineHint { margin:10px 0 0; font-size:.73rem; color:#526873; }
 .ocean-regional { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:10px 0 20px; }
