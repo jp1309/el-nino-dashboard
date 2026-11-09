@@ -3,6 +3,7 @@ import json
 import tempfile
 import unittest
 import zipfile
+from unittest import mock
 from datetime import date
 from pathlib import Path
 
@@ -86,6 +87,66 @@ class SpatialTests(unittest.TestCase):
             # A shorter history is completed even when the latest week is present.
             path.write_text(json.dumps({'frames':year('2026-11-04')[-13:]}),encoding='utf-8')
             self.assertTrue(S.is_due(date(2026,11,9),path))
+
+    def test_fileserver_reader_masks_and_decodes_exactly_like_netcdf4(self):
+        import h5py
+        from netCDF4 import Dataset
+        values=np.array([[25.5,-9.96921e36,46.0],[-4.0,28.25,9.96921e36]],dtype=np.float32)
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp)/'sst.nc'
+            with Dataset(path,'w') as d:
+                d.createDimension('y',2);d.createDimension('x',3)
+                v=d.createVariable('sst','f4',('y','x'),fill_value=False)
+                v.missing_value=np.float32(-9.96921e36);v.valid_range=np.array([-3,45],dtype=np.float32)
+                v.set_auto_maskandscale(False);v[:]=values
+            for key in (np.s_[:], np.s_[:,::2]):
+                with Dataset(path) as d: expected=d.variables['sst'][key]
+                with h5py.File(path,'r') as f: actual=S.H5Variable(f['sst'])[key]
+                np.testing.assert_array_equal(actual.mask,expected.mask)
+                np.testing.assert_array_equal(actual.filled(np.nan),expected.filled(np.nan))
+        # Strided read: 46 °C and -4 °C fall outside valid_range; the default netCDF fill is masked too.
+        np.testing.assert_array_equal(actual.mask,[[False,True],[True,True]])
+
+    def test_opendap_refusal_falls_back_to_fileserver_but_data_errors_do_not(self):
+        calls=[]
+        def fake(opener):
+            calls.append(opener)
+            if opener is S.opendap_dataset: raise OSError('NetCDF: Access failure (429)')
+            return 'leido por fileServer'
+        with mock.patch.object(S,'_fetch_inputs',fake):
+            self.assertEqual(S.fetch_inputs(),'leido por fileServer')
+        self.assertEqual(calls,[S.opendap_dataset,S.FileServerDataset])
+        def invalid(opener): raise ValueError('La cuadrícula NOAA ha cambiado')
+        with mock.patch.object(S,'_fetch_inputs',invalid):
+            with self.assertRaisesRegex(ValueError,'cuadrícula'): S.fetch_inputs()
+
+    def test_range_reader_backs_off_on_rate_limit_and_reads_exact_bytes(self):
+        import urllib.error
+        payload=bytes(range(256))*40
+        class Response:
+            status=206
+            def __init__(self,start,end): self.data=payload[start:end+1];self.headers={'Content-Range':f'bytes {start}-{end}/{len(payload)}'}
+            def read(self): return self.data
+            def __enter__(self): return self
+            def __exit__(self,*a): return False
+        refusals=[urllib.error.HTTPError('u',429,'Too Many Requests',{},None) for _ in range(2)]
+        def urlopen(request,timeout):
+            if refusals: raise refusals.pop()
+            start,end=map(int,request.get_header('Range').split('=')[1].split('-'))
+            return Response(start,end)
+        sleeps=[]
+        with mock.patch('urllib.request.urlopen',urlopen), mock.patch.object(S.time,'sleep',sleeps.append):
+            f=S.RangeFile('https://psl.noaa.gov/thredds/fileServer/x.nc',block=1024)
+            self.assertEqual(sleeps,[15,30])
+            self.assertEqual(f.size,len(payload))
+            reader=io.BufferedReader(f,buffer_size=512)
+            reader.seek(1000);self.assertEqual(reader.read(100),payload[1000:1100])
+            reader.seek(0);self.assertEqual(reader.read(),payload)
+
+    def test_fileserver_reads_the_same_psl_files_only(self):
+        self.assertEqual(S.FILESERVER+S.WEEKLY[len(S.DODS):],
+                         'https://psl.noaa.gov/thredds/fileServer/Datasets/noaa.oisst.v2.highres/sst.week.mean.nc')
+        with self.assertRaisesRegex(ValueError,'PSL'): S.FileServerDataset('https://example.com/sst.nc')
 
     def test_independent_official_indices_detect_wrong_spatial_or_temporal_values(self):
         result=S.validate()
