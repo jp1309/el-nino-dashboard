@@ -19,7 +19,14 @@ test('geographic lookup preserves the Pacific date line and grid row orientation
 });
 test('color scale stays fixed across weeks, handles missing values and absolute temperature',()=>{
   assert.notEqual(M.color(-2,'relative'),M.color(2,'relative'));
-  assert.equal(M.color(5,'relative'),M.color(8,'relative'));
+  // Warm anomalies keep a distinct step per degree up to +6 °C, then saturate.
+  const warm=[2.5,3.5,4.5,5.5,6.5].map(v=>M.color(v,'anom'));
+  assert.equal(new Set(warm).size,warm.length);
+  assert.equal(M.color(6,'relative'),M.color(9,'relative'));
+  assert.equal(M.color(-3.5,'anom'),M.color(-6,'anom'));
+  // Absolute temperature keeps its own fixed scale.
+  assert.equal(M.color(31,'sst'),'#f34d12');
+  assert.equal(M.color(33,'sst'),'#98070d');
   assert.notEqual(M.color(25,'sst'),M.color(25,'relative'));
   assert.equal(M.color(NaN), '#e7edef');
 });

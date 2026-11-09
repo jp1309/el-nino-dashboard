@@ -24,8 +24,12 @@ const OceanMap = (() => {
     {key:'nino3',name:'Niño 3',box:[210,270,-5,5]},
     {key:'nino12',name:'Niño 1+2',box:[270,280,-10,0]},
   ];
-  const colors = ['#145eb0','#297fd2','#60ace2','#a4d7ef','#e6f5f6','#fff8b0','#ffcf61','#ff942b','#f34d12','#d32012','#98070d'];
-  const bounds = [-3,-2,-1,-.5,0,.5,1,2,3];
+  // Anomalies: the warm arm continues to +6 °C (wine, then purple, always darker),
+  // because in 2026 more than a tenth of the map exceeded +3 °C.
+  const bounds = [-3,-2,-1,-.5,0,.5,1,2,3,4,5,6];
+  const anomalyColors = ['#145eb0','#297fd2','#60ace2','#a4d7ef','#e6f5f6','#fff8b0','#ffcf61','#ff942b','#f34d12','#d32012','#98070d','#6b0a3a','#3d0a47'];
+  const sstBounds = [16,18,20,22,24,26,28,30,32];
+  const sstColors = ['#145eb0','#297fd2','#60ace2','#a4d7ef','#e6f5f6','#fff8b0','#ffcf61','#ff942b','#f34d12','#98070d'];
   let data=null,land=null,lang='es',index=0,metric='relative',timer=null,geometry=null,loaded=false,requested=null;
   let playbackMs=1200;
   const $ = (id) => document.getElementById(id);
@@ -36,9 +40,9 @@ const OceanMap = (() => {
 
   function color(value,measure=metric) {
     if (!Number.isFinite(value)) return '#e7edef';
-    const limits = measure==='sst' ? [16,18,20,22,24,26,28,30,32] : bounds;
+    const [limits,palette] = measure==='sst' ? [sstBounds,sstColors] : [bounds,anomalyColors];
     const bin = limits.findIndex((limit)=>value<limit);
-    return colors[bin<0?colors.length-1:bin];
+    return palette[bin<0?palette.length-1:bin];
   }
 
   function validate(payload) {
@@ -133,7 +137,10 @@ const OceanMap = (() => {
     if($('oceanZones').checked) {
       ctx.font=`600 ${small?9:11}px "DM Sans",sans-serif`;ctx.textAlign='center';
       zones.forEach((zone,i)=>{
-        const [a,b,c,d]=zone.box;ctx.strokeStyle='#183847';ctx.lineWidth=1.2;ctx.setLineDash([4,3]);
+        const [a,b,c,d]=zone.box;
+        // A light halo keeps the dashed outline visible over the darkest warm colors.
+        ctx.strokeStyle='rgba(255,255,255,.75)';ctx.lineWidth=3;ctx.strokeRect(x(a),y(d),x(b)-x(a),y(c)-y(d));
+        ctx.strokeStyle='#183847';ctx.lineWidth=1.2;ctx.setLineDash([4,3]);
         ctx.strokeRect(x(a),y(d),x(b)-x(a),y(c)-y(d));ctx.setLineDash([]);
         const xx=x((a+b)/2),yy=y(i===3?-13:i===1?-8:8),label=zone.name;
         const tw=ctx.measureText(label).width;ctx.fillStyle='rgba(255,255,255,.9)';ctx.fillRect(xx-tw/2-4,yy-10,tw+8,15);
@@ -170,8 +177,9 @@ const OceanMap = (() => {
     $('oceanPlay').disabled=data.frames.length<2;
     playbackState();
     $('oceanReading').textContent=tr('hover');
-    const limits=metric==='sst'?[16,18,20,22,24,26,28,30,32]:bounds;
-    $('oceanLegend').innerHTML=`<span>${choose('Escala fija','Fixed scale')} · °C</span><div class="ocean-colorbar">${limits.concat(Infinity).map((v,i)=>`<i style="background:${color(i===0?limits[0]-1:i===limits.length?limits.at(-1)+1:(limits[i-1]+v)/2)}"></i>`).join('')}</div><div class="ocean-legend-labels">${limits.map(v=>`<span>${number(v)}</span>`).join('')}</div>`;
+    const limits=metric==='sst'?sstBounds:bounds;
+    // Each label sits exactly on the boundary between two color boxes.
+    $('oceanLegend').innerHTML=`<span>${choose('Escala fija','Fixed scale')} · °C</span><div class="ocean-colorbar">${limits.concat(Infinity).map((v,i)=>`<i style="background:${color(i===0?limits[0]-1:i===limits.length?limits.at(-1)+1:(limits[i-1]+v)/2)}"></i>`).join('')}</div><div class="ocean-legend-labels">${limits.map((v,i)=>`<span${Math.abs(v)===.5?' class="minor"':''} style="left:${((i+1)/(limits.length+1)*100).toFixed(3)}%">${Number.isInteger(v)?new Intl.NumberFormat(lang==='en'?'en-US':'es-EC').format(v):number(v)}</span>`).join('')}</div>`;
     $('oceanExplanation').textContent=metric==='sst'?choose('Temperatura superficial del mar. El ciclo estacional influye en sus valores.','Sea surface temperature. Values include the seasonal cycle.'):metric==='anom'?choose('Diferencia respecto del promedio local 1991–2020 para la misma semana.','Difference from the local 1991–2020 average for the same week.'):choose('Anomalía local menos el calentamiento medio tropical, ajustada por la variabilidad de cada celda. Reconstrucción propia con referencia 1991–2020; puede diferir del mapa operativo de CPC.','Local anomaly minus tropical mean warming, scaled by each cell’s variability. Independent reconstruction with a 1991–2020 reference; may differ from CPC’s operational map.');
     $('oceanRegional').innerHTML=zones.map(z=>`<div><span>${z.name}</span><strong>${number(frame.regions[z.key][metric],metric!=='sst')} <small>°C</small></strong></div>`).join('');
     $('oceanMethod').textContent=choose(

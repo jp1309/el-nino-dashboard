@@ -24,6 +24,8 @@ Para cada celda:
 
 La media regional de un mapa relativo reescalado por celda puede diferir de un índice calculado primero sobre toda la región y luego reescalado. También influyen el muestreo y las revisiones. Los valores oficiales CPC permanecen en los indicadores originales. Las tarjetas del mapa están identificadas como promedios de la malla de elaboración propia.
 
+La escala de color es fija para comparar semanas. La anomalía y la anomalía relativa usan cortes en −3, −2, −1, −0,5, 0, 0,5, 1, 2, 3, 4, 5 y 6 °C: el lado cálido continúa hasta +6 °C (rojo oscuro, vino y morado, siempre más oscuro) porque en la semana del 4 de noviembre de 2026 el 11 % de las celdas superó +3 °C de anomalía. Por encima de +6 °C y por debajo de −3 °C el color se satura. La temperatura absoluta usa cortes cada 2 °C entre 16 y 32 °C.
+
 ## Archivos y actualización
 
 `scripts/update_spatial.py` conserva los extractos numéricos muestreados de las últimas 13 semanas, sus climatologías semanales y los coeficientes y desviaciones de referencia en `data/raw/spatial.npz`. No es el NetCDF completo; es un extracto reproducible, identificado por las URLs, coordenadas, paso de muestreo, algoritmo y huellas de la referencia en `spatial_metadata.json`.

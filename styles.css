@@ -516,7 +516,9 @@ input[type="checkbox"] { accent-color: #167b96; width: 16px; height: 16px; }
 .ocean-legend { max-width:650px; margin:7px auto 0; text-align:center; font-size:.73rem; color:#385363; }
 .ocean-colorbar { display:flex; height:13px; margin-top:9px; border-radius:3px; overflow:hidden; }
 .ocean-colorbar i { flex:1; }
-.ocean-legend-labels { display:flex; justify-content:space-between; padding:3px 8.5% 0; font-variant-numeric:tabular-nums; }
+.ocean-legend-labels { position:relative; height:1.4em; margin-top:3px; font-variant-numeric:tabular-nums; }
+.ocean-legend-labels span { position:absolute; top:0; transform:translateX(-50%); white-space:nowrap; }
+@media (max-width:640px) { .ocean-legend-labels .minor { display:none; } }
 .ocean-reading { min-height:1.5em; color:#385363; font-size:.8rem; text-align:center; margin:16px 0; font-variant-numeric:tabular-nums; }
 .ocean-playback { margin-top:16px; padding:16px 20px; background:#f2f8fa; border:1px solid #d4e4ea; border-radius:8px; }
 .ocean-timeline-heading { display:flex; justify-content:space-between; align-items:center; gap:12px; color:#194356; font-variant-numeric:tabular-nums; }
