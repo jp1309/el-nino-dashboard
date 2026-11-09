@@ -11,6 +11,7 @@ import hashlib
 import io
 import json
 import sys
+import time
 import warnings
 import zipfile
 from datetime import date, timedelta
@@ -23,7 +24,9 @@ RAW = ROOT / 'data/raw/spatial.npz'
 META = ROOT / 'data/raw/spatial_metadata.json'
 OUTPUT = ROOT / 'data/spatial.json'
 CACHE = ROOT / '.cache/spatial'
-BASE = 'https://psl.noaa.gov/thredds/dodsC/Datasets/noaa.oisst.v2.highres/'
+DODS = 'https://psl.noaa.gov/thredds/dodsC/'
+FILESERVER = 'https://psl.noaa.gov/thredds/fileServer/'
+BASE = DODS + 'Datasets/noaa.oisst.v2.highres/'
 WEEKLY = BASE + 'sst.week.mean.nc'
 CLIM = BASE + 'sst.day.mean.ltm.1991-2020.nc'
 VERSION = 1
@@ -141,8 +144,130 @@ def build(raw, metadata):
                 'raw_sha256': digest(raw), 'sources': metadata, 'frames': frames}
 
 
+class RangeFile(io.RawIOBase):
+    """Read-only file over HTTP byte ranges; small reads share a bounded block cache."""
+
+    def __init__(self, url, block=2**20):
+        self.url, self.block, self.pos, self.cache = url, block, 0, {}
+        # PSL's fileServer reports a wrong length to HEAD; a one-byte range gives the real size.
+        self.size = int(self._get(0, 0)[1].split('/')[-1])
+
+    def _get(self, start, end):
+        import urllib.request
+        for attempt in range(5):
+            try:
+                request = urllib.request.Request(self.url, headers={
+                    'Range': f'bytes={start}-{end}',
+                    'User-Agent': 'el-nino-dashboard/1.0 (+https://github.com/jp1309/el-nino-dashboard)'})
+                with urllib.request.urlopen(request, timeout=120) as response:
+                    if response.status != 206:
+                        raise OSError(f'Respuesta sin rango ({response.status}) en {self.url}')
+                    return response.read(), response.headers['Content-Range']
+            except OSError as exc:
+                if attempt == 4:
+                    raise
+                # HTTP 429 is PSL asking clients to slow down: wait far longer than for a network blip.
+                time.sleep(15 * (attempt + 1) if getattr(exc, 'code', None) == 429 else 2 ** attempt)
+
+    def readable(self):
+        return True
+
+    def seekable(self):
+        return True
+
+    def tell(self):
+        return self.pos
+
+    def seek(self, offset, whence=0):
+        self.pos = offset if whence == 0 else self.pos + offset if whence == 1 else self.size + offset
+        return self.pos
+
+    def readinto(self, buffer):
+        n = min(len(buffer), self.size - self.pos)
+        if n <= 0:
+            return 0
+        start, end = self.pos, self.pos + n
+        if n > self.block:  # a data chunk: fetch it directly and keep memory flat
+            data = self._get(start, end - 1)[0]
+        else:
+            data = bytearray()
+            for k in range(start // self.block, (end - 1) // self.block + 1):
+                if k not in self.cache:
+                    if len(self.cache) > 64:
+                        self.cache.pop(next(iter(self.cache)))
+                    self.cache[k] = self._get(k * self.block, min(self.size, (k + 1) * self.block) - 1)[0]
+                data += self.cache[k]
+            offset = start - (start // self.block) * self.block
+            data = data[offset:offset + n]
+        buffer[:n] = data
+        self.pos += n
+        return n
+
+
+class H5Variable:
+    """netCDF4-style access to an HDF5 dataset: attributes, masking and unpacking."""
+
+    def __init__(self, dataset):
+        self.dataset = dataset
+        self.attrs = {k: v.decode() if isinstance(v, bytes) else v for k, v in dataset.attrs.items()}
+
+    def __getattr__(self, name):
+        try:
+            return self.attrs[name]
+        except KeyError as exc:
+            raise AttributeError(name) from exc
+
+    def __getitem__(self, key):
+        raw = np.asarray(self.dataset[key])
+        mask = np.zeros(raw.shape, dtype=bool)
+        if raw.dtype.kind == 'f':
+            # Same rules netCDF4 applies by default: missing/fill values, then the valid range.
+            fills = [self.attrs[a] for a in ('missing_value', '_FillValue') if a in self.attrs]
+            if '_FillValue' not in self.attrs:
+                fills.append(np.float32(9.9692099683868690e+36) if raw.dtype == np.float32 else 9.9692099683868690e+36)
+            mask |= np.isin(raw, np.concatenate([np.ravel(f) for f in fills]).astype(raw.dtype))
+            low, high = np.ravel(self.attrs.get('valid_range', [self.attrs.get('valid_min', -np.inf), self.attrs.get('valid_max', np.inf)]))[:2]
+            mask |= (raw < low) | (raw > high)
+        if 'scale_factor' in self.attrs or 'add_offset' in self.attrs:
+            raw = raw * self.attrs.get('scale_factor', 1) + self.attrs.get('add_offset', 0)
+        return np.ma.masked_array(raw, mask=mask)
+
+
+class FileServerDataset:
+    """Open a PSL OPeNDAP URL through thredds/fileServer, reading only the chunks needed."""
+
+    def __init__(self, url):
+        import h5py
+        if not url.startswith(DODS):
+            raise ValueError(f'URL fuera de PSL THREDDS: {url}')
+        self.http = RangeFile(FILESERVER + url[len(DODS):])
+        self.file = h5py.File(io.BufferedReader(self.http, buffer_size=2**20), 'r')
+        self.variables = {name: H5Variable(self.file[name]) for name in ('time', 'lat', 'lon', 'sst')}
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.file.close()
+
+
+def opendap_dataset(url):
+    from netCDF4 import Dataset
+    return Dataset(url)
+
+
 def fetch_inputs():
-    from netCDF4 import Dataset, num2date
+    """OPeNDAP transfers only the sampled grid; when PSL refuses it (HTTP 429 has
+    happened for days at a time), the same files are read by byte ranges instead."""
+    try:
+        return _fetch_inputs(opendap_dataset)
+    except (OSError, RuntimeError) as exc:  # netCDF4: OSError on open, RuntimeError on reads
+        print(f'OPeNDAP no disponible ({exc}); se leen los mismos archivos por rangos desde fileServer.', flush=True)
+        return _fetch_inputs(FileServerDataset)
+
+
+def _fetch_inputs(open_dataset):
+    from netCDF4 import num2date
     CACHE.mkdir(parents=True, exist_ok=True)
     def blocks(dataset, start, stop, label):
         parts=[]
@@ -157,7 +282,7 @@ def fetch_inputs():
             parts.append(part)
             if (first-start)%120==0: print(f'{label}: {last-start}/{stop-start}',flush=True)
         return np.concatenate(parts)
-    with Dataset(CLIM) as d:
+    with open_dataset(CLIM) as d:
         if d.variables['time'].climo_period != '1991/01/01 - 2020/12/31':
             raise ValueError('Climatologia distinta de 1991-2020')
         cache = CACHE / 'clim-1991-2020.npz'
@@ -168,7 +293,7 @@ def fetch_inputs():
             write(cache, archive(clim=climatology))
         if climatology.shape != (365,60,360):
             raise ValueError('Climatologia incompleta')
-    with Dataset(WEEKLY) as d:
+    with open_dataset(WEEKLY) as d:
         if not np.array_equal(d.variables['lat'][240:480:4],LAT) or not np.array_equal(d.variables['lon'][::4],LON):
             raise ValueError('La cuadrícula NOAA ha cambiado')
         times = d.variables['time']
