@@ -1,8 +1,10 @@
 import io
 import json
+import tempfile
 import unittest
 import zipfile
 from datetime import date
+from pathlib import Path
 
 import numpy as np
 from scripts import update_spatial as S
@@ -58,6 +60,27 @@ class SpatialTests(unittest.TestCase):
         arrays['lat']=arrays['lat'][::-1]
         with self.assertRaisesRegex(ValueError,'Coordenadas'):
             S.build(S.archive(**arrays),meta)
+
+    def test_expected_week_requires_a_complete_sunday_to_saturday_week(self):
+        # 2026-11-01 (Sunday) to 2026-11-07 (Saturday), centered on 2026-11-04.
+        self.assertEqual(S.expected_center(date(2026,11,7)),date(2026,10,28))
+        self.assertEqual(S.expected_center(date(2026,11,8)),date(2026,11,4))
+        self.assertEqual(S.expected_center(date(2026,11,9)),date(2026,11,4))
+        self.assertEqual(S.expected_center(date(2026,11,14)),date(2026,11,4))
+        self.assertEqual(S.expected_center(date(2027,1,3)),date(2026,12,30))
+
+    def test_if_due_skips_download_only_when_map_holds_latest_week(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp)/'spatial.json'
+            self.assertTrue(S.is_due(date(2026,11,9),path))
+            path.write_text('{"frames": []}',encoding='utf-8')
+            self.assertTrue(S.is_due(date(2026,11,9),path))
+            path.write_text(json.dumps({'frames':[{'center':'2026-10-28'}]}),encoding='utf-8')
+            self.assertTrue(S.is_due(date(2026,11,9),path))
+            self.assertFalse(S.is_due(date(2026,11,7),path))
+            path.write_text(json.dumps({'frames':[{'center':'2026-11-04'}]}),encoding='utf-8')
+            self.assertFalse(S.is_due(date(2026,11,9),path))
+            self.assertTrue(S.is_due(date(2026,11,15),path))
 
     def test_independent_official_indices_detect_wrong_spatial_or_temporal_values(self):
         result=S.validate()
