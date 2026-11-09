@@ -64,7 +64,7 @@ Después del despliegue, `scripts/verify_publication.py` descarga del sitio púb
 
 ## Actualización automática
 
-Se mantienen los intentos cada hora los **lunes y martes, de 08:00 a 22:00, America/New_York**. Se añade una comprobación los **jueves a las 15:00** para la publicación mensual del pronóstico del segundo jueves. La zona horaria ajusta el horario estacional.
+Se intenta dos veces por hora (minutos 17 y 47) los **lunes, martes y miércoles, de 08:00 a 22:00, America/New_York**. Se evita el minuto 0 porque GitHub retrasa o descarta ejecuciones programadas en esa franja de alta carga; el miércoles cubre feriados de NOAA y ejecuciones descartadas. Los **jueves** se comprueba cada dos horas, de 10:23 a 20:23, la publicación mensual del pronóstico del segundo jueves. La zona horaria ajusta el horario estacional. Si el tablero no se actualiza, puede lanzarse manualmente desde *Actions → Actualizar NOAA y publicar dashboard → Run workflow*.
 
 `check_pending.py` comprueba las dos series semanales y también la temporada mensual esperada de RONI a partir del día 5. El pronóstico se consulta cuando falta la edición mensual esperada. Si una descarga falla, el flujo emite una advertencia, conserva la última edición validada y permite actualizar la otra fuente. Si la reconstrucción de los datos falla, se bloquea la publicación. Las ejecuciones programadas solo despliegan cuando los datos cambian; los cambios en `main` y las ejecuciones manuales también publican el sitio.
 

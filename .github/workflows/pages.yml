@@ -4,14 +4,14 @@ on:
   push:
     branches: [main]
   schedule:
-    # Intentos cada hora desde las 08:00 hasta las 22:00 en hora del Este.
+    # Dos intentos por hora (minutos 17 y 47) de 08:00 a 22:00, hora del Este,
+    # de lunes a miercoles. GitHub retrasa o descarta ejecuciones programadas
+    # en el minuto 0 por alta carga; el miercoles cubre feriados y descartes.
     # America/New_York ajusta automaticamente el horario estacional.
-    - cron: "0 8-22 * * 1"
+    - cron: "17,47 8-22 * * 1-3"
       timezone: "America/New_York"
-    - cron: "0 8-22 * * 2"
-      timezone: "America/New_York"
-    # Comprobar tambien la edicion mensual del pronostico (segundo jueves).
-    - cron: "0 15 * * 4"
+    # Edicion mensual del pronostico (segundo jueves): varios intentos.
+    - cron: "23 10-20/2 * * 4"
       timezone: "America/New_York"
   workflow_dispatch:
 
