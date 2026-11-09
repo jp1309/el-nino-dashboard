@@ -251,7 +251,26 @@ def compare_cpc(result):
     return report
 
 
+def expected_center(today):
+    """Center (Wednesday) of the latest complete Sunday-Saturday week before today."""
+    saturday = today - timedelta(days=(today.weekday() - 5) % 7 or 7)
+    return saturday - timedelta(days=3)
+
+
+def is_due(today, path=OUTPUT):
+    """True unless the published map already holds the latest complete week."""
+    try:
+        latest = date.fromisoformat(json.loads(path.read_text(encoding='utf-8'))['frames'][-1]['center'])
+    except (OSError, UnicodeError, ValueError, KeyError, IndexError, TypeError):
+        return True
+    return latest < expected_center(today)
+
+
 def main():
+    if '--if-due' in sys.argv and not is_due(date.today()):
+        # Avoid querying PSL THREDDS (rate-limited, HTTP 429) when nothing new can exist.
+        print(f'Mapa ya actualizado: ultima semana {expected_center(date.today()).isoformat()}')
+        return
     if '--validate' in sys.argv:
         result = validate()
     else:

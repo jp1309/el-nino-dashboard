@@ -74,7 +74,7 @@ jobs:
         id: mapa
         continue-on-error: true
         timeout-minutes: 10
-        run: python scripts/update_spatial.py
+        run: python scripts/update_spatial.py --if-due
 
       - name: Actualizar pronostico mensual NOAA
         id: pronostico
