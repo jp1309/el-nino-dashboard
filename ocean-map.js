@@ -4,7 +4,7 @@ const OceanMap = (() => {
   const copy = {
     kicker: ['GEOGRAFÍA DEL CALENTAMIENTO', 'GEOGRAPHY OF WARMING'],
     title: ['El Pacífico, semana a semana', 'The Pacific, week by week'],
-    intro: ['Explora la extensión de las anomalías y su evolución en las últimas 13 semanas.', 'Explore the extent of anomalies and their evolution over the last 13 weeks.'],
+    intro: ['Explora la extensión de las anomalías y su evolución durante el último año.', 'Explore the extent of anomalies and their evolution over the past year.'],
     measure: ['Medida', 'Measure'], relative: ['Anomalía relativa · cálculo propio', 'Relative anomaly · own calculation'],
     anom: ['Anomalía convencional', 'Conventional anomaly'], sst: ['Temperatura del mar', 'Sea temperature'],
     week: ['Semana centrada en', 'Week centered on'], zones: ['Zonas Niño', 'Niño regions'],
@@ -49,7 +49,7 @@ const OceanMap = (() => {
     const grid=payload.grid;
     if (payload.schema!==1 || payload.encoding_scale!==.01 || payload.baseline!=='1991-2020' ||
         !grid || grid.rows!==60 || grid.cols!==170 || grid.step!==1 || grid.lat0!==-29.875 || grid.lon0!==120.125 ||
-        !Array.isArray(payload.frames) || !payload.frames.length || payload.frames.length>13) throw new Error('Invalid spatial dataset');
+        !Array.isArray(payload.frames) || !payload.frames.length || payload.frames.length>53) throw new Error('Invalid spatial dataset');
     let previous=null;
     payload.frames.forEach((frame)=>{
       const center = Date.parse(frame.center+'T00:00:00Z');
@@ -167,7 +167,8 @@ const OceanMap = (() => {
     $('oceanTimeline').disabled=data.frames.length<2;
     $('oceanSelectedDate').textContent=dateText(frame.center);
     $('oceanPosition').textContent=choose(`Semana ${index+1} de ${data.frames.length}`,`Week ${index+1} of ${data.frames.length}`);
-    $('oceanTicks').innerHTML=data.frames.map((_,i)=>`<i class="${i<=index?'elapsed':''}"></i>`).join('');
+    // A taller tick marks the first week of each month, so a year-long slider stays navigable.
+    $('oceanTicks').innerHTML=data.frames.map((f,i)=>`<i class="${[i<=index?'elapsed':'',i>0&&f.center.slice(0,7)!==data.frames[i-1].center.slice(0,7)?'month':''].join(' ').trim()}"></i>`).join('');
     $('oceanPeriod').textContent=`${dateText(frame.start)} — ${dateText(frame.end)} · ${choose('promedio de 7 días','7-day average')}`;
     $('oceanFirst').textContent=dateText(data.frames[0].center);$('oceanLast').textContent=dateText(last.center);
     const age=Math.floor((Date.now()-Date.parse(last.center+'T00:00:00Z'))/86400000);
