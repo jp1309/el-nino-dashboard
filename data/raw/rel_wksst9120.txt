@@ -2359,3 +2359,4 @@ Weekly Relative SST data starts week centered on 9Sept1981
  21OCT2026         4.4        3.6        2.5        0.0
  28OCT2026         4.6        3.7        2.5        0.2
  04NOV2026         4.7        3.5        2.3        0.2
+ 11NOV2026         4.6        3.4        2.2        0.0
