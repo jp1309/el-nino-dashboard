@@ -3,7 +3,7 @@
     "relative_weekly": {
       "url": "https://www.cpc.ncep.noaa.gov/data/indices/rel_wksst9120.txt",
       "file": "data/raw/rel_wksst9120.txt",
-      "sha256": "6fef44a6d7ecb3ad2f94e0a88b437649f8728edaddf5576521bf944814f37a0b",
+      "sha256": "a8ce2ec7ad98bf140476b74e12f51fb0cc789e347dffdea1f4e13792a59abdf1",
       "bytes": 132277,
       "records": 2359,
       "first_observation": "1981-09-09",
@@ -12,7 +12,7 @@
     "absolute_weekly": {
       "url": "https://www.cpc.ncep.noaa.gov/data/indices/wksst9120.for",
       "file": "data/raw/wksst9120.for",
-      "sha256": "2634218dcc7be8923928f53992c424eed393e7986ce6b27e86f610321b5e270a",
+      "sha256": "e560948245ea7705cd30d4ff9f7f594af23812d10d2e0e591a30e5ce8b683322",
       "bytes": 148857,
       "records": 2360,
       "first_observation": "1981-09-02",
